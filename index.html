@@ -1,0 +1,3501 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>RoboKids · Aprende robótica jugando</title>
+<link rel="icon" type="image/png" href="./robot.png">
+
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+<style>
+/* ===========================================================
+   RoboKids · Estilos globales (todo en un solo archivo)
+   =========================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap');
+
+:root{
+  --verde:      #58CC02;
+  --verde-dark: #46A302;
+  --azul:       #1CB0F6;
+  --azul-dark:  #1899D6;
+  --amarillo:   #FFC800;
+  --amarillo-dark:#E5A800;
+  --rojo:       #FF4B4B;
+  --rojo-dark:  #E63E3E;
+  --morado:     #CE82FF;
+  --morado-dark:#B563E0;
+  --naranja:    #FF9600;
+  --gris-100:   #F7F8FA;
+  --gris-200:   #E5E5E5;
+  --gris-400:   #AFAFAF;
+  --gris-700:   #4B4B4B;
+  --texto:      #3C3C3C;
+  --blanco:     #FFFFFF;
+  --radio:      18px;
+}
+
+*{ box-sizing: border-box; margin:0; padding:0; }
+html, body{ height:100%; overflow:hidden; }
+body{ font-family:'Nunito', sans-serif; color:var(--texto); background:var(--gris-100); }
+h1,h2,h3,.titulo{ font-family:'Baloo 2', sans-serif; }
+button{ font-family:inherit; cursor:pointer; border:none; }
+input{ font-family:inherit; }
+
+.pantalla{ width:100vw; height:100vh; display:flex; flex-direction:column; overflow:hidden; }
+
+/* ---------- Botones ---------- */
+.btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:14px 28px; border-radius:16px; font-weight:800; font-size:1.05rem; letter-spacing:.3px; transition:transform .08s ease, filter .15s ease; white-space:nowrap; }
+.btn:active{ transform:translateY(3px); }
+.btn:disabled{ opacity:.45; cursor:not-allowed; }
+.btn-verde{ background:var(--verde); color:#fff; box-shadow:0 4px 0 var(--verde-dark); }
+.btn-verde:hover{ filter:brightness(1.05); }
+.btn-azul{ background:var(--azul); color:#fff; box-shadow:0 4px 0 var(--azul-dark); }
+.btn-amarillo{ background:var(--amarillo); color:#6b4a00; box-shadow:0 4px 0 var(--amarillo-dark); }
+.btn-blanco{ background:#fff; color:var(--azul); border:2px solid var(--gris-200); box-shadow:0 4px 0 var(--gris-200); }
+.btn-ghost{ background:transparent; color:var(--gris-700); font-weight:700; }
+.btn-ancho{ width:100%; }
+.btn-lg{ padding:18px 32px; font-size:1.2rem; border-radius:20px; }
+.btn-icon{ width:52px; height:52px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.4rem; }
+
+::-webkit-scrollbar{ width:8px; }
+::-webkit-scrollbar-thumb{ background:var(--gris-200); border-radius:8px; }
+.oculto{ display:none !important; }
+
+/* ---------- Splash / login ---------- */
+.splash{ background:linear-gradient(160deg, var(--azul) 0%, #4FC3F7 55%, var(--verde) 100%); align-items:center; justify-content:center; position:relative; }
+.splash-blob{ position:absolute; border-radius:50%; opacity:.18; background:#fff; }
+.blob1{ width:260px; height:260px; top:-60px; left:-60px; }
+.blob2{ width:180px; height:180px; bottom:-40px; right:-40px; }
+.blob3{ width:120px; height:120px; bottom:15%; left:8%; }
+.splash-panel{ background:#fff; border-radius:28px; width:min(420px, 90vw); max-height:90vh; padding:36px 32px; box-shadow:0 20px 50px rgba(0,0,0,.2); z-index:2; overflow:auto; }
+.splash-logo{ display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:6px; }
+.splash-logo .emoji{ font-size:2.6rem; }
+.splash-logo h1{ font-size:1.9rem; color:var(--azul-dark); font-weight:800; }
+.splash-sub{ text-align:center; color:var(--gris-700); font-weight:600; margin-bottom:26px; font-size:.98rem; }
+.splash-opciones{ display:flex; flex-direction:column; gap:14px; }
+.campo{ display:flex; flex-direction:column; gap:6px; margin-bottom:14px; }
+.campo label{ font-weight:800; font-size:.85rem; color:var(--gris-700); }
+.campo input, .campo select{ padding:14px 16px; border-radius:14px; border:2px solid var(--gris-200); font-size:1.05rem; font-weight:700; color:var(--texto); outline:none; width:100%; }
+.campo input:focus, .campo select:focus{ border-color:var(--azul); }
+.avatar-grid{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-bottom:6px; }
+.avatar-opcion{ font-size:1.8rem; width:56px; height:56px; border-radius:50%; background:var(--gris-100); border:3px solid transparent; display:flex; align-items:center; justify-content:center; }
+.avatar-opcion.selec{ border-color:var(--verde); background:#eaffdc; }
+.error-msg{ background:#FFEAEA; color:var(--rojo-dark); border-radius:12px; padding:10px 14px; font-weight:700; font-size:.9rem; text-align:center; margin-bottom:10px; }
+.link-cambio{ text-align:center; margin-top:18px; font-weight:700; color:var(--gris-700); font-size:.92rem; }
+.link-cambio a{ color:var(--azul); text-decoration:none; cursor:pointer; }
+
+/* ---------- Dashboard ---------- */
+.topbar{ height:74px; flex-shrink:0; display:flex; align-items:center; justify-content:space-between; padding:0 26px; background:#fff; border-bottom:2px solid var(--gris-200); }
+.topbar-brand{ display:flex; align-items:center; gap:10px; font-weight:800; color:var(--azul-dark); font-size:1.2rem; }
+.topbar-brand .emoji{ font-size:1.6rem; }
+.topbar-user{ display:flex; align-items:center; gap:14px; }
+.racha, .puntos{ display:flex; align-items:center; gap:6px; font-weight:800; font-size:1rem; color:var(--gris-700); background:var(--gris-100); padding:8px 14px; border-radius:14px; }
+.avatar-chip{ width:40px; height:40px; border-radius:50%; background:var(--gris-100); display:flex; align-items:center; justify-content:center; font-size:1.3rem; border:2px solid var(--gris-200); cursor:pointer; color:var(--azul-dark); }
+.avatar-chip svg{ width:20px; height:20px; }
+.ruta-wrap{ flex:1; display:flex; align-items:center; justify-content:center; padding:14px 6vw; overflow:hidden; }
+.ruta{ display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); grid-auto-rows:1fr; gap:18px; width:100%; max-width:1080px; height:100%; max-height:560px; }
+.nodo{ position:relative; border-radius:22px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:14px 10px; color:#fff; text-align:center; transition:transform .12s ease; }
+.nodo:not(.bloqueado):hover{ transform:translateY(-4px); }
+.nodo .num{ position:absolute; top:10px; left:12px; font-size:.75rem; font-weight:800; opacity:.85; }
+.nodo .icono{ font-size:2.3rem; }
+.nodo .nombre{ font-weight:800; font-size:.92rem; line-height:1.15; }
+.nodo .estado{ font-size:.72rem; font-weight:700; opacity:.9; }
+.nodo.disponible{ background:var(--azul); box-shadow:0 5px 0 var(--azul-dark); cursor:pointer; }
+.nodo.completo{ background:var(--verde); box-shadow:0 5px 0 var(--verde-dark); cursor:pointer; }
+.nodo.completo{ background:linear-gradient(150deg, var(--verde) 0%, #16A34A 100%); }
+.nodo .insignia-completo{ position:absolute; top:8px; right:10px; width:18px; height:18px; }
+.nodo.bloqueado{ background:var(--gris-200); color:var(--gris-400); box-shadow:0 5px 0 #d2d2d2; cursor:not-allowed; }
+.nodo.bloqueado .icono{ filter:grayscale(1); opacity:.6; }
+
+/* ---------- Lección ---------- */
+.leccion-top{ height:64px; flex-shrink:0; display:flex; align-items:center; gap:14px; padding:0 22px; background:#fff; border-bottom:2px solid var(--gris-200); }
+.cerrar-btn{ font-size:1.4rem; color:var(--gris-400); background:none; width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; }
+.cerrar-btn:hover{ background:var(--gris-100); }
+.progreso-barra{ flex:1; height:16px; background:var(--gris-200); border-radius:10px; overflow:hidden; }
+.progreso-fill{ height:100%; background:var(--verde); border-radius:10px; transition:width .3s ease; }
+.tabs{ display:flex; gap:8px; flex-shrink:0; padding:14px 22px 0; }
+.tab{ flex:1; padding:10px 8px; text-align:center; border-radius:14px 14px 0 0; font-weight:800; font-size:.9rem; background:var(--gris-200); color:var(--gris-700); }
+.tab.activo{ background:#fff; color:var(--azul-dark); }
+.tab.hecho::after{ content:" ✓"; color:var(--verde-dark); }
+.contenido{ flex:1; background:#fff; overflow:hidden; display:flex; flex-direction:column; padding:26px 6vw; }
+.clase-wrap{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px; overflow:hidden; }
+.clase-card{ width:min(680px, 100%); max-height:100%; overflow:auto; background:var(--gris-100); border-radius:24px; padding:34px 38px; text-align:center; display:flex; flex-direction:column; gap:14px; align-items:center; justify-content:center; }
+.clase-card .emoji-grande{ font-size:3rem; }
+.clase-card h2{ font-size:1.5rem; color:var(--texto); }
+.clase-card p{ font-size:1.08rem; line-height:1.55; color:var(--gris-700); font-weight:600; max-width:56ch; }
+.clase-nav{ display:flex; align-items:center; gap:18px; }
+.puntitos{ display:flex; gap:7px; }
+.punto{ width:9px; height:9px; border-radius:50%; background:var(--gris-200); }
+.punto.activo{ background:var(--azul); width:22px; border-radius:6px; }
+.lab-wrap{ flex:1; display:flex; flex-direction:column; gap:16px; overflow:hidden; }
+.lab-instrucciones{ text-align:center; font-weight:700; color:var(--gris-700); flex-shrink:0; }
+.lab-instrucciones h2{ color:var(--texto); margin-bottom:4px; }
+.lab-area{ flex:1; overflow:auto; display:flex; align-items:center; justify-content:center; }
+.orden-lista{ display:flex; flex-direction:column; gap:10px; width:min(560px,100%); }
+.orden-item{ background:var(--gris-100); border:2px solid var(--gris-200); border-radius:14px; padding:14px 16px; font-weight:700; display:flex; align-items:center; gap:12px; cursor:pointer; user-select:none; }
+.orden-item .badge{ width:28px; height:28px; border-radius:50%; background:#fff; border:2px solid var(--gris-200); display:flex; align-items:center; justify-content:center; font-size:.85rem; font-weight:800; flex-shrink:0; }
+.orden-item.marcado{ border-color:var(--azul); background:#EAF7FF; }
+.orden-item.marcado .badge{ background:var(--azul); color:#fff; border-color:var(--azul); }
+.match-grid{ display:grid; grid-template-columns:1fr 1fr; gap:24px; width:min(680px,100%); }
+.match-col{ display:flex; flex-direction:column; gap:10px; }
+.match-item{ background:var(--gris-100); border:2px solid var(--gris-200); border-radius:14px; padding:14px; font-weight:700; text-align:center; font-size:.95rem; }
+.match-item.sel{ border-color:var(--azul); background:#EAF7FF; }
+.match-item.ok{ border-color:var(--verde); background:#EAFFDC; color:var(--verde-dark); }
+.match-item.mal{ border-color:var(--rojo); background:#FFEAEA; color:var(--rojo-dark); }
+.quiz-wrap{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:24px; overflow:hidden; }
+.quiz-pregunta{ font-size:1.3rem; font-weight:800; text-align:center; max-width:60ch; }
+.quiz-opciones{ display:flex; flex-direction:column; gap:12px; width:min(560px,100%); }
+.quiz-opcion{ background:var(--gris-100); border:2px solid var(--gris-200); border-radius:14px; padding:15px 18px; font-weight:700; text-align:left; font-size:1.02rem; }
+.quiz-opcion:hover{ border-color:var(--azul); }
+.quiz-opcion.correcta{ border-color:var(--verde); background:#EAFFDC; color:var(--verde-dark); }
+.quiz-opcion.incorrecta{ border-color:var(--rojo); background:#FFEAEA; color:var(--rojo-dark); }
+.quiz-opcion:disabled{ cursor:default; }
+.quiz-resultado{ display:flex; flex-direction:column; align-items:center; gap:14px; }
+.quiz-resultado .emoji-grande{ font-size:3.4rem; }
+.quiz-resultado h2{ font-size:1.6rem; }
+.pie-accion{ flex-shrink:0; padding:16px 6vw 22px; display:flex; justify-content:center; background:#fff; border-top:2px solid var(--gris-100); }
+
+/* ---------- Zona de profesor (tema oscuro, distinto a la de los niños) ---------- */
+.profesor-fondo{ background:linear-gradient(160deg,#0F172A 0%,#111827 60%,#1E293B 100%); align-items:center; justify-content:center; }
+.profesor-login-panel{ background:#111827; border-radius:24px; width:min(400px,90vw); padding:34px 32px; box-shadow:0 20px 50px rgba(0,0,0,.45); }
+.profesor-login-panel .campo label{ color:#94A3B8; }
+.profesor-login-panel .campo input{ background:#1E293B; border-color:#334155; color:#E2E8F0; }
+.profesor-tema{ background:#0F172A; color:#E2E8F0; }
+.profesor-top{ height:74px; flex-shrink:0; display:flex; align-items:center; justify-content:space-between; padding:0 26px; background:#111827; border-bottom:2px solid #1E293B; }
+.profesor-brand{ display:flex; align-items:center; gap:10px; font-weight:800; font-size:1.2rem; color:#38BDF8; }
+.profesor-resumen{ display:flex; gap:14px; padding:16px 26px 0; flex-wrap:wrap; flex-shrink:0; }
+.resumen-chip{ background:#111827; border:1px solid #1E293B; border-radius:14px; padding:10px 18px; font-weight:800; color:#38BDF8; font-size:.9rem; display:flex; align-items:center; gap:8px; }
+.profesor-tabla-wrap{ flex:1; overflow:auto; padding:18px 26px 26px; }
+table.tabla-estudiantes{ width:100%; border-collapse:collapse; background:#111827; border-radius:16px; overflow:hidden; }
+.tabla-estudiantes th, .tabla-estudiantes td{ padding:12px 14px; text-align:left; font-size:.87rem; white-space:nowrap; }
+.tabla-estudiantes thead th{ background:#1E293B; color:#94A3B8; font-weight:800; text-transform:uppercase; font-size:.68rem; letter-spacing:.5px; position:sticky; top:0; }
+.tabla-estudiantes tbody tr{ border-bottom:1px solid #1E293B; }
+.tabla-estudiantes tbody tr:hover{ background:#1E293B; }
+.badge-mod{ display:inline-flex; width:26px; height:26px; border-radius:50%; align-items:center; justify-content:center; font-size:.72rem; font-weight:800; margin-right:3px; color:#fff; }
+.badge-mod.completo{ background:#16A34A; }
+.badge-mod.progreso{ background:#CA8A04; }
+.badge-mod.vacio{ background:#1E293B; color:#475569; }
+.profesor-empty{ text-align:center; color:#64748B; padding:60px 20px; font-weight:700; }
+.estudiante-nombre{ display:flex; align-items:center; gap:8px; font-weight:800; }
+
+@media (max-width:760px){
+  .ruta{ grid-template-columns:repeat(2, minmax(0,1fr)); grid-template-rows:repeat(4,1fr); }
+  .match-grid{ grid-template-columns:1fr 1fr; gap:12px; }
+  .contenido{ padding:18px 4vw; }
+  .clase-card{ padding:22px 20px; }
+  .splash-panel{ padding:26px 20px; }
+}
+
+/* ---------- Lección enriquecida: eyebrow, coach, clave, tarjetas/flujo ---------- */
+.eyebrow-pill{ display:inline-block; background:var(--gris-100); color:var(--azul-dark); padding:4px 14px; border-radius:20px; font-size:.7rem; font-weight:800; text-transform:uppercase; letter-spacing:.6px; }
+.coach-bubble{ background:#FFF7E5; border:2px dashed var(--amarillo-dark); border-radius:14px; padding:10px 16px; font-size:.85rem; font-weight:700; color:#6b4a00; font-style:italic; max-width:58ch; }
+.key-box{ background:#EAFFDC; border-radius:14px; padding:10px 16px; font-size:.85rem; font-weight:800; color:var(--verde-dark); max-width:58ch; }
+
+.mini-cards-row{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; }
+.mini-card{ background:#fff; border:2px solid var(--gris-200); border-radius:14px; padding:12px 14px; width:160px; text-align:center; }
+.mini-card .mc-titulo{ font-weight:800; font-size:.85rem; margin-bottom:4px; }
+.mini-card .mc-texto{ font-size:.74rem; color:var(--gris-700); font-weight:600; line-height:1.32; }
+
+.flow-row{ display:flex; align-items:stretch; gap:6px; justify-content:center; flex-wrap:wrap; }
+.flow-step{ background:#fff; border:2px solid var(--azul); border-radius:14px; padding:10px 14px; width:160px; text-align:center; }
+.flow-step .fs-label{ font-weight:800; font-size:.78rem; color:var(--azul-dark); margin-bottom:4px; }
+.flow-step .fs-texto{ font-size:.74rem; color:var(--gris-700); font-weight:600; line-height:1.32; }
+.flow-arrow{ display:flex; align-items:center; font-size:1.3rem; color:var(--gris-400); }
+
+.portada-card .emoji-grande{ font-size:2.6rem; }
+.portada-objetivos{ text-align:left; display:flex; flex-direction:column; gap:8px; max-width:52ch; margin-top:4px; }
+.portada-objetivos div{ font-size:.88rem; font-weight:700; color:var(--gris-700); }
+
+.eyebrow-pill{ display:inline-flex; align-items:center; gap:6px; }
+.coach-bubble{ display:flex; align-items:flex-start; gap:8px; text-align:left; }
+
+.eo-icono{ flex-shrink:0; }
+.icon-badge svg{ width:18px; height:18px; }
+
+/* ---------- Laboratorio: secuencia con mensaje en vivo ---------- */
+.lab-mensaje{ text-align:center; font-weight:800; font-size:.9rem; border-radius:14px; padding:10px 16px; background:var(--gris-100); color:var(--gris-700); flex-shrink:0; }
+.lab-mensaje.ok{ background:#EAFFDC; color:var(--verde-dark); }
+.lab-mensaje.mal{ background:#FFEAEA; color:var(--rojo-dark); }
+
+/* ---------- Laboratorio: escenario (elegir la mejor opción) ---------- */
+.escenario-lista{ display:flex; flex-direction:column; gap:12px; width:min(600px,100%); }
+.escenario-opcion{ display:flex; gap:14px; align-items:flex-start; background:var(--gris-100); border:2px solid var(--gris-200); border-radius:16px; padding:14px 16px; text-align:left; }
+.escenario-opcion .eo-icono{ font-size:1.6rem; flex-shrink:0; }
+.escenario-opcion .eo-titulo{ font-weight:800; font-size:.95rem; margin-bottom:2px; }
+.escenario-opcion .eo-texto{ font-size:.8rem; color:var(--gris-700); font-weight:600; line-height:1.35; }
+.escenario-opcion:hover{ border-color:var(--azul); }
+.escenario-opcion.correcta{ border-color:var(--verde); background:#EAFFDC; }
+.escenario-opcion.incorrecta{ border-color:var(--rojo); background:#FFEAEA; }
+.escenario-opcion:disabled{ cursor:default; }
+
+/* ---------- Quiz: pista y explicación ---------- */
+.btn-pista{ background:none; border:2px dashed var(--gris-400); border-radius:12px; padding:6px 14px; font-weight:800; font-size:.78rem; color:var(--gris-700); display:inline-flex; align-items:center; gap:6px; }
+.btn-pista:hover{ border-color:var(--azul); color:var(--azul-dark); }
+.pista-texto{ font-size:.8rem; font-weight:700; color:var(--gris-700); background:var(--gris-100); border-radius:12px; padding:8px 14px; max-width:56ch; text-align:center; }
+.explicacion-caja{ font-size:.82rem; font-weight:700; color:var(--gris-700); background:var(--gris-100); border-radius:14px; padding:10px 16px; max-width:56ch; text-align:center; }
+.explicacion-caja.ok{ background:#EAFFDC; color:var(--verde-dark); }
+
+
+/* ===========================================================
+   ÍCONOS (Lucide) — reemplazan los emojis en toda la app
+   =========================================================== */
+svg{ display:block; width:1.15em; height:1.15em; flex-shrink:0; }
+.icon-inline{ width:1.15em; height:1.15em; flex-shrink:0; vertical-align:-0.2em; }
+.btn .icon-inline{ width:20px; height:20px; }
+.btn{ gap:10px; }
+
+.logo-badge{
+  width:56px; height:56px; border-radius:20px;
+  background:linear-gradient(145deg, var(--azul) 0%, var(--verde) 100%);
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 6px 14px rgba(28,176,246,.35);
+}
+.logo-badge svg{ width:30px; height:30px; color:#fff; }
+.logo-badge-profesor{ background:linear-gradient(145deg, #38BDF8 0%, #6366F1 100%); box-shadow:0 6px 14px rgba(56,189,248,.35); }
+
+.link-cambio a{ display:inline-flex; align-items:center; gap:6px; }
+.link-cambio a .icon-inline{ width:16px; height:16px; }
+
+/* Selector de avatar: iconos robóticos en circulos de color */
+.avatar-opcion{ color:var(--azul-dark); }
+.avatar-opcion svg{ width:26px; height:26px; }
+.avatar-opcion.selec{ color:var(--verde-dark); }
+
+/* Icono-insignia: circulo de color detras de un icono (tarjetas, flujo, objetivos) */
+.icon-badge{
+  width:34px; height:34px; border-radius:12px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(145deg, var(--azul) 0%, var(--morado) 100%);
+  color:#fff; margin:0 auto 6px;
+}
+.icon-badge svg{ width:18px; height:18px; }
+.icon-badge.verde{ background:linear-gradient(145deg, var(--verde) 0%, #22C55E 100%); }
+.icon-badge.amarillo{ background:linear-gradient(145deg, var(--amarillo) 0%, var(--naranja) 100%); }
+.icon-badge.rojo{ background:linear-gradient(145deg, var(--rojo) 0%, #EC4899 100%); }
+.icon-badge.chico{ width:26px; height:26px; border-radius:9px; margin:0 auto 6px; }
+.icon-badge.chico svg{ width:14px; height:14px; }
+
+.coach-bubble, .key-box{ display:flex; align-items:flex-start; gap:8px; text-align:left; }
+.coach-bubble .icon-inline, .key-box .icon-inline{ width:18px; height:18px; margin-top:1px; flex-shrink:0; }
+
+.portada-objetivos div{ display:flex; align-items:flex-start; gap:8px; }
+.portada-objetivos .icon-inline{ width:16px; height:16px; margin-top:2px; color:var(--verde-dark); flex-shrink:0; }
+
+/* ===========================================================
+   SALUDO PERSONALIZADO EN EL DASHBOARD
+   =========================================================== */
+.topbar-saludo{ display:flex; flex-direction:column; line-height:1.15; }
+.topbar-saludo .saludo-linea1{ font-weight:800; color:var(--azul-dark); font-size:1.05rem; }
+.topbar-saludo .saludo-linea2{ font-weight:700; color:var(--gris-400); font-size:.72rem; }
+
+/* ===========================================================
+   PESTAÑAS BLOQUEADAS (no se puede pasar de paso sin terminar el anterior)
+   =========================================================== */
+.tab.bloqueado{ opacity:.45; cursor:not-allowed; }
+.tab .icon-inline{ width:16px; height:16px; margin-right:4px; vertical-align:-0.15em; }
+.tab-candado{ width:13px; height:13px; margin-left:4px; vertical-align:-0.1em; }
+
+/* ===========================================================
+   MEJORAS VISUALES GENERALES
+   =========================================================== */
+body{ background:var(--gris-100); }
+
+.nodo{ position:relative; overflow:hidden; }
+.nodo::before{
+  content:""; position:absolute; inset:0;
+  background:linear-gradient(160deg, rgba(255,255,255,.28), transparent 55%);
+  pointer-events:none;
+}
+.nodo .icono-nodo{ width:34px; height:34px; }
+.nodo .icono-nodo svg{ width:100%; height:100%; }
+.nodo.disponible{ background:linear-gradient(150deg, var(--azul) 0%, #0EA5E9 100%); }
+.nodo.completo{ background:linear-gradient(150deg, var(--verde) 0%, #16A34A 100%); }
+.nodo.bloqueado{ background:var(--gris-200); }
+.nodo.disponible, .nodo.completo{ animation: aparecerNodo .5s ease backwards; }
+.ruta .nodo:nth-child(1){ animation-delay:.02s; }
+.ruta .nodo:nth-child(2){ animation-delay:.08s; }
+.ruta .nodo:nth-child(3){ animation-delay:.14s; }
+.ruta .nodo:nth-child(4){ animation-delay:.20s; }
+.ruta .nodo:nth-child(5){ animation-delay:.26s; }
+.ruta .nodo:nth-child(6){ animation-delay:.32s; }
+.ruta .nodo:nth-child(7){ animation-delay:.38s; }
+
+.splash-panel{ animation: aparecerPanel .45s cubic-bezier(.2,.9,.3,1.2) both; }
+.clase-card, .escenario-lista, .quiz-wrap > *{ animation: aparecerSuave .35s ease both; }
+
+.mini-card, .flow-step{ transition: transform .15s ease, box-shadow .15s ease; }
+.mini-card:hover, .flow-step:hover{ transform:translateY(-3px); box-shadow:0 8px 18px rgba(0,0,0,.08); }
+
+.escenario-opcion{ transition: transform .12s ease, box-shadow .12s ease; }
+.escenario-opcion:not(:disabled):hover{ transform:translateY(-2px); box-shadow:0 8px 16px rgba(0,0,0,.06); }
+
+.quiz-opcion{ transition: transform .1s ease; }
+.quiz-opcion:not(:disabled):hover{ transform:translateX(3px); }
+
+.punto{ transition: width .2s ease, background .2s ease; }
+.progreso-fill{ background:linear-gradient(90deg, var(--verde) 0%, #22C55E 100%); }
+
+@keyframes aparecerNodo{ from{ opacity:0; transform:translateY(10px) scale(.94); } to{ opacity:1; transform:none; } }
+@keyframes aparecerPanel{ from{ opacity:0; transform:translateY(14px) scale(.97); } to{ opacity:1; transform:none; } }
+@keyframes aparecerSuave{ from{ opacity:0; transform:translateY(8px); } to{ opacity:1; transform:none; } }
+
+/* Confeti simple al aprobar el quiz */
+.confeti-wrap{ position:relative; }
+.confeti{ position:absolute; top:-10px; width:8px; height:8px; border-radius:2px; opacity:0; animation: caerConfeti 1.1s ease-out forwards; }
+@keyframes caerConfeti{
+  0%{ opacity:1; transform:translateY(0) rotate(0deg); }
+  100%{ opacity:0; transform:translateY(120px) rotate(280deg); }
+}
+
+/* ===========================================================
+   AJUSTES DE ESPACIO PARA QUE LA CLASE NUNCA NECESITE SCROLL
+   =========================================================== */
+.clase-card{ padding:22px 30px; gap:10px; }
+.clase-card h2{ font-size:1.28rem; }
+.clase-card p{ font-size:.94rem; }
+.coach-bubble, .key-box{ font-size:.78rem; padding:8px 12px; }
+.mini-cards-row, .flow-row{ display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:8px; width:100%; max-width:600px; }
+.mini-card, .flow-step{ width:auto; padding:10px 8px; }
+.mini-card .mc-titulo, .flow-step .fs-label{ font-size:.78rem; }
+.mini-card .mc-texto, .flow-step .fs-texto{ font-size:.68rem; }
+.flow-arrow{ display:none; }
+.eyebrow-pill{ font-size:.65rem; padding:3px 11px; }
+
+@media (max-width:760px){
+  .mini-cards-row, .flow-row{ grid-template-columns:1fr; max-width:340px; }
+  .topbar-saludo .saludo-linea1{ font-size:.92rem; }
+  .topbar-saludo .saludo-linea2{ display:none; }
+  .clase-card{ padding:18px 18px; }
+}
+@media (max-height:680px){
+  .clase-card{ padding:14px 22px; gap:6px; }
+  .clase-card .emoji-grande, .icon-badge{ display:none; }
+  .clase-card h2{ font-size:1.1rem; }
+  .clase-card p{ font-size:.85rem; }
+}
+
+</style>
+</head>
+<body>
+
+<!-- =========================================================
+     PANTALLA: SPLASH (crear usuario / iniciar sesión)
+     ========================================================= -->
+<div id="pantalla-splash" class="pantalla splash">
+  <div class="splash-blob blob1"></div>
+  <div class="splash-blob blob2"></div>
+  <div class="splash-blob blob3"></div>
+
+  <div class="splash-panel">
+    <div class="splash-logo"><span class="logo-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8" /><rect width="16" height="12" x="4" y="8" rx="2" /><path d="M2 14h2" /><path d="M20 14h2" /><path d="M15 13v2" /><path d="M9 13v2" /></svg></span><h1>RoboKids</h1></div>
+    <p class="splash-sub">¡Aprende robótica jugando!</p>
+
+    <div id="paso-inicio" class="splash-opciones">
+      <button class="btn btn-verde btn-ancho btn-lg" id="btn-soy-nuevo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z" /><path d="M20 2v4" /><path d="M22 4h-4" /><circle cx="4" cy="20" r="2" /></svg>Soy nuevo</button>
+      <button class="btn btn-blanco btn-ancho btn-lg" id="btn-ya-tengo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z" /><circle cx="16.5" cy="7.5" r=".5" fill="currentColor" /></svg>Ya tengo usuario</button>
+    </div>
+
+    <form id="paso-crear" class="splash-opciones oculto">
+      <div class="campo">
+        <label>¿Cómo te llamas?</label>
+        <input type="text" id="crear-nombre" placeholder="Escribe tu nombre" maxlength="20" autocomplete="off">
+      </div>
+      <div class="campo">
+        <label>Elige tu avatar</label>
+        <div class="avatar-grid" id="avatar-grid">
+          <div class="avatar-opcion selec" data-avatar="robot"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8" /><rect width="16" height="12" x="4" y="8" rx="2" /><path d="M2 14h2" /><path d="M20 14h2" /><path d="M15 13v2" /><path d="M9 13v2" /></svg></div>
+          <div class="avatar-opcion" data-avatar="rocket"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" /><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09" /><path d="M9 12a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.4 22.4 0 0 1-4 2z" /><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 .05 5 .05" /></svg></div>
+          <div class="avatar-opcion" data-avatar="cpu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20v2" /><path d="M12 2v2" /><path d="M17 20v2" /><path d="M17 2v2" /><path d="M2 12h2" /><path d="M2 17h2" /><path d="M2 7h2" /><path d="M20 12h2" /><path d="M20 17h2" /><path d="M20 7h2" /><path d="M7 20v2" /><path d="M7 2v2" /><rect x="4" y="4" width="16" height="16" rx="2" /><rect x="8" y="8" width="8" height="8" rx="1" /></svg></div>
+          <div class="avatar-opcion" data-avatar="bolt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" /></svg></div>
+          <div class="avatar-opcion" data-avatar="gamepad"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" x2="10" y1="11" y2="11" /><line x1="8" x2="8" y1="9" y2="13" /><line x1="15" x2="15.01" y1="12" y2="12" /><line x1="18" x2="18.01" y1="10" y2="10" /><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z" /></svg></div>
+          <div class="avatar-opcion" data-avatar="dish"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16.247 7.761a6 6 0 0 1 0 8.478" /><path d="M19.075 4.933a10 10 0 0 1 0 14.134" /><path d="M4.925 19.067a10 10 0 0 1 0-14.134" /><path d="M7.753 16.239a6 6 0 0 1 0-8.478" /><circle cx="12" cy="12" r="2" /></svg></div>
+        </div>
+      </div>
+      <div class="campo">
+        <label>Crea un código secreto (4 números)</label>
+        <input type="password" id="crear-pin" placeholder="••••" maxlength="4" inputmode="numeric" autocomplete="off">
+      </div>
+      <div id="crear-error" class="error-msg oculto"></div>
+      <button type="submit" class="btn btn-verde btn-ancho btn-lg" id="crear-submit">Crear mi usuario<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" /><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09" /><path d="M9 12a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.4 22.4 0 0 1-4 2z" /><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 .05 5 .05" /></svg></button>
+      <button type="button" class="btn btn-ghost btn-ancho" id="crear-volver"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><path d="m15 18-6-6 6-6" /></svg>Volver</button>
+    </form>
+
+    <form id="paso-ingresar" class="splash-opciones oculto">
+      <div class="campo">
+        <label>Tu nombre</label>
+        <input type="text" id="ingresar-nombre" placeholder="Escribe tu nombre" maxlength="20" autocomplete="off">
+      </div>
+      <div class="campo">
+        <label>Tu código secreto</label>
+        <input type="password" id="ingresar-pin" placeholder="••••" maxlength="4" inputmode="numeric" autocomplete="off">
+      </div>
+      <div id="ingresar-error" class="error-msg oculto"></div>
+      <button type="submit" class="btn btn-azul btn-ancho btn-lg" id="ingresar-submit">Entrar<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 9.9-1" /></svg></button>
+      <button type="button" class="btn btn-ghost btn-ancho" id="ingresar-volver"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><path d="m15 18-6-6 6-6" /></svg>Volver</button>
+    </form>
+
+    <div class="link-cambio"><a id="link-profesor"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z" /><path d="M22 10v6" /><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5" /></svg>Soy profesor/a</a></div>
+  </div>
+</div>
+
+<!-- =========================================================
+     PANTALLA: DASHBOARD (ruta de módulos)
+     ========================================================= -->
+<div id="pantalla-dashboard" class="pantalla oculto">
+  <div class="topbar">
+    <div class="topbar-brand" id="topbar-brand"></div>
+    <div class="topbar-user">
+      <div class="racha" id="racha-chip"></div>
+      <div class="puntos" id="puntos-chip"></div>
+      <div class="avatar-chip" id="avatar-chip" title="Cerrar sesión"></div>
+    </div>
+  </div>
+  <div class="ruta-wrap"><div class="ruta" id="ruta"></div></div>
+</div>
+
+<!-- =========================================================
+     PANTALLA: LECCIÓN (clase / laboratorio / quiz)
+     ========================================================= -->
+<div id="pantalla-leccion" class="pantalla oculto">
+  <div class="leccion-top">
+    <button class="cerrar-btn" id="btn-cerrar">✕</button>
+    <div class="progreso-barra"><div class="progreso-fill" id="progreso-fill"></div></div>
+  </div>
+  <div class="tabs">
+    <div class="tab" data-tab="clase"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><path d="M12 7v14" /><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z" /></svg>Clase</div>
+    <div class="tab" data-tab="lab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><path d="M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2" /><path d="M6.453 15h11.094" /><path d="M8.5 2h7" /></svg>Laboratorio</div>
+    <div class="tab" data-tab="quiz"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><rect width="8" height="4" x="8" y="2" rx="1" ry="1" /><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" /><path d="M12 11h4" /><path d="M12 16h4" /><path d="M8 11h.01" /><path d="M8 16h.01" /></svg>Quiz</div>
+  </div>
+  <div class="contenido" id="contenido"></div>
+  <div class="pie-accion" id="pie-accion"></div>
+</div>
+
+<!-- =========================================================
+     PANTALLA: LOGIN DE PROFESOR
+     ========================================================= -->
+<div id="pantalla-profesor-login" class="pantalla profesor-fondo oculto">
+  <div class="profesor-login-panel">
+    <div class="splash-logo"><span class="logo-badge logo-badge-profesor"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z" /><path d="M22 10v6" /><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5" /></svg></span><h1 style="color:#38BDF8;">Panel del Profesor</h1></div>
+    <p class="splash-sub" style="color:#94A3B8;">Ingresa tu contraseña para ver el progreso de tus estudiantes.</p>
+    <div class="campo">
+      <label>Contraseña</label>
+      <input type="password" id="profesor-clave" placeholder="••••••••" autocomplete="off">
+    </div>
+    <div id="profesor-error" class="error-msg oculto"></div>
+    <button class="btn btn-azul btn-ancho btn-lg" id="profesor-entrar">Entrar<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg></button>
+    <button type="button" class="btn btn-ghost btn-ancho" id="profesor-volver"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><path d="m15 18-6-6 6-6" /></svg>Volver</button>
+  </div>
+</div>
+
+<!-- =========================================================
+     PANTALLA: PANEL DE PROFESOR (todos los estudiantes)
+     ========================================================= -->
+<div id="pantalla-profesor-panel" class="pantalla profesor-tema oculto">
+  <div class="profesor-top">
+    <div class="profesor-brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z" /><path d="M22 10v6" /><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5" /></svg>Panel del Profesor</div>
+    <div class="topbar-user">
+      <button class="btn btn-blanco" id="profesor-actualizar" style="padding:10px 16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" /><path d="M21 3v5h-5" /><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" /><path d="M8 16H3v5" /></svg>Actualizar</button>
+      <button class="btn btn-ghost" id="profesor-salir" style="color:#94A3B8;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><path d="m16 17 5-5-5-5" /><path d="M21 12H9" /><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /></svg>Salir</button>
+    </div>
+  </div>
+  <div class="profesor-resumen" id="profesor-resumen"></div>
+  <div class="profesor-tabla-wrap" id="profesor-tabla-wrap">
+    <p class="profesor-empty">Cargando estudiantes...</p>
+  </div>
+</div>
+
+<script>
+/* ===========================================================
+   CONFIGURACIÓN DE FIREBASE
+   -----------------------------------------------------------
+   1. Ve a https://console.firebase.google.com y crea un proyecto
+      gratis con tu cuenta de Google.
+   2. Menú izquierdo → "Firestore Database" → "Crear base de datos"
+      → modo de producción → elige la región más cercana.
+   3. En "Reglas" de Firestore pega esto y publica:
+
+        rules_version = '2';
+        service cloud.firestore {
+          match /databases/{database}/documents {
+            match /usuarios/{usuarioId} {
+              allow read, write: if true;
+            }
+          }
+        }
+
+   4. ⚙️ Configuración del proyecto → "Tus apps" → ícono "</>" (Web)
+      → regístrala → copia el objeto firebaseConfig y pégalo abajo,
+      reemplazando el de ejemplo.
+   5. Cambia CLAVE_PROFESOR por la contraseña que quieras usar.
+   =========================================================== */
+const firebaseConfig = {
+  apiKey: "AIzaSyDz-AARSJQ6Fpg7OfDFs-u8Ss_XCl2YqLE",
+  authDomain: "inem-5f3ca.firebaseapp.com",
+  projectId: "inem-5f3ca",
+  storageBucket: "inem-5f3ca.firebasestorage.app",
+  messagingSenderId: "57026759449",
+  appId: "1:57026759449:web:8a51b65bd3b2f7db399388"
+};
+const CLAVE_PROFESOR = "Sukuna2026";
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+</script>
+
+<script>
+/* ===========================================================
+   CONTENIDO DE LOS 7 TEMAS
+   Cada tema trae: portada (tagline + objetivos), lecciones (con
+   voz de "coach" e idea clave, en formato tarjetas o flujo),
+   un laboratorio (secuencia o escenario) y un quiz de 6 preguntas
+   con pista y explicación.
+   =========================================================== */
+
+const MODULOS = [
+  {
+    "id": "tinkercad",
+    "orden": 1,
+    "nombre": "Introducción a Tinkercad",
+    "icono": "box",
+    "tagline": "Tu puerta al diseño 3D y la electrónica desde el navegador.",
+    "objetivos": [
+      "Reconocer qué es Tinkercad y sus tres grandes áreas: diseño 3D, electrónica y programación.",
+      "Moverte con seguridad en el plano de trabajo: cámara, selección y herramientas básicas.",
+      "Usar la sección Learn y la comunidad Discover para seguir aprendiendo por tu cuenta."
+    ],
+    "lecciones": [
+      {
+        "titulo": "¿Qué es Tinkercad?",
+        "eyebrow": "Plataforma",
+        "subtitulo": "Una plataforma gratuita, en la nube, para diseñar, simular y programar sin instalar nada.",
+        "coach": "Tinkercad vive en tu navegador. Solo necesitas una cuenta para empezar a crear.",
+        "clave": "Tinkercad combina diseño 3D, simulación de electrónica y programación visual o por código en un solo lugar.",
+        "tipo": "tarjetas",
+        "tarjetas": [
+          {
+            "titulo": "Diseño 3D",
+            "texto": "Crea formas, combínalas y construye modelos desde cero.",
+            "icono": "palette"
+          },
+          {
+            "titulo": "Electrónica",
+            "texto": "Simula circuitos con componentes reales sin miedo a dañar nada.",
+            "icono": "bolt"
+          },
+          {
+            "titulo": "En la nube",
+            "texto": "Accede desde cualquier navegador, sin instalaciones complejas.",
+            "icono": "globe"
+          }
+        ]
+      },
+      {
+        "titulo": "Primeros pasos",
+        "eyebrow": "Acceso",
+        "subtitulo": "Entrar y organizar tu primer proyecto.",
+        "coach": "Antes de diseñar necesitas un lugar de trabajo ordenado. Tinkercad te lo da apenas inicias sesión.",
+        "clave": "Entra a tinkercad.com, inicia sesión con Google, y usa 'Crear un diseño' para abrir tu primer plano.",
+        "tipo": "flujo",
+        "flujo": [
+          {
+            "etiqueta": "1. Ingresa",
+            "texto": "Inicia sesión en tinkercad.com con tu cuenta de Google.",
+            "icono": "download"
+          },
+          {
+            "etiqueta": "2. Explora",
+            "texto": "Revisa tu panel de control con tus proyectos.",
+            "icono": "search"
+          },
+          {
+            "etiqueta": "3. Crea",
+            "texto": "Selecciona 'Crear un diseño' para abrir tu plano de trabajo.",
+            "icono": "sparkle"
+          }
+        ]
+      },
+      {
+        "titulo": "Muévete en el espacio",
+        "eyebrow": "Navegación",
+        "subtitulo": "Dominar cámara y controles es el primer paso para diseñar con confianza.",
+        "coach": "No necesitas memorizar todo: con zoom, rotar y mover ya puedes explorar cualquier diseño.",
+        "clave": "Usa el cubo de vistas para cambiar de perspectiva y arrastra los objetos para moverlos.",
+        "tipo": "tarjetas",
+        "tarjetas": [
+          {
+            "titulo": "Zoom",
+            "texto": "Acércate o aléjate para ver detalles o el conjunto completo.",
+            "icono": "search"
+          },
+          {
+            "titulo": "Rotar cámara",
+            "texto": "Cambia el ángulo desde el que ves tu diseño.",
+            "icono": "rotate"
+          },
+          {
+            "titulo": "Mover objetos",
+            "texto": "Arrastra, suelta y redimensiona con los controles.",
+            "icono": "move"
+          }
+        ]
+      },
+      {
+        "titulo": "Herramientas esenciales",
+        "eyebrow": "Modelado",
+        "subtitulo": "Selección múltiple, alineación y agrupación de formas.",
+        "coach": "Estas tres herramientas resuelven casi todo lo que necesitas al empezar a modelar.",
+        "clave": "Selecciona con Shift, alinea con precisión y agrupa formas para crear piezas nuevas.",
+        "tipo": "tarjetas",
+        "tarjetas": [
+          {
+            "titulo": "Selección múltiple",
+            "texto": "Usa Shift o arrastra el cursor para elegir varios objetos.",
+            "icono": "target"
+          },
+          {
+            "titulo": "Alineación y simetría",
+            "texto": "Posiciona y distribuye elementos con precisión.",
+            "icono": "grid"
+          },
+          {
+            "titulo": "Agrupación de formas",
+            "texto": "Fusiona o resta formas para crear piezas únicas.",
+            "icono": "puzzle"
+          }
+        ]
+      },
+      {
+        "titulo": "Aprende y comparte",
+        "eyebrow": "Comunidad",
+        "subtitulo": "Learn te enseña paso a paso; Discover te conecta con creadores del mundo.",
+        "coach": "No estás solo: hay tutoriales integrados y una comunidad enorme para inspirarte.",
+        "clave": "Learn tiene lecciones progresivas; en Discover puedes explorar, remixar y compartir diseños.",
+        "tipo": "flujo",
+        "flujo": [
+          {
+            "etiqueta": "Aprende",
+            "texto": "Tutoriales interactivos dentro de Tinkercad.",
+            "icono": "book"
+          },
+          {
+            "etiqueta": "Descubre",
+            "texto": "Explora miles de creaciones de la comunidad.",
+            "icono": "search"
+          },
+          {
+            "etiqueta": "Comparte",
+            "texto": "Publica tu diseño y recibe retroalimentación.",
+            "icono": "rocket"
+          }
+        ]
+      },
+      {
+        "titulo": "Circuitos y programación",
+        "eyebrow": "Siguiente nivel",
+        "subtitulo": "Tinkercad también simula circuitos y te deja programar.",
+        "coach": "Cuando ya dominas el diseño 3D, este es tu siguiente gran paso.",
+        "clave": "Arma circuitos con LEDs y Arduino virtual, y prográmalos con bloques o código.",
+        "tipo": "tarjetas",
+        "tarjetas": [
+          {
+            "titulo": "Circuitos",
+            "texto": "Simula LEDs, resistencias y Arduino sin gastar nada.",
+            "icono": "bulb"
+          },
+          {
+            "titulo": "Bloques",
+            "texto": "Programa arrastrando piezas visuales.",
+            "icono": "puzzle"
+          },
+          {
+            "titulo": "Código",
+            "texto": "Pasa a escribir instrucciones de verdad cuando estés listo.",
+            "icono": "code"
+          }
+        ]
+      }
+    ],
+    "lab": {
+      "titulo": "Laboratorio: Tu primer diseño",
+      "subtitulo": "Ordena los pasos para crear y agrupar tu primera figura en Tinkercad.",
+      "tipo": "secuencia",
+      "pasos": [
+        "Crear un diseño",
+        "Agregar figuras",
+        "Aplicar transformaciones",
+        "Agrupar los sólidos"
+      ],
+      "mensajes": {
+        "vacio": "Ruta esperada: primero abres el plano, luego agregas, transformas y agrupas.",
+        "parcial": "Vas bien, continúa con el siguiente paso.",
+        "incorrecto": "Hay un paso fuera de orden. Recuerda: primero se crea el diseño.",
+        "correcto": "¡Diseño creado! Ya sabes armar tu primera pieza en Tinkercad."
+      }
+    },
+    "quiz": [
+      {
+        "pregunta": "¿Qué necesitas para empezar a usar Tinkercad?",
+        "pista": "Es gratuito y está en la nube.",
+        "explicacion": "Tinkercad es gratuito y accesible desde cualquier navegador con una cuenta de Google.",
+        "opciones": [
+          {
+            "texto": "Instalar un programa pesado",
+            "correcta": false
+          },
+          {
+            "texto": "Una cuenta para iniciar sesión desde el navegador",
+            "correcta": true
+          },
+          {
+            "texto": "Comprar una licencia especial",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Para qué sirve el cubo de vistas?",
+        "pista": "Tiene que ver con la cámara.",
+        "explicacion": "El cubo de vistas permite cambiar rápido entre perspectiva frontal, lateral y superior.",
+        "opciones": [
+          {
+            "texto": "Para cambiar entre vistas de la cámara",
+            "correcta": true
+          },
+          {
+            "texto": "Para borrar figuras seleccionadas",
+            "correcta": false
+          },
+          {
+            "texto": "Para exportar a PDF",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Qué tecla ayuda a seleccionar varios objetos a la vez?",
+        "pista": "También puedes arrastrar el cursor.",
+        "explicacion": "Shift permite seleccionar múltiples objetos para editarlos juntos.",
+        "opciones": [
+          {
+            "texto": "Ctrl+Z",
+            "correcta": false
+          },
+          {
+            "texto": "La tecla Shift",
+            "correcta": true
+          },
+          {
+            "texto": "La barra espaciadora",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Qué puedes hacer en la sección Discover?",
+        "pista": "Tiene que ver con la comunidad.",
+        "explicacion": "Discover muestra creaciones de otros usuarios que puedes explorar y remixar.",
+        "opciones": [
+          {
+            "texto": "Ver y remixar diseños de la comunidad",
+            "correcta": true
+          },
+          {
+            "texto": "Comprar componentes reales",
+            "correcta": false
+          },
+          {
+            "texto": "Configurar tu contraseña",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "Además de diseño 3D, ¿qué más puedes hacer en Tinkercad?",
+        "pista": "Piensa en circuitos.",
+        "explicacion": "Tinkercad también permite simular y programar circuitos electrónicos.",
+        "opciones": [
+          {
+            "texto": "Simular y programar circuitos",
+            "correcta": true
+          },
+          {
+            "texto": "Solo dibujar en 2D",
+            "correcta": false
+          },
+          {
+            "texto": "Únicamente ver videos",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿A qué formato exportas un diseño para imprimir en 3D?",
+        "pista": "Es el estándar de impresión 3D.",
+        "explicacion": "STL es el formato estándar que usan casi todas las impresoras 3D.",
+        "opciones": [
+          {
+            "texto": "STL",
+            "correcta": true
+          },
+          {
+            "texto": "MP3",
+            "correcta": false
+          },
+          {
+            "texto": "JPG",
+            "correcta": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "bloques",
+    "orden": 2,
+    "nombre": "Programación por Bloques",
+    "icono": "puzzle",
+    "tagline": "Arrastra, encaja y dale vida a tu proyecto sin escribir código.",
+    "objetivos": [
+      "Entender qué es la programación por bloques y por qué es un buen punto de partida.",
+      "Reconocer la tríada sensor-cerebro-actuador en cualquier robot.",
+      "Ver cómo un proyecto crece de una idea simple a algo automatizado."
+    ],
+    "lecciones": [
+      {
+        "titulo": "¿Qué es programar por bloques?",
+        "eyebrow": "Lenguaje visual",
+        "subtitulo": "Un lenguaje visual que elimina la sintaxis complicada.",
+        "coach": "Arrastrar y encajar piezas es más parecido a armar un rompecabezas que a 'programar'.",
+        "clave": "En vez de escribir texto, unes bloques visuales que representan instrucciones.",
+        "tipo": "tarjetas",
+        "tarjetas": [
+          {
+            "titulo": "Lenguaje visual",
+            "texto": "Arrastra y une bloques para construir lógica, sin sintaxis complicada.",
+            "icono": "puzzle"
+          },
+          {
+            "titulo": "Resultados inmediatos",
+            "texto": "Ves en tiempo real cómo cada bloque cambia tu proyecto.",
+            "icono": "bolt"
+          },
+          {
+            "titulo": "Para todas las edades",
+            "texto": "Ideal para principiantes: elimina las barreras técnicas.",
+            "icono": "sprout"
+          }
+        ]
+      },
+      {
+        "titulo": "Tinkercad: tu laboratorio",
+        "eyebrow": "Entorno seguro",
+        "subtitulo": "Un espacio para experimentar sin miedo a dañar nada.",
+        "coach": "Aquí puedes equivocarte cuantas veces quieras: nada se rompe de verdad.",
+        "clave": "Tinkercad junta diseño 3D y electrónica en un entorno 100% seguro para aprender.",
+        "tipo": "tarjetas",
+        "tarjetas": [
+          {
+            "titulo": "Sin riesgo",
+            "texto": "Prueba circuitos sin quemar componentes reales.",
+            "icono": "flask"
+          },
+          {
+            "titulo": "Todo junto",
+            "texto": "Diseño 3D y electrónica en el mismo lugar.",
+            "icono": "palette"
+          },
+          {
+            "titulo": "Prueba y error",
+            "texto": "Repite las veces que necesites hasta que funcione.",
+            "icono": "rotate"
+          }
+        ]
+      },
+      {
+        "titulo": "La tríada del robot",
+        "eyebrow": "Robótica",
+        "subtitulo": "Todo robot necesita sentir, pensar y actuar.",
+        "coach": "Si entiendes esta tríada, entiendes cómo funciona cualquier robot del mundo.",
+        "clave": "Sensor siente, cerebro (Arduino) decide, actuador actúa.",
+        "tipo": "flujo",
+        "flujo": [
+          {
+            "etiqueta": "Sensor",
+            "texto": "Siente el mundo: luz, distancia, sonido...",
+            "icono": "eye"
+          },
+          {
+            "etiqueta": "Cerebro",
+            "texto": "El Arduino decide qué hacer con esa información.",
+            "icono": "brain"
+          },
+          {
+            "etiqueta": "Actuador",
+            "texto": "LEDs, motores o pantallas ejecutan la decisión.",
+            "icono": "gear"
+          }
+        ]
+      },
+      {
+        "titulo": "Diseño 3D programable",
+        "eyebrow": "Automatización",
+        "subtitulo": "El código también puede generar objetos tridimensionales.",
+        "coach": "Programar no es solo para robots: también puedes dibujar en 3D con lógica.",
+        "clave": "Con variables y operaciones matemáticas, tu código genera formas automáticamente.",
+        "tipo": "flujo",
+        "flujo": [
+          {
+            "etiqueta": "1. Variable",
+            "texto": "Guarda un número, por ejemplo el tamaño de una figura.",
+            "icono": "box"
+          },
+          {
+            "etiqueta": "2. Operación",
+            "texto": "Multiplica, suma o repite ese valor.",
+            "icono": "gear"
+          },
+          {
+            "etiqueta": "3. Resultado",
+            "texto": "Tinkercad dibuja la forma automáticamente.",
+            "icono": "sparkle"
+          }
+        ]
+      },
+      {
+        "titulo": "De la simulación a la realidad",
+        "eyebrow": "Puente",
+        "subtitulo": "Tinkercad es el puente entre la práctica segura y el hardware físico.",
+        "coach": "Todo lo que practicas en pantalla se puede llevar a un Arduino real.",
+        "clave": "Primero simulas sin riesgo, luego implementas en hardware físico.",
+        "tipo": "tarjetas",
+        "tarjetas": [
+          {
+            "titulo": "Fase 1: Simulación",
+            "texto": "Experimenta sin riesgo y corrige errores en el navegador.",
+            "icono": "flask"
+          },
+          {
+            "titulo": "Fase 2: Hardware",
+            "texto": "Implementa lo aprendido en un Arduino real.",
+            "icono": "board"
+          },
+          {
+            "titulo": "Fase 3: Comparte",
+            "texto": "Muestra tu creación terminada a tus compañeros.",
+            "icono": "rocket"
+          }
+        ]
+      },
+      {
+        "titulo": "Por qué importa",
+        "eyebrow": "STEAM",
+        "subtitulo": "Desarrollas pensamiento computacional y habilidades STEAM.",
+        "coach": "No solo aprendes robótica: entrenas tu cerebro para resolver problemas.",
+        "clave": "STEAM junta Ciencia, Tecnología, Ingeniería, Arte y Matemáticas.",
+        "tipo": "tarjetas",
+        "tarjetas": [
+          {
+            "titulo": "Pensamiento lógico",
+            "texto": "Aprendes a resolver problemas paso a paso.",
+            "icono": "brain"
+          },
+          {
+            "titulo": "Ciencia",
+            "texto": "Entiendes cómo funciona la electrónica real.",
+            "icono": "atom"
+          },
+          {
+            "titulo": "Creatividad",
+            "texto": "Diseñas soluciones únicas a cada reto.",
+            "icono": "palette"
+          }
+        ]
+      }
+    ],
+    "lab": {
+      "titulo": "Laboratorio: Piensa en bloques",
+      "subtitulo": "Tu robot debe parpadear un LED 5 veces. ¿Cuál es la mejor forma de resolverlo?",
+      "tipo": "escenario",
+      "opciones": [
+        {
+          "icono": "rotate",
+          "titulo": "Bloque de repetir",
+          "texto": "Repite la acción las veces que necesites, sin duplicar bloques.",
+          "correcta": true
+        },
+        {
+          "icono": "listordered",
+          "titulo": "Copiar el bloque 5 veces",
+          "texto": "Funciona, pero hace tu proyecto largo y difícil de cambiar.",
+          "correcta": false
+        },
+        {
+          "icono": "close",
+          "titulo": "Borrar el proyecto",
+          "texto": "No resuelve nada, solo pierdes tu avance.",
+          "correcta": false
+        }
+      ]
+    },
+    "quiz": [
+      {
+        "pregunta": "¿A qué se parece la programación por bloques?",
+        "pista": "Piensa en un rompecabezas.",
+        "explicacion": "Arrastrar y encajar piezas visuales es similar a armar un rompecabezas de lógica.",
+        "opciones": [
+          {
+            "texto": "A escribir un ensayo largo",
+            "correcta": false
+          },
+          {
+            "texto": "A armar un rompecabezas de piezas visuales",
+            "correcta": true
+          },
+          {
+            "texto": "A dibujar sin reglas",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Qué hace un sensor en un robot?",
+        "pista": "Es el primer paso de la tríada.",
+        "explicacion": "El sensor es quien percibe el entorno: luz, distancia, sonido, etc.",
+        "opciones": [
+          {
+            "texto": "Decide qué hacer",
+            "correcta": false
+          },
+          {
+            "texto": "Siente el mundo que lo rodea",
+            "correcta": true
+          },
+          {
+            "texto": "Mueve el robot",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Cuál es el 'cerebro' del robot?",
+        "pista": "Es la placa que procesa la información.",
+        "explicacion": "El Arduino recibe los datos de los sensores y decide qué hacer.",
+        "opciones": [
+          {
+            "texto": "El LED",
+            "correcta": false
+          },
+          {
+            "texto": "El Arduino",
+            "correcta": true
+          },
+          {
+            "texto": "El cable USB",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Qué son los actuadores?",
+        "pista": "Son la parte que actúa.",
+        "explicacion": "Actuadores como LEDs o motores ejecutan la decisión del cerebro.",
+        "opciones": [
+          {
+            "texto": "Partes que sienten el entorno",
+            "correcta": false
+          },
+          {
+            "texto": "Partes que actúan, como un LED o motor",
+            "correcta": true
+          },
+          {
+            "texto": "El código del programa",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Qué significa STEAM?",
+        "pista": "Son 5 palabras en inglés.",
+        "explicacion": "STEAM junta Ciencia, Tecnología, Ingeniería, Arte y Matemáticas.",
+        "opciones": [
+          {
+            "texto": "Un tipo de bloque especial",
+            "correcta": false
+          },
+          {
+            "texto": "Ciencia, Tecnología, Ingeniería, Arte y Matemáticas",
+            "correcta": true
+          },
+          {
+            "texto": "Un lenguaje de programación",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "Si necesitas repetir una acción 5 veces, ¿qué deberías usar?",
+        "pista": "Evita copiar el mismo bloque muchas veces.",
+        "explicacion": "Un bloque de repetir es más limpio y fácil de modificar que copiar bloques.",
+        "opciones": [
+          {
+            "texto": "Copiar el bloque 5 veces",
+            "correcta": false
+          },
+          {
+            "texto": "Un bloque de repetir",
+            "correcta": true
+          },
+          {
+            "texto": "Borrar y empezar de nuevo",
+            "correcta": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "codigo",
+    "orden": 3,
+    "nombre": "Programación por Código",
+    "icono": "code",
+    "tagline": "El siguiente paso: de arrastrar bloques a escribir instrucciones reales.",
+    "objetivos": [
+      "Reconocer el entorno de trabajo y sus tres pilares: variables, bucles y condicionales.",
+      "Usar el modo paso a paso para depurar errores con confianza.",
+      "Entender cómo el código controla circuitos reales, no solo diseños en pantalla."
+    ],
+    "lecciones": [
+      {
+        "titulo": "El entorno de Tinkercad",
+        "eyebrow": "Interfaz",
+        "subtitulo": "Categorías de bloques, área de trabajo y ejecución paso a paso.",
+        "coach": "Antes de programar, familiarízate con dónde está cada cosa.",
+        "clave": "Los bloques se organizan por categoría; el área central muestra tu proyecto en vivo.",
+        "tipo": "tarjetas",
+        "tarjetas": [
+          {
+            "titulo": "Categorías",
+            "texto": "Movimiento, lógica, matemáticas y más, organizados por función.",
+            "icono": "grid"
+          },
+          {
+            "titulo": "Área de trabajo",
+            "texto": "Visualización en tiempo real de tu diseño o circuito.",
+            "icono": "monitor"
+          },
+          {
+            "titulo": "Paso a paso",
+            "texto": "Observa cómo actúa cada bloque antes de ejecutar todo.",
+            "icono": "play"
+          }
+        ]
+      },
+      {
+        "titulo": "Los tres pilares",
+        "eyebrow": "Fundamentos",
+        "subtitulo": "Variables, bucles y condicionales aparecen en todo lenguaje.",
+        "coach": "Si dominas estos tres conceptos, puedes aprender cualquier lenguaje de programación.",
+        "clave": "Variable guarda información, bucle repite, condicional decide.",
+        "tipo": "flujo",
+        "flujo": [
+          {
+            "etiqueta": "Variable",
+            "texto": "Guarda información que puedes reutilizar.",
+            "icono": "box"
+          },
+          {
+            "etiqueta": "Bucle",
+            "texto": "Repite una acción sin escribirla muchas veces.",
+            "icono": "rotate"
+          },
+          {
+            "etiqueta": "Condicional",
+            "texto": "Si esto pasa, haz esto otro.",
+            "icono": "branch"
+          }
+        ]
+      },
+      {
+        "titulo": "Diseño 3D automatizado",
+        "eyebrow": "Precisión",
+        "subtitulo": "Controla parámetros con precisión matemática.",
+        "coach": "Ya no dependes de arrastrar a ojo: el código calcula por ti.",
+        "clave": "Variables dinámicas cambian tamaños; bucles repiten patrones simétricos.",
+        "tipo": "tarjetas",
+        "tarjetas": [
+          {
+            "titulo": "Variables dinámicas",
+            "texto": "Cambia tamaños y posiciones sin redibujar desde cero.",
+            "icono": "box"
+          },
+          {
+            "titulo": "Bucles simétricos",
+            "texto": "Repite patrones para crear estructuras complejas.",
+            "icono": "rotate"
+          },
+          {
+            "titulo": "Precisión numérica",
+            "texto": "Escribe valores exactos en vez de estimar a ojo.",
+            "icono": "target"
+          }
+        ]
+      },
+      {
+        "titulo": "Control de circuitos con Arduino",
+        "eyebrow": "Hardware",
+        "subtitulo": "Simula placas Arduino completas usando solo bloques.",
+        "coach": "Tu código ya no solo dibuja: ahora también enciende luces de verdad (virtuales).",
+        "clave": "Puedes leer sensores y controlar actuadores directamente desde tu código.",
+        "tipo": "flujo",
+        "flujo": [
+          {
+            "etiqueta": "Leer",
+            "texto": "El código lee un sensor: temperatura, distancia, luz.",
+            "icono": "dish"
+          },
+          {
+            "etiqueta": "Procesar",
+            "texto": "Decide qué hacer según ese valor.",
+            "icono": "brain"
+          },
+          {
+            "etiqueta": "Actuar",
+            "texto": "Enciende un LED, mueve un motor o muestra un dato.",
+            "icono": "bulb"
+          }
+        ]
+      },
+      {
+        "titulo": "Depuración y precisión",
+        "eyebrow": "Debugging",
+        "subtitulo": "Encontrar y corregir errores es parte esencial del aprendizaje.",
+        "coach": "Ningún programador escribe código perfecto a la primera. ¡Ni yo!",
+        "clave": "Ejecuta paso a paso y despacio para encontrar exactamente qué bloque falla.",
+        "tipo": "tarjetas",
+        "tarjetas": [
+          {
+            "titulo": "Analizar",
+            "texto": "Inspecciona cada bloque de forma aislada.",
+            "icono": "search"
+          },
+          {
+            "titulo": "Ejecutar lento",
+            "texto": "Usa el modo paso a paso para observar cada instrucción.",
+            "icono": "hourglass"
+          },
+          {
+            "titulo": "Corregir",
+            "texto": "Repara el error y vuelve a ejecutar con confianza.",
+            "icono": "wrench"
+          }
+        ]
+      },
+      {
+        "titulo": "Más allá de la pantalla",
+        "eyebrow": "Siguiente nivel",
+        "subtitulo": "Exporta tu diseño o conviértelo en código Arduino real.",
+        "coach": "Todo lo que programaste aquí puede terminar en un objeto físico.",
+        "clave": "Puedes exportar a impresión 3D o convertir tus bloques en código C++ de Arduino.",
+        "tipo": "tarjetas",
+        "tarjetas": [
+          {
+            "titulo": "Imprimir en 3D",
+            "texto": "Exporta tu diseño en formato STL.",
+            "icono": "printer"
+          },
+          {
+            "titulo": "Código real",
+            "texto": "Convierte tus bloques en C++ para Arduino.",
+            "icono": "plug"
+          },
+          {
+            "titulo": "Proyecto físico",
+            "texto": "Lleva tu programa del navegador al mundo real.",
+            "icono": "rocket"
+          }
+        ]
+      }
+    ],
+    "lab": {
+      "titulo": "Laboratorio: Encuentra el error",
+      "subtitulo": "Ordena los pasos correctos para depurar un programa que no funciona.",
+      "tipo": "secuencia",
+      "pasos": [
+        "Ejecutar paso a paso",
+        "Observar qué bloque falla",
+        "Analizar ese bloque aislado",
+        "Corregir el error",
+        "Probar de nuevo"
+      ],
+      "mensajes": {
+        "vacio": "Ruta esperada: primero observas, luego analizas y corriges.",
+        "parcial": "Vas bien, sigue con el siguiente paso.",
+        "incorrecto": "Ese orden no encontraría el error a tiempo. Empieza siempre ejecutando paso a paso.",
+        "correcto": "¡Bien hecho! Así se depura un programa como profesional."
+      }
+    },
+    "quiz": [
+      {
+        "pregunta": "¿Qué guarda información que puedes reutilizar?",
+        "pista": "Es como una caja con etiqueta.",
+        "explicacion": "Una variable guarda un valor que puedes usar y cambiar después.",
+        "opciones": [
+          {
+            "texto": "Un bucle",
+            "correcta": false
+          },
+          {
+            "texto": "Una variable",
+            "correcta": true
+          },
+          {
+            "texto": "Un condicional",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Qué hace un bucle?",
+        "pista": "Piensa en repetición.",
+        "explicacion": "Un bucle repite una acción sin que tengas que escribirla varias veces.",
+        "opciones": [
+          {
+            "texto": "Guarda datos",
+            "correcta": false
+          },
+          {
+            "texto": "Repite una acción",
+            "correcta": true
+          },
+          {
+            "texto": "Borra el proyecto",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Cómo se llama la instrucción 'si esto pasa, haz esto otro'?",
+        "pista": "Empieza con 'si'.",
+        "explicacion": "Un condicional evalúa una condición y decide qué camino tomar.",
+        "opciones": [
+          {
+            "texto": "Variable",
+            "correcta": false
+          },
+          {
+            "texto": "Bucle",
+            "correcta": false
+          },
+          {
+            "texto": "Condicional",
+            "correcta": true
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Para qué sirve el modo paso a paso?",
+        "pista": "Piensa en depurar errores.",
+        "explicacion": "Ejecutar paso a paso te deja ver qué hace cada bloque y encontrar errores.",
+        "opciones": [
+          {
+            "texto": "Para borrar el código",
+            "correcta": false
+          },
+          {
+            "texto": "Para ver qué hace cada instrucción y encontrar errores",
+            "correcta": true
+          },
+          {
+            "texto": "Para cambiar de color",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿A qué lenguaje real se puede convertir el código de bloques de Arduino?",
+        "pista": "Es el lenguaje base de Arduino.",
+        "explicacion": "Los bloques de Arduino se pueden convertir a código C++.",
+        "opciones": [
+          {
+            "texto": "HTML",
+            "correcta": false
+          },
+          {
+            "texto": "C++",
+            "correcta": true
+          },
+          {
+            "texto": "Emoji",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Qué deberías hacer primero si tu programa no funciona?",
+        "pista": "No borres todo de una vez.",
+        "explicacion": "Ejecutar paso a paso te muestra dónde exactamente está el problema, antes de corregir nada.",
+        "opciones": [
+          {
+            "texto": "Borrar todo y empezar de cero",
+            "correcta": false
+          },
+          {
+            "texto": "Ejecutar paso a paso para observar",
+            "correcta": true
+          },
+          {
+            "texto": "Ignorar el error",
+            "correcta": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "arduino",
+    "orden": 4,
+    "nombre": "Arduino",
+    "icono": "board",
+    "tagline": "La placa que convierte tu código en acciones del mundo real.",
+    "objetivos": [
+      "Reconocer qué es Arduino y para qué sirve la placa Arduino Uno.",
+      "Entender el ciclo Entrada → Proceso → Salida.",
+      "Distinguir las dos funciones base de cualquier sketch: setup() y loop()."
+    ],
+    "lecciones": [
+      {
+        "titulo": "¿Qué es Arduino?",
+        "eyebrow": "Hardware libre",
+        "subtitulo": "Plataforma de hardware y software libre creada en Italia en 2005.",
+        "coach": "Arduino nació para que cualquier persona, sin ser ingeniero, pudiera crear inventos.",
+        "clave": "Es una plataforma abierta pensada para construir dispositivos inteligentes fácilmente.",
+        "tipo": "tarjetas",
+        "tarjetas": [
+          {
+            "titulo": "Origen",
+            "texto": "Nació en Italia en 2005 como proyecto educativo.",
+            "icono": "globe"
+          },
+          {
+            "titulo": "Código abierto",
+            "texto": "Cualquiera puede usar, modificar y compartir el diseño.",
+            "icono": "unlock"
+          },
+          {
+            "titulo": "Comunidad global",
+            "texto": "Millones de makers comparten proyectos y ayuda.",
+            "icono": "globe"
+          }
+        ]
+      },
+      {
+        "titulo": "La placa Arduino Uno",
+        "eyebrow": "Hardware",
+        "subtitulo": "El estándar mundial para aprender electrónica.",
+        "coach": "Esta placa pequeña es la puerta de entrada de millones de makers.",
+        "clave": "Tiene 14 pines digitales y 6 analógicos, y se conecta fácil por USB.",
+        "tipo": "flujo",
+        "flujo": [
+          {
+            "etiqueta": "Digitales",
+            "texto": "14 pines para encender, apagar o leer señales on/off.",
+            "icono": "plug"
+          },
+          {
+            "etiqueta": "Analógicos",
+            "texto": "6 pines para leer valores graduales, como la luz.",
+            "icono": "chart"
+          },
+          {
+            "etiqueta": "USB",
+            "texto": "Conecta la placa a tu computadora para programarla.",
+            "icono": "link"
+          }
+        ]
+      },
+      {
+        "titulo": "El IDE de Arduino",
+        "eyebrow": "Software",
+        "subtitulo": "El programa donde escribes tu código, llamado sketch.",
+        "coach": "El IDE es tu taller: aquí escribes, revisas y envías tu código a la placa.",
+        "clave": "Escribes, compilas (traduces) y cargas tu programa a la placa, todo desde el IDE.",
+        "tipo": "tarjetas",
+        "tarjetas": [
+          {
+            "titulo": "Escribir",
+            "texto": "Redactas tu sketch en el editor de código.",
+            "icono": "pencil"
+          },
+          {
+            "titulo": "Compilar",
+            "texto": "El IDE traduce tu código a instrucciones para la placa.",
+            "icono": "gear"
+          },
+          {
+            "titulo": "Cargar",
+            "texto": "Envías el programa final al Arduino por USB.",
+            "icono": "upload"
+          }
+        ]
+      },
+      {
+        "titulo": "Entrada → Proceso → Salida",
+        "eyebrow": "Ciclo básico",
+        "subtitulo": "Así funciona cualquier sistema inteligente.",
+        "coach": "Este ciclo de 3 pasos explica desde un semáforo hasta un cohete espacial.",
+        "clave": "Arduino recibe información, la procesa, y responde con una acción.",
+        "tipo": "flujo",
+        "flujo": [
+          {
+            "etiqueta": "Entrada",
+            "texto": "Un sensor capta información del entorno.",
+            "icono": "download"
+          },
+          {
+            "etiqueta": "Proceso",
+            "texto": "El Arduino decide qué hacer con esa información.",
+            "icono": "brain"
+          },
+          {
+            "etiqueta": "Salida",
+            "texto": "Un actuador responde: LED, motor, sonido...",
+            "icono": "upload"
+          }
+        ]
+      },
+      {
+        "titulo": "Sin hardware: Tinkercad",
+        "eyebrow": "Simulación",
+        "subtitulo": "Simula circuitos virtuales gratis, antes de usar hardware real.",
+        "coach": "Cometer errores en la simulación no cuesta nada. ¡Aprovecha eso!",
+        "clave": "Prueba y comete errores sin riesgo, luego pasa tu código a una placa real.",
+        "tipo": "tarjetas",
+        "tarjetas": [
+          {
+            "titulo": "Sin riesgo",
+            "texto": "Prueba circuitos sin quemar componentes reales.",
+            "icono": "flask"
+          },
+          {
+            "titulo": "Sin costo",
+            "texto": "No necesitas comprar nada para empezar a practicar.",
+            "icono": "coins"
+          },
+          {
+            "titulo": "Iteración rápida",
+            "texto": "Cambia tu circuito y vuelve a probar en segundos.",
+            "icono": "rotate"
+          }
+        ]
+      },
+      {
+        "titulo": "Las 2 funciones base",
+        "eyebrow": "Estructura",
+        "subtitulo": "void setup() y void loop() son el esqueleto de todo sketch.",
+        "coach": "Todo programa de Arduino, sin excepción, tiene estas dos partes.",
+        "clave": "setup() corre una vez al inicio; loop() se repite mientras el Arduino esté encendido.",
+        "tipo": "flujo",
+        "flujo": [
+          {
+            "etiqueta": "setup()",
+            "texto": "Se ejecuta una sola vez, al encender la placa.",
+            "icono": "gear"
+          },
+          {
+            "etiqueta": "loop()",
+            "texto": "Se repite sin parar mientras el Arduino esté encendido.",
+            "icono": "rotate"
+          },
+          {
+            "etiqueta": "Resultado",
+            "texto": "Juntas, dan vida a cualquier proyecto interactivo.",
+            "icono": "rocket"
+          }
+        ]
+      }
+    ],
+    "lab": {
+      "titulo": "Laboratorio: ¿setup() o loop()?",
+      "subtitulo": "Quieres que un LED parpadee todo el tiempo mientras el Arduino esté encendido. ¿Dónde va esa instrucción?",
+      "tipo": "escenario",
+      "opciones": [
+        {
+          "icono": "rotate",
+          "titulo": "Dentro de loop()",
+          "texto": "Correcto: loop() se repite sin parar, ideal para un parpadeo continuo.",
+          "correcta": true
+        },
+        {
+          "icono": "gear",
+          "titulo": "Dentro de setup()",
+          "texto": "setup() solo corre una vez, el LED parpadearía apenas una vez.",
+          "correcta": false
+        },
+        {
+          "icono": "close",
+          "titulo": "Fuera de ambas funciones",
+          "texto": "El código no funcionaría: todo debe ir dentro de setup() o loop().",
+          "correcta": false
+        }
+      ]
+    },
+    "quiz": [
+      {
+        "pregunta": "¿En qué país nació Arduino?",
+        "pista": "Es un país europeo.",
+        "explicacion": "Arduino nació en Italia en 2005.",
+        "opciones": [
+          {
+            "texto": "Italia",
+            "correcta": true
+          },
+          {
+            "texto": "Estados Unidos",
+            "correcta": false
+          },
+          {
+            "texto": "Japón",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Cuántos pines digitales tiene el Arduino Uno?",
+        "pista": "Es un número entre 10 y 20.",
+        "explicacion": "El Arduino Uno tiene 14 pines digitales.",
+        "opciones": [
+          {
+            "texto": "6",
+            "correcta": false
+          },
+          {
+            "texto": "14",
+            "correcta": true
+          },
+          {
+            "texto": "100",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Qué función se ejecuta una sola vez al inicio?",
+        "pista": "Su nombre significa 'configurar'.",
+        "explicacion": "setup() corre una única vez cuando enciendes la placa.",
+        "opciones": [
+          {
+            "texto": "loop()",
+            "correcta": false
+          },
+          {
+            "texto": "setup()",
+            "correcta": true
+          },
+          {
+            "texto": "start()",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Qué función se repite para siempre?",
+        "pista": "Su nombre significa 'bucle'.",
+        "explicacion": "loop() se repite continuamente mientras el Arduino esté encendido.",
+        "opciones": [
+          {
+            "texto": "setup()",
+            "correcta": false
+          },
+          {
+            "texto": "once()",
+            "correcta": false
+          },
+          {
+            "texto": "loop()",
+            "correcta": true
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Cuál es el ciclo básico de un sistema inteligente?",
+        "pista": "Son 3 pasos.",
+        "explicacion": "Todo sistema inteligente recibe información, la procesa, y actúa.",
+        "opciones": [
+          {
+            "texto": "Entrada → Proceso → Salida",
+            "correcta": true
+          },
+          {
+            "texto": "Solo Salida",
+            "correcta": false
+          },
+          {
+            "texto": "Salida → Entrada",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Para qué sirve el IDE de Arduino?",
+        "pista": "Es donde trabajas tu código.",
+        "explicacion": "El IDE te permite escribir, compilar y cargar tu sketch a la placa.",
+        "opciones": [
+          {
+            "texto": "Para escribir, compilar y cargar tu código",
+            "correcta": true
+          },
+          {
+            "texto": "Solo para ver videos tutoriales",
+            "correcta": false
+          },
+          {
+            "texto": "Para imprimir en 3D",
+            "correcta": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "fundamentos",
+    "orden": 5,
+    "nombre": "Fundamentos de Programación",
+    "icono": "cpu",
+    "tagline": "El lenguaje detrás de Arduino: variables, decisiones y hardware.",
+    "objetivos": [
+      "Reconocer los tipos de datos básicos: int, float, bool y String.",
+      "Usar if/else y bucles para tomar decisiones y repetir acciones.",
+      "Comunicarte con el hardware usando pinMode, digitalWrite y analogRead."
+    ],
+    "lecciones": [
+      {
+        "titulo": "Arduino y C++",
+        "eyebrow": "Lenguaje",
+        "subtitulo": "Arduino usa un lenguaje basado en C++.",
+        "coach": "No te asustes con el nombre: la sintaxis que usarás es simple de aprender.",
+        "clave": "C++ tiene mucha potencia, pero Arduino simplifica lo esencial para empezar.",
+        "tipo": "tarjetas",
+        "tarjetas": [
+          {
+            "titulo": "Potente",
+            "texto": "C++ es uno de los lenguajes más usados en el mundo.",
+            "icono": "bolt"
+          },
+          {
+            "titulo": "Simplificado",
+            "texto": "Arduino oculta la complejidad innecesaria para principiantes.",
+            "icono": "target"
+          },
+          {
+            "titulo": "Documentado",
+            "texto": "Hay miles de ejemplos y guías disponibles gratis.",
+            "icono": "book"
+          }
+        ]
+      },
+      {
+        "titulo": "Escribir, compilar, cargar",
+        "eyebrow": "Flujo de trabajo",
+        "subtitulo": "El IDE es tu centro de mando.",
+        "coach": "El Monitor Serie es tu ventana para ver qué está pensando tu Arduino.",
+        "clave": "El Monitor Serie te deja ver datos en tiempo real mientras tu programa corre.",
+        "tipo": "flujo",
+        "flujo": [
+          {
+            "etiqueta": "Escribir",
+            "texto": "Redactas tu sketch en el editor.",
+            "icono": "pencil"
+          },
+          {
+            "etiqueta": "Compilar",
+            "texto": "El IDE revisa y traduce tu código.",
+            "icono": "gear"
+          },
+          {
+            "etiqueta": "Monitor Serie",
+            "texto": "Observa datos en tiempo real mientras corre.",
+            "icono": "monitor"
+          }
+        ]
+      },
+      {
+        "titulo": "El corazón del sketch",
+        "eyebrow": "Estructura",
+        "subtitulo": "setup() configura todo; loop() contiene la lógica principal.",
+        "coach": "Todo lo que escribas vivirá en una de estas dos funciones.",
+        "clave": "setup() se ejecuta una vez; loop() se repite sin parar.",
+        "tipo": "tarjetas",
+        "tarjetas": [
+          {
+            "titulo": "setup()",
+            "texto": "Configura pines y valores iniciales, una sola vez.",
+            "icono": "gear"
+          },
+          {
+            "titulo": "loop()",
+            "texto": "Contiene la lógica que se repite sin parar.",
+            "icono": "rotate"
+          },
+          {
+            "titulo": "Juntas",
+            "texto": "Forman el esqueleto de cualquier programa de Arduino.",
+            "icono": "puzzle"
+          }
+        ]
+      },
+      {
+        "titulo": "Variables y tipos de datos",
+        "eyebrow": "Datos",
+        "subtitulo": "int, float, bool y String guardan distintos tipos de información.",
+        "coach": "Elegir el tipo correcto de dato evita errores tontos más adelante.",
+        "clave": "int guarda enteros, float decimales, bool verdadero/falso, y String texto.",
+        "tipo": "tarjetas",
+        "tarjetas": [
+          {
+            "titulo": "int",
+            "texto": "Números enteros, como 5 o -12.",
+            "icono": "box"
+          },
+          {
+            "titulo": "float",
+            "texto": "Números con decimales, como 23.5.",
+            "icono": "box"
+          },
+          {
+            "titulo": "bool / String",
+            "texto": "Verdadero-falso, o texto entre comillas.",
+            "icono": "box"
+          }
+        ]
+      },
+      {
+        "titulo": "Tomando decisiones",
+        "eyebrow": "Lógica",
+        "subtitulo": "if/else eligen un camino; for y while repiten bloques.",
+        "coach": "Con estas herramientas tu programa deja de ser una lista fija de pasos.",
+        "clave": "if/else decide según una condición; for/while repiten automáticamente.",
+        "tipo": "flujo",
+        "flujo": [
+          {
+            "etiqueta": "if / else",
+            "texto": "Elige un camino según si una condición es verdadera o falsa.",
+            "icono": "branch"
+          },
+          {
+            "etiqueta": "for",
+            "texto": "Repite un bloque un número exacto de veces.",
+            "icono": "rotate"
+          },
+          {
+            "etiqueta": "while",
+            "texto": "Repite mientras una condición se mantenga verdadera.",
+            "icono": "infinity"
+          }
+        ]
+      },
+      {
+        "titulo": "Hablar con el hardware",
+        "eyebrow": "Pines",
+        "subtitulo": "pinMode, digitalWrite y analogRead conectan tu código con el mundo físico.",
+        "coach": "Estas tres funciones son las que más vas a usar en tus proyectos.",
+        "clave": "pinMode define el pin; digitalWrite enciende/apaga; analogRead lee sensores.",
+        "tipo": "tarjetas",
+        "tarjetas": [
+          {
+            "titulo": "pinMode()",
+            "texto": "Define si un pin es entrada o salida.",
+            "icono": "plug"
+          },
+          {
+            "titulo": "digitalWrite()",
+            "texto": "Enciende o apaga un pin (HIGH/LOW).",
+            "icono": "bolt"
+          },
+          {
+            "titulo": "analogRead()",
+            "texto": "Lee un valor graduado, como un sensor de luz.",
+            "icono": "dish"
+          }
+        ]
+      }
+    ],
+    "lab": {
+      "titulo": "Laboratorio: Arma tu sketch",
+      "subtitulo": "Ordena los bloques para configurar y encender un LED correctamente.",
+      "tipo": "secuencia",
+      "pasos": [
+        "Declarar la variable del pin",
+        "pinMode() en setup()",
+        "digitalWrite() en loop()",
+        "Repetir con un delay()"
+      ],
+      "mensajes": {
+        "vacio": "Ruta esperada: primero declaras, luego configuras, y por último controlas.",
+        "parcial": "Bien, sigue con el siguiente bloque.",
+        "incorrecto": "Ese orden no compilaría. Recuerda: primero se declara y configura, luego se controla.",
+        "correcto": "¡Tu sketch está listo! Así se estructura un programa de Arduino."
+      }
+    },
+    "quiz": [
+      {
+        "pregunta": "¿En qué lenguaje se basa Arduino?",
+        "pista": "Es uno de los lenguajes más usados del mundo.",
+        "explicacion": "Arduino usa una versión simplificada de C++.",
+        "opciones": [
+          {
+            "texto": "Python",
+            "correcta": false
+          },
+          {
+            "texto": "C++",
+            "correcta": true
+          },
+          {
+            "texto": "HTML",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Qué tipo de dato usarías para guardar 23.5 grados?",
+        "pista": "Tiene decimales.",
+        "explicacion": "float guarda números con decimales, como una temperatura exacta.",
+        "opciones": [
+          {
+            "texto": "int",
+            "correcta": false
+          },
+          {
+            "texto": "float",
+            "correcta": true
+          },
+          {
+            "texto": "bool",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Qué hace pinMode()?",
+        "pista": "Se usa antes de controlar un pin.",
+        "explicacion": "pinMode() define si un pin funcionará como entrada o como salida.",
+        "opciones": [
+          {
+            "texto": "Enciende un LED",
+            "correcta": false
+          },
+          {
+            "texto": "Define si un pin es entrada o salida",
+            "correcta": true
+          },
+          {
+            "texto": "Lee un sensor",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Qué instrucción repite un bloque un número fijo de veces?",
+        "pista": "Es un tipo de bucle.",
+        "explicacion": "for repite un bloque de código un número exacto de veces.",
+        "opciones": [
+          {
+            "texto": "if",
+            "correcta": false
+          },
+          {
+            "texto": "for",
+            "correcta": true
+          },
+          {
+            "texto": "setup",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Dónde va la configuración inicial de tus pines?",
+        "pista": "Se ejecuta una sola vez.",
+        "explicacion": "setup() es donde configuras pines y valores antes de que empiece el ciclo principal.",
+        "opciones": [
+          {
+            "texto": "En loop()",
+            "correcta": false
+          },
+          {
+            "texto": "En setup()",
+            "correcta": true
+          },
+          {
+            "texto": "En el Monitor Serie",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Qué función usarías para leer un sensor de luz?",
+        "pista": "Los sensores de luz dan valores graduales.",
+        "explicacion": "analogRead() lee valores graduales, ideales para sensores como el de luz.",
+        "opciones": [
+          {
+            "texto": "digitalWrite()",
+            "correcta": false
+          },
+          {
+            "texto": "analogRead()",
+            "correcta": true
+          },
+          {
+            "texto": "pinMode()",
+            "correcta": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "componentes",
+    "orden": 6,
+    "nombre": "Componentes Electrónicos",
+    "icono": "atom",
+    "tagline": "Las piezas pequeñas que dan vida a cualquier circuito.",
+    "objetivos": [
+      "Reconocer los componentes básicos: resistencia, LED, condensador, diodo y transistor.",
+      "Distinguir pulsadores, potenciómetros y buzzers, y para qué sirve cada uno.",
+      "Identificar los sentidos del robot: los distintos tipos de sensores."
+    ],
+    "lecciones": [
+      {
+        "titulo": "¿Qué son?",
+        "eyebrow": "Introducción",
+        "subtitulo": "Piezas pequeñas que, juntas, forman circuitos capaces de mucho.",
+        "coach": "Cada componente es como una letra: solos no dicen mucho, juntos cuentan una historia.",
+        "clave": "Combinando componentes simples puedes encender luces, hacer sonidos y medir el mundo.",
+        "tipo": "tarjetas",
+        "tarjetas": [
+          {
+            "titulo": "Luz",
+            "texto": "LEDs que se encienden con solo un poco de electricidad.",
+            "icono": "bulb"
+          },
+          {
+            "titulo": "Sonido",
+            "texto": "Buzzers que convierten electricidad en tonos.",
+            "icono": "speaker"
+          },
+          {
+            "titulo": "Medición",
+            "texto": "Sensores que miden temperatura, luz y más.",
+            "icono": "thermometer"
+          }
+        ]
+      },
+      {
+        "titulo": "Resistencia y LED",
+        "eyebrow": "Básicos",
+        "subtitulo": "Los dos componentes más comunes de cualquier circuito.",
+        "coach": "Casi todo circuito con luces tiene esta dupla trabajando en equipo.",
+        "clave": "La resistencia controla el flujo de electricidad; el LED lo convierte en luz.",
+        "tipo": "tarjetas",
+        "tarjetas": [
+          {
+            "titulo": "Resistencia",
+            "texto": "Controla cuánta electricidad pasa, como una tubería estrecha.",
+            "icono": "atom"
+          },
+          {
+            "titulo": "LED",
+            "texto": "Convierte electricidad en luz sin calentarse mucho.",
+            "icono": "bulb"
+          },
+          {
+            "titulo": "Juntos",
+            "texto": "La resistencia protege al LED de recibir demasiada corriente.",
+            "icono": "users"
+          }
+        ]
+      },
+      {
+        "titulo": "Condensador y Diodo",
+        "eyebrow": "Almacenar y dirigir",
+        "subtitulo": "Uno guarda energía, el otro dirige la corriente.",
+        "coach": "Piensa en el diodo como una válvula de un solo sentido.",
+        "clave": "El condensador guarda energía como una mini batería; el diodo deja pasar la corriente en un solo sentido.",
+        "tipo": "flujo",
+        "flujo": [
+          {
+            "etiqueta": "Condensador",
+            "texto": "Guarda una pequeña carga de energía.",
+            "icono": "battery"
+          },
+          {
+            "etiqueta": "Diodo",
+            "texto": "Deja pasar la corriente en un solo sentido.",
+            "icono": "chevronright"
+          },
+          {
+            "etiqueta": "Juntos",
+            "texto": "Protegen y estabilizan el resto del circuito.",
+            "icono": "gear"
+          }
+        ]
+      },
+      {
+        "titulo": "El transistor",
+        "eyebrow": "El más importante",
+        "subtitulo": "El componente más importante de la historia de la electrónica.",
+        "coach": "Sin el transistor, no existirían las computadoras ni los celulares.",
+        "clave": "Funciona como interruptor (abre/cierra) o como amplificador de señales.",
+        "tipo": "tarjetas",
+        "tarjetas": [
+          {
+            "titulo": "Interruptor",
+            "texto": "Abre o cierra el paso de corriente, como un switch.",
+            "icono": "button"
+          },
+          {
+            "titulo": "Amplificador",
+            "texto": "Convierte una señal pequeña en una más fuerte.",
+            "icono": "speaker"
+          },
+          {
+            "titulo": "Historia",
+            "texto": "Es la base de toda la electrónica moderna.",
+            "icono": "trophy"
+          }
+        ]
+      },
+      {
+        "titulo": "Pulsador y potenciómetro",
+        "eyebrow": "Interacción",
+        "subtitulo": "Dos formas simples de interactuar con un circuito.",
+        "coach": "Estos son los componentes que le dan 'control' a las personas sobre el circuito.",
+        "clave": "El pulsador activa mientras lo presionas; el potenciómetro ajusta un valor girando.",
+        "tipo": "tarjetas",
+        "tarjetas": [
+          {
+            "titulo": "Pulsador",
+            "texto": "Activa algo mientras lo mantienes presionado.",
+            "icono": "button"
+          },
+          {
+            "titulo": "Potenciómetro",
+            "texto": "Una perilla que ajusta un valor, como el volumen.",
+            "icono": "dial"
+          },
+          {
+            "titulo": "Interacción humana",
+            "texto": "Le dan a las personas control directo sobre el circuito.",
+            "icono": "users"
+          }
+        ]
+      },
+      {
+        "titulo": "El buzzer y los sensores",
+        "eyebrow": "Salida y entrada",
+        "subtitulo": "El buzzer emite sonido; los sensores son los sentidos del robot.",
+        "coach": "Un robot sin sensores es como una persona con los ojos cerrados.",
+        "clave": "El buzzer convierte electricidad en sonido; hay sensores de luz, temperatura, movimiento y más.",
+        "tipo": "flujo",
+        "flujo": [
+          {
+            "etiqueta": "Buzzer",
+            "texto": "Convierte electricidad en sonido, fijo o ajustable.",
+            "icono": "speaker"
+          },
+          {
+            "etiqueta": "Sensor PIR",
+            "texto": "Detecta movimiento a su alrededor.",
+            "icono": "eye"
+          },
+          {
+            "etiqueta": "Ultrasónico",
+            "texto": "Mide distancias, como los coches autónomos.",
+            "icono": "ruler"
+          }
+        ]
+      }
+    ],
+    "lab": {
+      "titulo": "Laboratorio: Elige el componente correcto",
+      "subtitulo": "Quieres que tu robot detecte cuando alguien se acerca. ¿Qué componente usarías?",
+      "tipo": "escenario",
+      "opciones": [
+        {
+          "icono": "eye",
+          "titulo": "Sensor ultrasónico o PIR",
+          "texto": "Correcto: estos sensores detectan distancia o movimiento cercano.",
+          "correcta": true
+        },
+        {
+          "icono": "atom",
+          "titulo": "Una resistencia",
+          "texto": "La resistencia solo controla el flujo de electricidad, no detecta nada.",
+          "correcta": false
+        },
+        {
+          "icono": "speaker",
+          "titulo": "Un buzzer",
+          "texto": "El buzzer emite sonido, no detecta el entorno.",
+          "correcta": false
+        }
+      ]
+    },
+    "quiz": [
+      {
+        "pregunta": "¿Qué hace una resistencia?",
+        "pista": "Piensa en una tubería estrecha.",
+        "explicacion": "La resistencia controla el flujo de electricidad en el circuito.",
+        "opciones": [
+          {
+            "texto": "Genera sonido",
+            "correcta": false
+          },
+          {
+            "texto": "Controla el flujo de electricidad",
+            "correcta": true
+          },
+          {
+            "texto": "Guarda energía",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Qué es un LED?",
+        "pista": "Tiene que ver con la luz.",
+        "explicacion": "Un LED convierte electricidad en luz de forma eficiente.",
+        "opciones": [
+          {
+            "texto": "Un sensor de sonido",
+            "correcta": false
+          },
+          {
+            "texto": "Una luz que convierte electricidad en luz",
+            "correcta": true
+          },
+          {
+            "texto": "Un tipo de cable",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Qué componente deja pasar la corriente en un solo sentido?",
+        "pista": "Actúa como una válvula.",
+        "explicacion": "El diodo permite el flujo de corriente en una sola dirección.",
+        "opciones": [
+          {
+            "texto": "Resistencia",
+            "correcta": false
+          },
+          {
+            "texto": "Diodo",
+            "correcta": true
+          },
+          {
+            "texto": "Buzzer",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Qué sensor detecta movimiento?",
+        "pista": "Sus siglas vienen del inglés.",
+        "explicacion": "El sensor PIR detecta el movimiento a su alrededor.",
+        "opciones": [
+          {
+            "texto": "LDR",
+            "correcta": false
+          },
+          {
+            "texto": "PIR",
+            "correcta": true
+          },
+          {
+            "texto": "Ultrasónico",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Para qué sirve un potenciómetro?",
+        "pista": "Piensa en el volumen de una radio.",
+        "explicacion": "Un potenciómetro ajusta un valor girando una perilla.",
+        "opciones": [
+          {
+            "texto": "Emitir sonido",
+            "correcta": false
+          },
+          {
+            "texto": "Ajustar un valor girando una perilla",
+            "correcta": true
+          },
+          {
+            "texto": "Medir distancia",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Qué componente funciona como interruptor o amplificador?",
+        "pista": "Es la base de la electrónica moderna.",
+        "explicacion": "El transistor puede actuar como interruptor o amplificar señales.",
+        "opciones": [
+          {
+            "texto": "El transistor",
+            "correcta": true
+          },
+          {
+            "texto": "El LED",
+            "correcta": false
+          },
+          {
+            "texto": "El condensador",
+            "correcta": false
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "basica",
+    "orden": 7,
+    "nombre": "Programación Básica",
+    "icono": "flow",
+    "tagline": "El pensamiento lógico que está detrás de cualquier programa.",
+    "objetivos": [
+      "Entender qué es programar y por qué el orden de los pasos importa.",
+      "Reconocer bucles y eventos en la vida diaria, no solo en pantalla.",
+      "Perder el miedo a los errores: debuggear es parte de aprender."
+    ],
+    "lecciones": [
+      {
+        "titulo": "¿Qué es programar?",
+        "eyebrow": "Definición",
+        "subtitulo": "Es como darle una receta de cocina a un robot.",
+        "coach": "No necesitas ser un genio de las matemáticas para programar: necesitas ser ordenado.",
+        "clave": "Programar es escribir una lista de pasos para que la computadora haga lo que quieres.",
+        "tipo": "tarjetas",
+        "tarjetas": [
+          {
+            "titulo": "Receta",
+            "texto": "Una lista de pasos claros para lograr un resultado.",
+            "icono": "chefhat"
+          },
+          {
+            "titulo": "Computadora",
+            "texto": "Sigue tus instrucciones al pie de la letra.",
+            "icono": "monitor"
+          },
+          {
+            "titulo": "Resultado",
+            "texto": "Si los pasos están bien, el resultado también lo estará.",
+            "icono": "target"
+          }
+        ]
+      },
+      {
+        "titulo": "El pensamiento lógico",
+        "eyebrow": "Superpoder",
+        "subtitulo": "Todo tiene un orden correcto.",
+        "coach": "Este es tu superpoder secreto: pensar paso a paso, sin saltarte nada.",
+        "clave": "Primero los calcetines, luego los zapatos. El orden importa siempre.",
+        "tipo": "tarjetas",
+        "tarjetas": [
+          {
+            "titulo": "Orden",
+            "texto": "Cada paso depende del anterior.",
+            "icono": "listordered"
+          },
+          {
+            "titulo": "Descomponer",
+            "texto": "Divide un problema grande en pasos pequeños.",
+            "icono": "puzzle"
+          },
+          {
+            "titulo": "Detalle",
+            "texto": "Los pequeños detalles cambian el resultado final.",
+            "icono": "search"
+          }
+        ]
+      },
+      {
+        "titulo": "El lenguaje de las máquinas",
+        "eyebrow": "Traducción",
+        "subtitulo": "Las computadoras solo entienden ceros y unos.",
+        "coach": "Nosotros hablamos con la máquina a través de 'traductores': los lenguajes de programación.",
+        "clave": "Lenguajes como Scratch traducen tus ideas humanas a instrucciones de máquina.",
+        "tipo": "flujo",
+        "flujo": [
+          {
+            "etiqueta": "Tu idea",
+            "texto": "Piensas en un resultado que quieres lograr.",
+            "icono": "brain"
+          },
+          {
+            "etiqueta": "Lenguaje",
+            "texto": "La traduces a bloques o código, como Scratch.",
+            "icono": "languages"
+          },
+          {
+            "etiqueta": "Máquina",
+            "texto": "La computadora la ejecuta en ceros y unos.",
+            "icono": "cpu"
+          }
+        ]
+      },
+      {
+        "titulo": "Secuencias",
+        "eyebrow": "Orden",
+        "subtitulo": "El orden es la clave para que todo funcione.",
+        "coach": "Un paso fuera de lugar puede arruinar todo el programa.",
+        "clave": "Si te saltas un paso, tu personaje podría bailar al revés o caminar por las paredes.",
+        "tipo": "tarjetas",
+        "tarjetas": [
+          {
+            "titulo": "1. Primero",
+            "texto": "Cada secuencia empieza con un primer paso claro.",
+            "icono": "box"
+          },
+          {
+            "titulo": "2. Luego",
+            "texto": "Cada paso siguiente depende del anterior.",
+            "icono": "chevronright"
+          },
+          {
+            "titulo": "Cuidado",
+            "texto": "Saltarte un paso cambia todo el resultado.",
+            "icono": "warning"
+          }
+        ]
+      },
+      {
+        "titulo": "Bucles y eventos",
+        "eyebrow": "Repetición y reacción",
+        "subtitulo": "Repetir sin cansarte, y reaccionar cuando algo pasa.",
+        "coach": "Estos dos trucos hacen que tus programas cobren vida de verdad.",
+        "clave": "Un bucle repite; un evento reacciona a algo que sucede, como presionar un botón.",
+        "tipo": "flujo",
+        "flujo": [
+          {
+            "etiqueta": "Bucle",
+            "texto": "'Saltar × 5' en vez de escribir 'saltar' cinco veces.",
+            "icono": "rotate"
+          },
+          {
+            "etiqueta": "Evento",
+            "texto": "Presionas un botón y el personaje salta.",
+            "icono": "bolt"
+          },
+          {
+            "etiqueta": "Interacción",
+            "texto": "Tú creas las reglas del juego.",
+            "icono": "gamepad"
+          }
+        ]
+      },
+      {
+        "titulo": "Detectives de errores",
+        "eyebrow": "Debugging",
+        "subtitulo": "Debuggear es encontrar y corregir errores.",
+        "coach": "Todo programador se equivoca. Lo importante es cómo lo resuelves.",
+        "clave": "Equivocarse es parte de aprender: cada error te enseña algo nuevo.",
+        "tipo": "tarjetas",
+        "tarjetas": [
+          {
+            "titulo": "Buscar pistas",
+            "texto": "Revisa el programa paso a paso para encontrar el fallo.",
+            "icono": "search"
+          },
+          {
+            "titulo": "Corregir",
+            "texto": "Cambia solo lo necesario y vuelve a probar.",
+            "icono": "wrench"
+          },
+          {
+            "titulo": "Aprender",
+            "texto": "Cada error te acerca más a la solución correcta.",
+            "icono": "party"
+          }
+        ]
+      }
+    ],
+    "lab": {
+      "titulo": "Laboratorio: El algoritmo del sándwich",
+      "subtitulo": "Ordena los pasos de este algoritmo de la vida real: hacer un sándwich.",
+      "tipo": "secuencia",
+      "pasos": [
+        "Sacar el pan",
+        "Poner el jamón y el queso",
+        "Cerrar el sándwich",
+        "Cortarlo por la mitad",
+        "¡Comer!"
+      ],
+      "mensajes": {
+        "vacio": "Ruta esperada: como cualquier receta, hay un orden que sí o sí debes seguir.",
+        "parcial": "Vas bien, sigue con el siguiente paso.",
+        "incorrecto": "Ese orden no tiene sentido en la vida real. Piensa en cómo harías un sándwich de verdad.",
+        "correcto": "¡Delicioso! Así se ve un algoritmo bien ordenado."
+      }
+    },
+    "quiz": [
+      {
+        "pregunta": "¿Qué es programar?",
+        "pista": "Piensa en una receta.",
+        "explicacion": "Programar es escribir instrucciones claras, paso a paso, para la computadora.",
+        "opciones": [
+          {
+            "texto": "Dibujar sin reglas",
+            "correcta": false
+          },
+          {
+            "texto": "Escribir instrucciones paso a paso",
+            "correcta": true
+          },
+          {
+            "texto": "Jugar sin reglas",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿En qué 'idioma' habla la computadora en el fondo?",
+        "pista": "Son solo dos símbolos.",
+        "explicacion": "En el fondo, todo programa se convierte en ceros y unos.",
+        "opciones": [
+          {
+            "texto": "Español",
+            "correcta": false
+          },
+          {
+            "texto": "Ceros y unos",
+            "correcta": true
+          },
+          {
+            "texto": "Emojis",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Qué pasa si te saltas un paso en una secuencia?",
+        "pista": "Piensa en ponerte los zapatos antes que los calcetines.",
+        "explicacion": "Un paso fuera de orden puede hacer que el programa falle o dé un resultado inesperado.",
+        "opciones": [
+          {
+            "texto": "Nada cambia",
+            "correcta": false
+          },
+          {
+            "texto": "El programa puede fallar",
+            "correcta": true
+          },
+          {
+            "texto": "Funciona mejor",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Para qué sirve un bucle?",
+        "pista": "Evita escribir lo mismo muchas veces.",
+        "explicacion": "Un bucle repite una acción sin que tengas que copiarla una y otra vez.",
+        "opciones": [
+          {
+            "texto": "Borrar el código",
+            "correcta": false
+          },
+          {
+            "texto": "Repetir una acción sin escribirla muchas veces",
+            "correcta": true
+          },
+          {
+            "texto": "Cambiar de color",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Qué es un evento en programación?",
+        "pista": "Algo pasa, y el programa reacciona.",
+        "explicacion": "Un evento es una reacción a algo que sucede, como presionar un botón.",
+        "opciones": [
+          {
+            "texto": "Una reacción a algo que sucede",
+            "correcta": true
+          },
+          {
+            "texto": "Un error en el código",
+            "correcta": false
+          },
+          {
+            "texto": "Un tipo de variable",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Cómo se llama encontrar y corregir errores?",
+        "pista": "Viene de la palabra 'bug' (bicho) en inglés.",
+        "explicacion": "Debuggear es el proceso de encontrar y arreglar errores en un programa.",
+        "opciones": [
+          {
+            "texto": "Programar",
+            "correcta": false
+          },
+          {
+            "texto": "Diseñar",
+            "correcta": false
+          },
+          {
+            "texto": "Debuggear",
+            "correcta": true
+          }
+        ]
+      }
+    ]
+  }
+];
+
+// Utilidad: obtener módulo por id
+function obtenerModulo(id){
+  return MODULOS.find(m => m.id === id);
+}
+
+const ICONOS = {
+  "robot": "<path d=\"M12 8V4H8\" /><rect width=\"16\" height=\"12\" x=\"4\" y=\"8\" rx=\"2\" /><path d=\"M2 14h2\" /><path d=\"M20 14h2\" /><path d=\"M15 13v2\" /><path d=\"M9 13v2\" />",
+  "rocket": "<path d=\"M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5\" /><path d=\"M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09\" /><path d=\"M9 12a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.4 22.4 0 0 1-4 2z\" /><path d=\"M9 12H4s.55-3.03 2-4c1.62-1.08 5 .05 5 .05\" />",
+  "keyicon": "<path d=\"M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z\" /><circle cx=\"16.5\" cy=\"7.5\" r=\".5\" fill=\"currentColor\" />",
+  "unlock": "<rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\" ry=\"2\" /><path d=\"M7 11V7a5 5 0 0 1 9.9-1\" />",
+  "lock": "<rect width=\"18\" height=\"11\" x=\"3\" y=\"11\" rx=\"2\" ry=\"2\" /><path d=\"M7 11V7a5 5 0 0 1 10 0v4\" />",
+  "teacher": "<path d=\"M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z\" /><path d=\"M22 10v6\" /><path d=\"M6 12.5V16a6 3 0 0 0 12 0v-3.5\" />",
+  "refresh": "<path d=\"M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8\" /><path d=\"M21 3v5h-5\" /><path d=\"M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16\" /><path d=\"M8 16H3v5\" />",
+  "users": "<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2\" /><path d=\"M16 3.128a4 4 0 0 1 0 7.744\" /><path d=\"M22 21v-2a4 4 0 0 0-3-3.87\" /><circle cx=\"9\" cy=\"7\" r=\"4\" />",
+  "star": "<path d=\"M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z\" />",
+  "flame": "<path d=\"M12 3q1 4 4 6.5t3 5.5a1 1 0 0 1-14 0 5 5 0 0 1 1-3 1 1 0 0 0 5 0c0-2-1.5-3-1.5-5q0-2 2.5-4\" />",
+  "chat": "<path d=\"M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719\" />",
+  "close": "<path d=\"M18 6 6 18\" /><path d=\"m6 6 12 12\" />",
+  "checkcircle": "<circle cx=\"12\" cy=\"12\" r=\"10\" /><path d=\"m9 12 2 2 4-4\" />",
+  "warning": "<path d=\"m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3\" /><path d=\"M12 9v4\" /><path d=\"M12 17h.01\" />",
+  "sparkle": "<path d=\"M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z\" /><path d=\"M20 2v4\" /><path d=\"M22 4h-4\" /><circle cx=\"4\" cy=\"20\" r=\"2\" />",
+  "target": "<circle cx=\"12\" cy=\"12\" r=\"10\" /><circle cx=\"12\" cy=\"12\" r=\"6\" /><circle cx=\"12\" cy=\"12\" r=\"2\" />",
+  "book": "<path d=\"M12 7v14\" /><path d=\"M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z\" />",
+  "flask": "<path d=\"M14 2v6a2 2 0 0 0 .245.96l5.51 10.08A2 2 0 0 1 18 22H6a2 2 0 0 1-1.755-2.96l5.51-10.08A2 2 0 0 0 10 8V2\" /><path d=\"M6.453 15h11.094\" /><path d=\"M8.5 2h7\" />",
+  "trophy": "<path d=\"M10 14.66v1.626a2 2 0 0 1-.976 1.696A5 5 0 0 0 7 21.978\" /><path d=\"M14 14.66v1.626a2 2 0 0 0 .976 1.696A5 5 0 0 1 17 21.978\" /><path d=\"M18 9h1.5a1 1 0 0 0 0-5H18\" /><path d=\"M4 22h16\" /><path d=\"M6 9a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1z\" /><path d=\"M6 9H4.5a1 1 0 0 1 0-5H6\" />",
+  "trending": "<path d=\"M16 7h6v6\" /><path d=\"m22 7-8.5 8.5-5-5L2 17\" />",
+  "chevronright": "<path d=\"m9 18 6-6-6-6\" />",
+  "chevronleft": "<path d=\"m15 18-6-6 6-6\" />",
+  "clipboard": "<rect width=\"8\" height=\"4\" x=\"8\" y=\"2\" rx=\"1\" ry=\"1\" /><path d=\"M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2\" /><path d=\"M12 11h4\" /><path d=\"M12 16h4\" /><path d=\"M8 11h.01\" /><path d=\"M8 16h.01\" />",
+  "bulb": "<path d=\"M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5\" /><path d=\"M9 18h6\" /><path d=\"M10 22h4\" />",
+  "box": "<path d=\"M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z\" /><path d=\"m3.3 7 8.7 5 8.7-5\" /><path d=\"M12 22V12\" />",
+  "puzzle": "<path d=\"M15.39 4.39a1 1 0 0 0 1.68-.474 2.5 2.5 0 1 1 3.014 3.015 1 1 0 0 0-.474 1.68l1.683 1.682a2.414 2.414 0 0 1 0 3.414L19.61 15.39a1 1 0 0 1-1.68-.474 2.5 2.5 0 1 0-3.014 3.015 1 1 0 0 1 .474 1.68l-1.683 1.682a2.414 2.414 0 0 1-3.414 0L8.61 19.61a1 1 0 0 0-1.68.474 2.5 2.5 0 1 1-3.014-3.015 1 1 0 0 0 .474-1.68l-1.683-1.682a2.414 2.414 0 0 1 0-3.414L4.39 8.61a1 1 0 0 1 1.68.474 2.5 2.5 0 1 0 3.014-3.015 1 1 0 0 1-.474-1.68l1.683-1.682a2.414 2.414 0 0 1 3.414 0z\" />",
+  "code": "<path d=\"m18 16 4-4-4-4\" /><path d=\"m6 8-4 4 4 4\" /><path d=\"m14.5 4-5 16\" />",
+  "board": "<rect width=\"18\" height=\"18\" x=\"3\" y=\"3\" rx=\"2\" /><path d=\"M11 9h4a2 2 0 0 0 2-2V3\" /><circle cx=\"9\" cy=\"9\" r=\"2\" /><path d=\"M7 21v-4a2 2 0 0 1 2-2h4\" /><circle cx=\"15\" cy=\"15\" r=\"2\" />",
+  "cpu": "<path d=\"M12 20v2\" /><path d=\"M12 2v2\" /><path d=\"M17 20v2\" /><path d=\"M17 2v2\" /><path d=\"M2 12h2\" /><path d=\"M2 17h2\" /><path d=\"M2 7h2\" /><path d=\"M20 12h2\" /><path d=\"M20 17h2\" /><path d=\"M20 7h2\" /><path d=\"M7 20v2\" /><path d=\"M7 2v2\" /><rect x=\"4\" y=\"4\" width=\"16\" height=\"16\" rx=\"2\" /><rect x=\"8\" y=\"8\" width=\"8\" height=\"8\" rx=\"1\" />",
+  "atom": "<circle cx=\"12\" cy=\"12\" r=\"1\" /><path d=\"M20.2 20.2c2.04-2.03.02-7.36-4.5-11.9-4.54-4.52-9.87-6.54-11.9-4.5-2.04 2.03-.02 7.36 4.5 11.9 4.54 4.52 9.87 6.54 11.9 4.5Z\" /><path d=\"M15.7 15.7c4.52-4.54 6.54-9.87 4.5-11.9-2.03-2.04-7.36-.02-11.9 4.5-4.52 4.54-6.54 9.87-4.5 11.9 2.03 2.04 7.36.02 11.9-4.5Z\" />",
+  "flow": "<rect width=\"8\" height=\"8\" x=\"3\" y=\"3\" rx=\"2\" /><path d=\"M7 11v4a2 2 0 0 0 2 2h4\" /><rect width=\"8\" height=\"8\" x=\"13\" y=\"13\" rx=\"2\" />",
+  "palette": "<path d=\"M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z\" /><circle cx=\"13.5\" cy=\"6.5\" r=\".5\" fill=\"currentColor\" /><circle cx=\"17.5\" cy=\"10.5\" r=\".5\" fill=\"currentColor\" /><circle cx=\"6.5\" cy=\"12.5\" r=\".5\" fill=\"currentColor\" /><circle cx=\"8.5\" cy=\"7.5\" r=\".5\" fill=\"currentColor\" />",
+  "bolt": "<path d=\"M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z\" />",
+  "globe": "<circle cx=\"12\" cy=\"12\" r=\"10\" /><path d=\"M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20\" /><path d=\"M2 12h20\" />",
+  "search": "<path d=\"m21 21-4.34-4.34\" /><circle cx=\"11\" cy=\"11\" r=\"8\" />",
+  "rotate": "<path d=\"M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8\" /><path d=\"M21 3v5h-5\" />",
+  "move": "<path d=\"M12 2v20\" /><path d=\"m15 19-3 3-3-3\" /><path d=\"m19 9 3 3-3 3\" /><path d=\"M2 12h20\" /><path d=\"m5 9-3 3 3 3\" /><path d=\"m9 5 3-3 3 3\" />",
+  "sprout": "<path d=\"M14 9.536V7a4 4 0 0 1 4-4h1.5a.5.5 0 0 1 .5.5V5a4 4 0 0 1-4 4 4 4 0 0 0-4 4c0 2 1 3 1 5a5 5 0 0 1-1 3\" /><path d=\"M4 9a5 5 0 0 1 8 4 5 5 0 0 1-8-4\" /><path d=\"M5 21h14\" />",
+  "eye": "<path d=\"M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0\" /><circle cx=\"12\" cy=\"12\" r=\"3\" />",
+  "brain": "<path d=\"M12 18V5\" /><path d=\"M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4\" /><path d=\"M17.598 6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.598 1.5\" /><path d=\"M17.997 5.125a4 4 0 0 1 2.526 5.77\" /><path d=\"M18 18a4 4 0 0 0 2-7.464\" /><path d=\"M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517\" /><path d=\"M6 18a4 4 0 0 1-2-7.464\" /><path d=\"M6.003 5.125a4 4 0 0 0-2.526 5.77\" />",
+  "gear": "<path d=\"M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915\" /><circle cx=\"12\" cy=\"12\" r=\"3\" />",
+  "grid": "<rect width=\"7\" height=\"7\" x=\"3\" y=\"3\" rx=\"1\" /><rect width=\"7\" height=\"7\" x=\"14\" y=\"3\" rx=\"1\" /><rect width=\"7\" height=\"7\" x=\"14\" y=\"14\" rx=\"1\" /><rect width=\"7\" height=\"7\" x=\"3\" y=\"14\" rx=\"1\" />",
+  "monitor": "<rect width=\"20\" height=\"14\" x=\"2\" y=\"3\" rx=\"2\" /><line x1=\"8\" x2=\"16\" y1=\"21\" y2=\"21\" /><line x1=\"12\" x2=\"12\" y1=\"17\" y2=\"21\" />",
+  "play": "<path d=\"M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z\" />",
+  "branch": "<path d=\"M15 6a9 9 0 0 0-9 9V3\" /><circle cx=\"18\" cy=\"6\" r=\"3\" /><circle cx=\"6\" cy=\"18\" r=\"3\" />",
+  "dish": "<path d=\"M16.247 7.761a6 6 0 0 1 0 8.478\" /><path d=\"M19.075 4.933a10 10 0 0 1 0 14.134\" /><path d=\"M4.925 19.067a10 10 0 0 1 0-14.134\" /><path d=\"M7.753 16.239a6 6 0 0 1 0-8.478\" /><circle cx=\"12\" cy=\"12\" r=\"2\" />",
+  "wrench": "<path d=\"M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z\" />",
+  "printer": "<path d=\"M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2\" /><path d=\"M6 9V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v6\" /><rect x=\"6\" y=\"14\" width=\"12\" height=\"8\" rx=\"1\" />",
+  "plug": "<path d=\"M12 22v-5\" /><path d=\"M15 8V2\" /><path d=\"M17 8a1 1 0 0 1 1 1v4a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1z\" /><path d=\"M9 8V2\" />",
+  "chart": "<path d=\"M3 3v16a2 2 0 0 0 2 2h16\" /><path d=\"M18 17V9\" /><path d=\"M13 17V5\" /><path d=\"M8 17v-3\" />",
+  "link": "<path d=\"M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71\" /><path d=\"M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71\" />",
+  "pencil": "<path d=\"M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z\" /><path d=\"m15 5 4 4\" />",
+  "upload": "<path d=\"M12 3v12\" /><path d=\"m17 8-5-5-5 5\" /><path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\" />",
+  "download": "<path d=\"M12 15V3\" /><path d=\"M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4\" /><path d=\"m7 10 5 5 5-5\" />",
+  "speaker": "<path d=\"M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z\" /><path d=\"M16 9a5 5 0 0 1 0 6\" /><path d=\"M19.364 18.364a9 9 0 0 0 0-12.728\" />",
+  "dial": "<path d=\"M10 5H3\" /><path d=\"M12 19H3\" /><path d=\"M14 3v4\" /><path d=\"M16 17v4\" /><path d=\"M21 12h-9\" /><path d=\"M21 19h-5\" /><path d=\"M21 5h-7\" /><path d=\"M8 10v4\" /><path d=\"M8 12H3\" />",
+  "button": "<circle cx=\"12\" cy=\"12\" r=\"10\" /><circle cx=\"12\" cy=\"12\" r=\"1\" />",
+  "thermometer": "<path d=\"M14 4v10.54a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0Z\" />",
+  "battery": "<path d=\"M 22 14 L 22 10\" /><rect x=\"2\" y=\"6\" width=\"16\" height=\"12\" rx=\"2\" />",
+  "ruler": "<path d=\"M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z\" /><path d=\"m14.5 12.5 2-2\" /><path d=\"m11.5 9.5 2-2\" /><path d=\"m8.5 6.5 2-2\" /><path d=\"m17.5 15.5 2-2\" />",
+  "hourglass": "<path d=\"M5 22h14\" /><path d=\"M5 2h14\" /><path d=\"M17 22v-4.172a2 2 0 0 0-.586-1.414L12 12l-4.414 4.414A2 2 0 0 0 7 17.828V22\" /><path d=\"M7 2v4.172a2 2 0 0 0 .586 1.414L12 12l4.414-4.414A2 2 0 0 0 17 6.172V2\" />",
+  "coins": "<path d=\"M13.744 17.736a6 6 0 1 1-7.48-7.48\" /><path d=\"M15 6h1v4\" /><path d=\"m6.134 14.768.866-.5 2 3.464\" /><circle cx=\"16\" cy=\"8\" r=\"6\" />",
+  "infinity": "<path d=\"M6 16c5 0 7-8 12-8a4 4 0 0 1 0 8c-5 0-7-8-12-8a4 4 0 1 0 0 8\" />",
+  "chefhat": "<path d=\"M17 21a1 1 0 0 0 1-1v-5.35c0-.457.316-.844.727-1.041a4 4 0 0 0-2.134-7.589 5 5 0 0 0-9.186 0 4 4 0 0 0-2.134 7.588c.411.198.727.585.727 1.041V20a1 1 0 0 0 1 1Z\" /><path d=\"M6 17h12\" />",
+  "listordered": "<path d=\"M11 5h10\" /><path d=\"M11 12h10\" /><path d=\"M11 19h10\" /><path d=\"M4 4h1v5\" /><path d=\"M4 9h2\" /><path d=\"M6.5 20H3.4c0-1 2.6-1.925 2.6-3.5a1.5 1.5 0 0 0-2.6-1.02\" />",
+  "languages": "<path d=\"m5 8 6 6\" /><path d=\"m4 14 6-6 2-3\" /><path d=\"M2 5h12\" /><path d=\"M7 2h1\" /><path d=\"m22 22-5-10-5 10\" /><path d=\"M14 18h6\" />",
+  "gamepad": "<line x1=\"6\" x2=\"10\" y1=\"11\" y2=\"11\" /><line x1=\"8\" x2=\"8\" y1=\"9\" y2=\"13\" /><line x1=\"15\" x2=\"15.01\" y1=\"12\" y2=\"12\" /><line x1=\"18\" x2=\"18.01\" y1=\"10\" y2=\"10\" /><path d=\"M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z\" />",
+  "party": "<path d=\"M5.8 11.3 2 22l10.7-3.79\" /><path d=\"M4 3h.01\" /><path d=\"M22 8h.01\" /><path d=\"M15 2h.01\" /><path d=\"M22 20h.01\" /><path d=\"m22 2-2.24.75a2.9 2.9 0 0 0-1.96 3.12c.1.86-.57 1.63-1.45 1.63h-.38c-.86 0-1.6.6-1.76 1.44L14 10\" /><path d=\"m22 13-.82-.33c-.86-.34-1.82.2-1.98 1.11c-.11.7-.72 1.22-1.43 1.22H17\" /><path d=\"m11 2 .33.82c.34.86-.2 1.82-1.11 1.98C9.52 4.9 9 5.52 9 6.23V7\" /><path d=\"M11 13c1.93 1.93 2.83 4.17 2 5-.83.83-3.07-.07-5-2-1.93-1.93-2.83-4.17-2-5 .83-.83 3.07.07 5 2Z\" />",
+  "help": "<circle cx=\"12\" cy=\"12\" r=\"10\" /><path d=\"M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3\" /><path d=\"M12 17h.01\" />",
+  "logout": "<path d=\"m16 17 5-5-5-5\" /><path d=\"M21 12H9\" /><path d=\"M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4\" />",
+  "retry": "<path d=\"M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8\" /><path d=\"M3 3v5h5\" />"
+};
+
+// Devuelve el marcado SVG de un icono. Si la clave no existe (p.ej. avatares
+// antiguos guardados como emoji antes de esta actualización), cae de vuelta
+// a mostrar el texto tal cual para no romper cuentas ya creadas.
+function icono(clave, atributos){
+  atributos = atributos || '';
+  if(ICONOS[clave]){
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ' + atributos + '>' + ICONOS[clave] + '</svg>';
+  }
+  return '<span class="icono-fallback">' + clave + '</span>';
+}
+</script>
+
+<script>
+/* ===========================================================
+   NUCLEO DE LA APP: usuarios y progreso, guardados en Firestore
+   =========================================================== */
+const RK_SESSION_KEY = "robokids_sesion";
+const RK_PROFESOR_KEY = "robokids_sesion_profesor";
+const COL_USUARIOS = "usuarios";
+
+function idDeUsuario(nombre){
+  return (nombre || "").trim().toLowerCase().replace(/\s+/g, "_");
+}
+function progresoVacio(){
+  return { claseVista:false, labHecho:false, quizMejorPuntaje:0, completado:false };
+}
+
+const RoboKids = {
+  _usuario: null,
+
+  async init(){
+    const id = localStorage.getItem(RK_SESSION_KEY);
+    if(!id){ this._usuario = null; return null; }
+    try{
+      const doc = await db.collection(COL_USUARIOS).doc(id).get();
+      if(!doc.exists){ this._usuario = null; return null; }
+      this._usuario = Object.assign({ id: doc.id }, doc.data());
+      return this._usuario;
+    }catch(e){
+      console.error("Error cargando usuario:", e);
+      this._usuario = null;
+      return null;
+    }
+  },
+
+  usuarioActual(){ return this._usuario; },
+  iniciarSesion(id){ localStorage.setItem(RK_SESSION_KEY, id); },
+  cerrarSesion(){ localStorage.removeItem(RK_SESSION_KEY); this._usuario = null; },
+
+  async crearUsuario(nombre, pin, avatar){
+    nombre = (nombre || "").trim();
+    if(nombre.length < 2) return { ok:false, error:"Tu nombre debe tener al menos 2 letras." };
+    if(!/^\d{4}$/.test(pin)) return { ok:false, error:"El código secreto debe tener 4 números." };
+
+    const id = idDeUsuario(nombre);
+    try{
+      const ref = db.collection(COL_USUARIOS).doc(id);
+      const existente = await ref.get();
+      if(existente.exists) return { ok:false, error:"Ese nombre ya existe. ¡Elige otro o inicia sesión!" };
+      const nuevo = { nombre, pin, avatar: avatar || "robot", creado: new Date().toISOString(), puntos:0, racha:0, progreso:{} };
+      await ref.set(nuevo);
+      this._usuario = Object.assign({ id }, nuevo);
+      this.iniciarSesion(id);
+      return { ok:true };
+    }catch(e){
+      console.error(e);
+      return { ok:false, error:"No pudimos conectar con el servidor. Revisa tu internet e inténtalo de nuevo." };
+    }
+  },
+
+  async ingresar(nombre, pin){
+    const id = idDeUsuario(nombre);
+    try{
+      const doc = await db.collection(COL_USUARIOS).doc(id).get();
+      if(!doc.exists) return { ok:false, error:"No encontramos ese usuario. ¿Ya lo creaste?" };
+      const datos = doc.data();
+      if(datos.pin !== pin) return { ok:false, error:"Código secreto incorrecto. ¡Intenta de nuevo!" };
+      this._usuario = Object.assign({ id }, datos);
+      this.iniciarSesion(id);
+      return { ok:true };
+    }catch(e){
+      console.error(e);
+      return { ok:false, error:"No pudimos conectar con el servidor. Revisa tu internet e inténtalo de nuevo." };
+    }
+  },
+
+  progresoModulo(moduloId){
+    if(!this._usuario || !this._usuario.progreso) return progresoVacio();
+    return this._usuario.progreso[moduloId] || progresoVacio();
+  },
+
+  async marcarClaseVista(moduloId){
+    const u = this._usuario;
+    if(!u) return;
+    if(!u.progreso) u.progreso = {};
+    if(!u.progreso[moduloId]) u.progreso[moduloId] = progresoVacio();
+    u.progreso[moduloId].claseVista = true;
+    await db.collection(COL_USUARIOS).doc(u.id).set({ progreso: { [moduloId]: { claseVista:true } } }, { merge:true });
+  },
+
+  async marcarLabHecho(moduloId){
+    const u = this._usuario;
+    if(!u) return;
+    if(!u.progreso) u.progreso = {};
+    if(!u.progreso[moduloId]) u.progreso[moduloId] = progresoVacio();
+    const cambios = { progreso: { [moduloId]: { labHecho:true } } };
+    if(!u.progreso[moduloId].labHecho){
+      u.puntos = (u.puntos || 0) + 10;
+      cambios.puntos = firebase.firestore.FieldValue.increment(10);
+    }
+    u.progreso[moduloId].labHecho = true;
+    await db.collection(COL_USUARIOS).doc(u.id).set(cambios, { merge:true });
+  },
+
+  async registrarQuiz(moduloId, aciertos, total){
+    const u = this._usuario;
+    if(!u) return;
+    if(!u.progreso) u.progreso = {};
+    if(!u.progreso[moduloId]) u.progreso[moduloId] = progresoVacio();
+    const p = u.progreso[moduloId];
+    const puntaje = Math.round((aciertos/total) * 100);
+    if(puntaje > p.quizMejorPuntaje) p.quizMejorPuntaje = puntaje;
+    const cambios = { progreso: { [moduloId]: { quizMejorPuntaje: p.quizMejorPuntaje } } };
+    let aprobadoAhora = false;
+    if(puntaje >= 60 && !p.completado){
+      p.completado = true;
+      u.puntos = (u.puntos || 0) + 20;
+      u.racha = (u.racha || 0) + 1;
+      cambios.progreso[moduloId].completado = true;
+      cambios.puntos = firebase.firestore.FieldValue.increment(20);
+      cambios.racha = firebase.firestore.FieldValue.increment(1);
+      aprobadoAhora = true;
+    }
+    await db.collection(COL_USUARIOS).doc(u.id).set(cambios, { merge:true });
+    return { aprobado: puntaje >= 60, puntaje, aprobadoAhora };
+  },
+
+  moduloDesbloqueado(index){
+    if(index === 0) return true;
+    if(!this._usuario) return false;
+    const anterior = MODULOS[index-1];
+    const p = this._usuario.progreso && this._usuario.progreso[anterior.id];
+    return !!(p && p.completado);
+  },
+
+  sesionProfesorActiva(){ return sessionStorage.getItem(RK_PROFESOR_KEY) === "1"; },
+  ingresarProfesor(clave){
+    if(clave === CLAVE_PROFESOR){ sessionStorage.setItem(RK_PROFESOR_KEY, "1"); return true; }
+    return false;
+  },
+  salirProfesor(){ sessionStorage.removeItem(RK_PROFESOR_KEY); },
+
+  async listarEstudiantes(){
+    const snap = await db.collection(COL_USUARIOS).get();
+    const lista = [];
+    snap.forEach(doc => lista.push(Object.assign({ id: doc.id }, doc.data())));
+    lista.sort((a,b) => (b.puntos||0) - (a.puntos||0));
+    return lista;
+  }
+};
+</script>
+<script>
+/* ===========================================================
+   ENRUTADOR — cambia de "pantalla" sin recargar la página
+   =========================================================== */
+const PANTALLAS = ["splash","dashboard","leccion","profesor-login","profesor-panel"];
+function mostrarPantalla(id){
+  PANTALLAS.forEach(p => document.getElementById("pantalla-"+p).classList.toggle("oculto", p !== id));
+}
+
+/* ===========================================================
+   PANTALLA: SPLASH
+   =========================================================== */
+const pasoInicio = document.getElementById("paso-inicio");
+const pasoCrear = document.getElementById("paso-crear");
+const pasoIngresar = document.getElementById("paso-ingresar");
+
+function mostrarPasoSplash(paso){
+  [pasoInicio, pasoCrear, pasoIngresar].forEach(p => p.classList.add("oculto"));
+  paso.classList.remove("oculto");
+}
+
+document.getElementById("btn-soy-nuevo").onclick = () => mostrarPasoSplash(pasoCrear);
+document.getElementById("btn-ya-tengo").onclick = () => mostrarPasoSplash(pasoIngresar);
+document.getElementById("crear-volver").onclick = () => mostrarPasoSplash(pasoInicio);
+document.getElementById("ingresar-volver").onclick = () => mostrarPasoSplash(pasoInicio);
+document.getElementById("link-profesor").onclick = () => mostrarPantalla("profesor-login");
+
+let avatarElegido = "robot";
+document.querySelectorAll(".avatar-opcion").forEach(el => {
+  el.onclick = () => {
+    document.querySelectorAll(".avatar-opcion").forEach(o => o.classList.remove("selec"));
+    el.classList.add("selec");
+    avatarElegido = el.dataset.avatar;
+  };
+});
+
+document.getElementById("paso-crear").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const nombre = document.getElementById("crear-nombre").value;
+  const pin = document.getElementById("crear-pin").value;
+  const errorBox = document.getElementById("crear-error");
+  const boton = document.getElementById("crear-submit");
+  boton.disabled = true; boton.textContent = "Creando...";
+  try{
+    const res = await RoboKids.crearUsuario(nombre, pin, avatarElegido);
+    if(!res.ok){ errorBox.textContent = res.error; errorBox.classList.remove("oculto"); return; }
+    errorBox.classList.add("oculto");
+    mostrarPantalla("dashboard");
+    initDashboard();
+  }catch(err){
+    console.error(err);
+    errorBox.textContent = "Algo salió mal conectando con el servidor. Revisa la consola (F12) y tu configuración de Firebase.";
+    errorBox.classList.remove("oculto");
+  }finally{
+    boton.disabled = false; boton.innerHTML = `Crear mi usuario${icono('rocket')}`;
+  }
+});
+
+document.getElementById("paso-ingresar").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const nombre = document.getElementById("ingresar-nombre").value;
+  const pin = document.getElementById("ingresar-pin").value;
+  const errorBox = document.getElementById("ingresar-error");
+  const boton = document.getElementById("ingresar-submit");
+  boton.disabled = true; boton.textContent = "Entrando...";
+  try{
+    const res = await RoboKids.ingresar(nombre, pin);
+    if(!res.ok){ errorBox.textContent = res.error; errorBox.classList.remove("oculto"); return; }
+    errorBox.classList.add("oculto");
+    mostrarPantalla("dashboard");
+    initDashboard();
+  }catch(err){
+    console.error(err);
+    errorBox.textContent = "Algo salió mal conectando con el servidor. Revisa la consola (F12) y tu configuración de Firebase.";
+    errorBox.classList.remove("oculto");
+  }finally{
+    boton.disabled = false; boton.innerHTML = `Entrar${icono('unlock')}`;
+  }
+});
+
+/* ===========================================================
+   PANTALLA: DASHBOARD
+   =========================================================== */
+function saludoSegunHora(){
+  const h = new Date().getHours();
+  if(h >= 5 && h < 12) return "Buenos días";
+  if(h >= 12 && h < 19) return "Buenas tardes";
+  return "Buenas noches";
+}
+
+function initDashboard(){
+  const usuario = RoboKids.usuarioActual();
+  if(!usuario){ mostrarPantalla("splash"); return; }
+
+  document.getElementById("topbar-brand").innerHTML = `
+    <span class="logo-badge" style="width:38px;height:38px;border-radius:12px;">${icono('robot','')}</span>
+    <div class="topbar-saludo">
+      <span class="saludo-linea1">${saludoSegunHora()}, ${usuario.nombre} 👋</span>
+      <span class="saludo-linea2">Bienvenido de nuevo a RoboKids</span>
+    </div>
+  `;
+  document.getElementById("racha-chip").innerHTML = `${icono('flame')}<span id="racha-num">${usuario.racha || 0}</span>`;
+  document.getElementById("puntos-chip").innerHTML = `${icono('star')}<span id="puntos-num">${usuario.puntos || 0}</span>`;
+  document.getElementById("avatar-chip").innerHTML = icono(usuario.avatar || 'robot', '');
+
+  document.getElementById("avatar-chip").onclick = () => {
+    if(confirm("¿Quieres cerrar sesión, " + usuario.nombre + "?")){
+      RoboKids.cerrarSesion();
+      mostrarPantalla("splash");
+      mostrarPasoSplash(pasoInicio);
+    }
+  };
+
+  const rutaEl = document.getElementById("ruta");
+  rutaEl.innerHTML = "";
+
+  MODULOS.forEach((m, i) => {
+    const desbloqueado = RoboKids.moduloDesbloqueado(i);
+    const prog = RoboKids.progresoModulo(m.id);
+    const completado = prog.completado;
+
+    const nodo = document.createElement(desbloqueado ? "button" : "div");
+    nodo.className = "nodo " + (completado ? "completo" : (desbloqueado ? "disponible" : "bloqueado"));
+
+    let estadoTexto = "Bloqueado";
+    let estadoIcono = "lock";
+    if(completado){ estadoTexto = "¡Completado!"; estadoIcono = "checkcircle"; }
+    else if(desbloqueado){ estadoTexto = prog.claseVista ? "Continuar" : "Empezar"; estadoIcono = "play"; }
+
+    nodo.innerHTML = `
+      <span class="num">${m.orden}</span>
+      ${completado ? `<span class="insignia-completo">${icono('star','style="width:100%;height:100%;color:#fff;"')}</span>` : ''}
+      <span class="icono icono-nodo">${icono(m.icono, '')}</span>
+      <span class="nombre">${m.nombre}</span>
+      <span class="estado">${!desbloqueado ? icono('lock','style="width:11px;height:11px;vertical-align:-1px;margin-right:3px;"') : ''}${estadoTexto}</span>
+    `;
+
+    if(desbloqueado){
+      nodo.onclick = () => { mostrarPantalla("leccion"); initLeccion(m.id); };
+    }
+    rutaEl.appendChild(nodo);
+  });
+}
+
+/* ===========================================================
+   PANTALLA: LECCIÓN
+   =========================================================== */
+const contenidoEl = document.getElementById("contenido");
+const pieEl = document.getElementById("pie-accion");
+const tabsEls = document.querySelectorAll(".tab");
+
+let modulo = null;
+let vista = "clase";
+let claseIndex = 0;
+let quizIndex = 0;
+let quizAciertos = 0;
+let quizRespondida = false;
+
+document.getElementById("btn-cerrar").onclick = () => { mostrarPantalla("dashboard"); initDashboard(); };
+tabsEls.forEach(t => { t.onclick = () => cambiarVista(t.dataset.tab); });
+
+function initLeccion(moduloId){
+  modulo = obtenerModulo(moduloId);
+  if(!modulo){ mostrarPantalla("dashboard"); return; }
+  claseIndex = 0;
+  actualizarProgresoBarra();
+  cambiarVista("clase");
+}
+
+function actualizarProgresoBarra(){
+  const prog = RoboKids.progresoModulo(modulo.id);
+  let pasos = 0;
+  if(prog.claseVista) pasos++;
+  if(prog.labHecho) pasos++;
+  if(prog.completado) pasos++;
+  document.getElementById("progreso-fill").style.width = (pasos/3*100) + "%";
+  tabsEls.forEach(t => {
+    const tipo = t.dataset.tab;
+    t.classList.toggle("hecho",
+      (tipo==="clase" && prog.claseVista) || (tipo==="lab" && prog.labHecho) || (tipo==="quiz" && prog.completado));
+    const bloqueada = (tipo === "lab" && !prog.claseVista) || (tipo === "quiz" && !prog.labHecho);
+    t.classList.toggle("bloqueado", bloqueada);
+    t.title = bloqueada ? "Termina el paso anterior primero" : "";
+  });
+}
+
+function pasoDisponible(tipo){
+  const prog = RoboKids.progresoModulo(modulo.id);
+  if(tipo === "lab") return prog.claseVista;
+  if(tipo === "quiz") return prog.labHecho;
+  return true;
+}
+
+function cambiarVista(nueva){
+  if(!pasoDisponible(nueva)) return;
+  vista = nueva;
+  tabsEls.forEach(t => t.classList.toggle("activo", t.dataset.tab === vista));
+  if(vista === "clase") renderClase();
+  if(vista === "lab") renderLab();
+  if(vista === "quiz") renderQuiz();
+}
+
+/* ===========================================================
+   CLASE — portada (tagline + objetivos) + lecciones (tarjetas/flujo)
+   =========================================================== */
+function itemsDeClase(){
+  const portada = {
+    portada: true,
+    titulo: modulo.nombre,
+    subtitulo: modulo.tagline,
+    objetivos: modulo.objetivos
+  };
+  return [portada, ...modulo.lecciones];
+}
+
+function renderClase(){
+  const items = itemsDeClase();
+  const total = items.length;
+  const item = items[claseIndex];
+  const esUltima = claseIndex === total - 1;
+
+  let cuerpoHtml;
+  if(item.portada){
+    cuerpoHtml = `
+      <div class="icon-badge" style="width:52px;height:52px;border-radius:18px;">${icono('sparkle','style="width:26px;height:26px;"')}</div>
+      <h2>${item.titulo}</h2>
+      <p>${item.subtitulo}</p>
+      <div class="portada-objetivos">
+        ${item.objetivos.map(o => `<div>${icono('target')}<span>${o}</span></div>`).join("")}
+      </div>
+    `;
+  }else{
+    let contenidoTipo = "";
+    if(item.tipo === "tarjetas"){
+      contenidoTipo = `<div class="mini-cards-row">${item.tarjetas.map(t => `
+        <div class="mini-card"><div class="icon-badge chico">${icono(t.icono)}</div><div class="mc-titulo">${t.titulo}</div><div class="mc-texto">${t.texto}</div></div>
+      `).join("")}</div>`;
+    }else if(item.tipo === "flujo"){
+      contenidoTipo = `<div class="flow-row">${item.flujo.map((f,i) => `
+        ${i>0 ? `<div class="flow-arrow">${icono('chevronright')}</div>` : ''}
+        <div class="flow-step"><div class="icon-badge chico verde">${icono(f.icono)}</div><div class="fs-label">${f.etiqueta}</div><div class="fs-texto">${f.texto}</div></div>
+      `).join("")}</div>`;
+    }
+
+    cuerpoHtml = `
+      <span class="eyebrow-pill">${item.eyebrow}</span>
+      <h2>${item.titulo}</h2>
+      <p>${item.subtitulo}</p>
+      <div class="coach-bubble">${icono('chat')}<span>${item.coach}</span></div>
+      ${contenidoTipo}
+      <div class="key-box">${icono('bulb')}<span>${item.clave}</span></div>
+    `;
+  }
+
+  contenidoEl.innerHTML = `
+    <div class="clase-wrap">
+      <div class="clase-card ${item.portada ? 'portada-card' : ''}">${cuerpoHtml}</div>
+      <div class="clase-nav">
+        <button class="btn btn-icon btn-blanco" id="clase-prev" ${claseIndex===0 ? "disabled":""}>${icono('chevronleft')}</button>
+        <div class="puntitos">${items.map((_,i)=>`<div class="punto ${i===claseIndex?'activo':''}"></div>`).join("")}</div>
+        <button class="btn btn-icon btn-blanco" id="clase-next" ${esUltima ? "disabled":""}>${icono('chevronright')}</button>
+      </div>
+    </div>
+  `;
+
+  document.getElementById("clase-prev").onclick = () => { claseIndex--; renderClase(); };
+  document.getElementById("clase-next").onclick = () => { claseIndex++; renderClase(); };
+
+  pieEl.innerHTML = esUltima
+    ? `<button class="btn btn-verde btn-lg" id="btn-ir-lab">Ir al Laboratorio${icono('flask')}</button>`
+    : `<button class="btn btn-azul btn-lg" id="btn-clase-siguiente">Siguiente${icono('chevronright')}</button>`;
+
+  if(esUltima){
+    RoboKids.marcarClaseVista(modulo.id).catch(console.error);
+    actualizarProgresoBarra();
+    document.getElementById("btn-ir-lab").onclick = () => cambiarVista("lab");
+  }else{
+    document.getElementById("btn-clase-siguiente").onclick = () => { claseIndex++; renderClase(); };
+  }
+}
+
+/* ===========================================================
+   LABORATORIO — secuencia (ordenar con feedback en vivo) o escenario (elegir la mejor opción)
+   =========================================================== */
+function renderLab(){
+  if(modulo.lab.tipo === "secuencia") renderLabSecuencia();
+  if(modulo.lab.tipo === "escenario") renderLabEscenario();
+}
+
+function renderLabSecuencia(){
+  const pasos = modulo.lab.pasos;
+  const mensajes = modulo.lab.mensajes;
+  const mezclado = pasos.map((texto, i) => ({ texto, correcto:i })).sort((a,b)=> (a.texto.length%3) - (b.texto.length%3));
+  let seleccion = [];
+
+  function estado(){
+    if(seleccion.length === 0) return { texto: mensajes.vacio, clase: "" };
+    const prefijoCorrecto = seleccion.every((idx, pos) => mezclado[idx].correcto === pos);
+    if(!prefijoCorrecto) return { texto: mensajes.incorrecto, clase: "mal" };
+    if(seleccion.length === mezclado.length) return { texto: mensajes.correcto, clase: "ok" };
+    return { texto: mensajes.parcial, clase: "" };
+  }
+
+  function pintar(){
+    const est = estado();
+    contenidoEl.innerHTML = `
+      <div class="lab-wrap">
+        <div class="lab-instrucciones"><h2>${icono('flask')}${modulo.lab.titulo}</h2><p>${modulo.lab.subtitulo}</p></div>
+        <div class="lab-mensaje ${est.clase}">${est.texto}</div>
+        <div class="lab-area"><div class="orden-lista" id="orden-lista">
+          ${mezclado.map((it, idx) => {
+            const pos = seleccion.indexOf(idx);
+            return `<div class="orden-item ${pos>-1?'marcado':''}" data-idx="${idx}">
+                      <span class="badge">${pos>-1 ? (pos+1) : ""}</span><span>${it.texto}</span></div>`;
+          }).join("")}
+        </div></div>
+      </div>
+    `;
+    document.querySelectorAll(".orden-item").forEach(el => {
+      el.onclick = () => {
+        const idx = parseInt(el.dataset.idx);
+        const pos = seleccion.indexOf(idx);
+        if(pos>-1){ seleccion.splice(pos,1); } else { seleccion.push(idx); }
+
+        if(seleccion.length === mezclado.length && seleccion.every((idx2, pos2) => mezclado[idx2].correcto === pos2)){
+          RoboKids.marcarLabHecho(modulo.id).catch(console.error);
+          actualizarProgresoBarra();
+          setTimeout(() => mostrarResultadoLab(true), 400);
+        }
+        pintar();
+      };
+    });
+    pieEl.innerHTML = seleccion.length > 0
+      ? `<button class="btn btn-ghost" id="btn-reiniciar-lab">${icono('retry')}Reiniciar</button>`
+      : "";
+    const btnReiniciar = document.getElementById("btn-reiniciar-lab");
+    if(btnReiniciar) btnReiniciar.onclick = () => { seleccion = []; pintar(); };
+  }
+
+  pintar();
+}
+
+function renderLabEscenario(){
+  const opciones = modulo.lab.opciones;
+  let resuelto = false;
+
+  function pintar(){
+    contenidoEl.innerHTML = `
+      <div class="lab-wrap">
+        <div class="lab-instrucciones"><h2>${icono('flask')}${modulo.lab.titulo}</h2><p>${modulo.lab.subtitulo}</p></div>
+        <div class="lab-area">
+          <div class="escenario-lista" id="escenario-lista">
+            ${opciones.map((op, idx) => `
+              <button class="escenario-opcion" data-idx="${idx}">
+                <span class="eo-icono icon-badge amarillo" style="margin:0;">${icono(op.icono)}</span>
+                <span>
+                  <div class="eo-titulo">${op.titulo}</div>
+                  <div class="eo-texto oculto" data-texto>${op.texto}</div>
+                </span>
+              </button>
+            `).join("")}
+          </div>
+        </div>
+      </div>
+    `;
+    document.querySelectorAll(".escenario-opcion").forEach(el => {
+      el.onclick = () => {
+        if(resuelto) return;
+        const idx = parseInt(el.dataset.idx);
+        const op = opciones[idx];
+        el.querySelector("[data-texto]").classList.remove("oculto");
+        el.classList.add(op.correcta ? "correcta" : "incorrecta");
+        if(op.correcta){
+          resuelto = true;
+          document.querySelectorAll(".escenario-opcion").forEach(b => b.disabled = true);
+          RoboKids.marcarLabHecho(modulo.id).catch(console.error);
+          actualizarProgresoBarra();
+          setTimeout(() => mostrarResultadoLab(true), 900);
+        }
+      };
+    });
+    pieEl.innerHTML = "";
+  }
+
+  pintar();
+}
+
+function mostrarResultadoLab(exito, reintentar){
+  contenidoEl.innerHTML = `
+    <div class="quiz-wrap"><div class="quiz-resultado">
+      <div class="icon-badge ${exito ? 'verde' : 'amarillo'}" style="width:64px;height:64px;border-radius:22px;">${icono(exito ? 'party' : 'help', 'style="width:32px;height:32px;"')}</div>
+      <h2>${exito ? "¡Muy bien hecho!" : "Casi... ¡inténtalo de nuevo!"}</h2>
+    </div></div>
+  `;
+  pieEl.innerHTML = exito
+    ? `<button class="btn btn-verde btn-lg" id="btn-ir-quiz">Ir al Quiz${icono('clipboard')}</button>`
+    : `<button class="btn btn-azul btn-lg" id="btn-reintentar">Reintentar${icono('retry')}</button>`;
+  if(exito){ document.getElementById("btn-ir-quiz").onclick = () => cambiarVista("quiz"); }
+  else{ document.getElementById("btn-reintentar").onclick = reintentar; }
+}
+
+/* ===========================================================
+   QUIZ — pregunta, pista opcional, explicación tras responder
+   =========================================================== */
+function renderQuiz(){
+  quizIndex = 0; quizAciertos = 0;
+  pintarPregunta();
+}
+
+function pintarPregunta(){
+  quizRespondida = false;
+  const total = modulo.quiz.length;
+  const q = modulo.quiz[quizIndex];
+  contenidoEl.innerHTML = `
+    <div class="quiz-wrap">
+      <div style="font-weight:800;color:var(--gris-400);">Pregunta ${quizIndex+1} de ${total}</div>
+      <div class="quiz-pregunta">${q.pregunta}</div>
+      <button class="btn-pista" id="btn-pista">${icono('bulb')}Ver pista</button>
+      <div class="pista-texto oculto" id="pista-texto">${q.pista}</div>
+      <div class="quiz-opciones" id="quiz-opciones">${q.opciones.map((op,i)=>`<button class="quiz-opcion" data-idx="${i}">${op.texto}</button>`).join("")}</div>
+    </div>
+  `;
+  document.getElementById("btn-pista").onclick = () => {
+    document.getElementById("pista-texto").classList.toggle("oculto");
+  };
+  document.querySelectorAll(".quiz-opcion").forEach(btn => { btn.onclick = () => responder(parseInt(btn.dataset.idx), q); });
+  pieEl.innerHTML = "";
+}
+
+function responder(idx, q){
+  if(quizRespondida) return;
+  quizRespondida = true;
+  const correctaIdx = q.opciones.findIndex(o => o.correcta);
+  const acerto = idx === correctaIdx;
+
+  document.querySelectorAll(".quiz-opcion").forEach(btn => {
+    btn.disabled = true;
+    const i = parseInt(btn.dataset.idx);
+    if(i === correctaIdx) btn.classList.add("correcta");
+    else if(i === idx) btn.classList.add("incorrecta");
+  });
+
+  const cajaExplicacion = document.createElement("div");
+  cajaExplicacion.className = "explicacion-caja " + (acerto ? "ok" : "");
+  cajaExplicacion.textContent = q.explicacion;
+  document.querySelector(".quiz-wrap").appendChild(cajaExplicacion);
+
+  if(acerto) quizAciertos++;
+
+  pieEl.innerHTML = `<button class="btn btn-azul btn-lg" id="btn-quiz-siguiente">Continuar</button>`;
+  document.getElementById("btn-quiz-siguiente").onclick = async () => {
+    quizIndex++;
+    if(quizIndex < modulo.quiz.length){ pintarPregunta(); } else { await terminarQuiz(); }
+  };
+}
+
+async function terminarQuiz(){
+  const total = modulo.quiz.length;
+  const resultado = await RoboKids.registrarQuiz(modulo.id, quizAciertos, total);
+  actualizarProgresoBarra();
+
+  const coloresConfeti = ['#58CC02','#1CB0F6','#FFC800','#FF4B4B','#CE82FF'];
+  const confeti = resultado.aprobado ? Array.from({length:14}).map((_,i) => {
+    const left = Math.random()*100;
+    const delay = (Math.random()*0.3).toFixed(2);
+    const color = coloresConfeti[i % coloresConfeti.length];
+    return `<span class="confeti" style="left:${left}%; background:${color}; animation-delay:${delay}s;"></span>`;
+  }).join("") : "";
+
+  contenidoEl.innerHTML = `
+    <div class="quiz-wrap confeti-wrap">
+      ${confeti}
+      <div class="quiz-resultado">
+        <div class="icon-badge ${resultado.aprobado ? 'verde' : 'amarillo'}" style="width:64px;height:64px;border-radius:22px;">${icono(resultado.aprobado ? 'trophy' : 'trending', 'style="width:32px;height:32px;"')}</div>
+        <h2>${resultado.aprobado ? "¡Lección superada!" : "¡Sigue practicando!"}</h2>
+        <p style="font-weight:700;color:var(--gris-700);">Acertaste ${quizAciertos} de ${total} preguntas (${resultado.puntaje}%)</p>
+      </div>
+    </div>
+  `;
+  pieEl.innerHTML = resultado.aprobado
+    ? `<button class="btn btn-verde btn-lg" id="btn-fin-ruta">Volver a mi ruta${icono('rocket')}</button>`
+    : `<button class="btn btn-azul btn-lg" id="btn-fin-reintentar">Reintentar Quiz${icono('retry')}</button>`;
+  if(resultado.aprobado){
+    document.getElementById("btn-fin-ruta").onclick = () => { mostrarPantalla("dashboard"); initDashboard(); };
+  }else{
+    document.getElementById("btn-fin-reintentar").onclick = () => cambiarVista("quiz");
+  }
+}
+
+
+/* ===========================================================
+   PANTALLA: PROFESOR (login + panel con todos los estudiantes)
+   =========================================================== */
+document.getElementById("profesor-volver").onclick = () => mostrarPantalla("splash");
+
+document.getElementById("profesor-entrar").onclick = async () => {
+  const clave = document.getElementById("profesor-clave").value;
+  const errorBox = document.getElementById("profesor-error");
+  if(RoboKids.ingresarProfesor(clave)){
+    errorBox.classList.add("oculto");
+    document.getElementById("profesor-clave").value = "";
+    mostrarPantalla("profesor-panel");
+    await cargarProfesorPanel();
+  }else{
+    errorBox.textContent = "Contraseña incorrecta.";
+    errorBox.classList.remove("oculto");
+  }
+};
+
+document.getElementById("profesor-salir").onclick = () => {
+  RoboKids.salirProfesor();
+  mostrarPantalla("splash");
+};
+
+document.getElementById("profesor-actualizar").onclick = () => cargarProfesorPanel();
+
+async function cargarProfesorPanel(){
+  const wrap = document.getElementById("profesor-tabla-wrap");
+  const resumen = document.getElementById("profesor-resumen");
+  wrap.innerHTML = `<p class="profesor-empty">Cargando estudiantes...</p>`;
+
+  let estudiantes = [];
+  try{
+    estudiantes = await RoboKids.listarEstudiantes();
+  }catch(e){
+    console.error(e);
+    wrap.innerHTML = `<p class="profesor-empty">No pudimos cargar los datos. Revisa tu conexión o la configuración de Firebase.</p>`;
+    return;
+  }
+
+  if(estudiantes.length === 0){
+    resumen.innerHTML = "";
+    wrap.innerHTML = `<p class="profesor-empty">Todavía no hay estudiantes registrados.</p>`;
+    return;
+  }
+
+  const totalCompletados = estudiantes.reduce((acc, es) => {
+    const c = MODULOS.filter(m => es.progreso && es.progreso[m.id] && es.progreso[m.id].completado).length;
+    return acc + c;
+  }, 0);
+  const promedioPuntos = Math.round(estudiantes.reduce((a,e)=>a+(e.puntos||0),0) / estudiantes.length);
+
+  resumen.innerHTML = `
+    <div class="resumen-chip">${icono('users')}${estudiantes.length} estudiantes</div>
+    <div class="resumen-chip">${icono('checkcircle')}${totalCompletados} temas completados en total</div>
+    <div class="resumen-chip">${icono('star')}${promedioPuntos} puntos promedio</div>
+  `;
+
+  const filas = estudiantes.map(es => {
+    const badges = MODULOS.map(m => {
+      const p = es.progreso && es.progreso[m.id];
+      let clase = "vacio", simbolo = "–";
+      if(p && p.completado){ clase = "completo"; simbolo = "✓"; }
+      else if(p && (p.claseVista || p.labHecho)){ clase = "progreso"; simbolo = "~"; }
+      return `<span class="badge-mod ${clase}" title="${m.nombre}">${simbolo}</span>`;
+    }).join("");
+
+    return `
+      <tr>
+        <td><div class="estudiante-nombre"><span class="icon-badge chico">${icono(es.avatar || 'robot')}</span> ${es.nombre}</div></td>
+        <td>${icono('star')}${es.puntos || 0}</td>
+        <td>${icono('flame')}${es.racha || 0}</td>
+        <td>${badges}</td>
+      </tr>
+    `;
+  }).join("");
+
+  wrap.innerHTML = `
+    <table class="tabla-estudiantes">
+      <thead>
+        <tr>
+          <th>Estudiante</th>
+          <th>Puntos</th>
+          <th>Racha</th>
+          <th>Progreso por tema (${MODULOS.map(m=>m.icono).join(" ")})</th>
+        </tr>
+      </thead>
+      <tbody>${filas}</tbody>
+    </table>
+  `;
+}
+
+/* ===========================================================
+   INICIO DE LA APP
+   =========================================================== */
+(async () => {
+  await RoboKids.init();
+  if(RoboKids.usuarioActual()){
+    mostrarPantalla("dashboard");
+    initDashboard();
+  }else{
+    mostrarPantalla("splash");
+  }
+})();
+</script>
+</body>
+</html>
