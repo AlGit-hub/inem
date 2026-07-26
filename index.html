@@ -3,9 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>RoboKids · Aprende robótica jugando</title>
 <link rel="icon" type="image/png" href="./robot.png">
-
+<title>RoboKids · Aprende robótica jugando</title>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -39,7 +38,7 @@
 
 *{ box-sizing: border-box; margin:0; padding:0; }
 html, body{ height:100%; overflow:hidden; }
-body{ font-family:'Nunito', sans-serif; color:var(--texto); background:var(--gris-100); }
+body{ font-family:'Nunito', sans-serif; color:var(--texto); }
 h1,h2,h3,.titulo{ font-family:'Baloo 2', sans-serif; }
 button{ font-family:inherit; cursor:pointer; border:none; }
 input{ font-family:inherit; }
@@ -88,7 +87,7 @@ input{ font-family:inherit; }
 .link-cambio a{ color:var(--azul); text-decoration:none; cursor:pointer; }
 
 /* ---------- Dashboard ---------- */
-.topbar{ height:74px; flex-shrink:0; display:flex; align-items:center; justify-content:space-between; padding:0 26px; background:#fff; border-bottom:2px solid var(--gris-200); }
+.topbar{ height:74px; flex-shrink:0; display:flex; align-items:center; justify-content:space-between; padding:0 26px; background:rgba(255,255,255,.78); backdrop-filter:blur(10px); border-bottom:2px solid rgba(229,229,229,.6); }
 .topbar-brand{ display:flex; align-items:center; gap:10px; font-weight:800; color:var(--azul-dark); font-size:1.2rem; }
 .topbar-brand .emoji{ font-size:1.6rem; }
 .topbar-user{ display:flex; align-items:center; gap:14px; }
@@ -111,7 +110,7 @@ input{ font-family:inherit; }
 .nodo.bloqueado .icono{ filter:grayscale(1); opacity:.6; }
 
 /* ---------- Lección ---------- */
-.leccion-top{ height:64px; flex-shrink:0; display:flex; align-items:center; gap:14px; padding:0 22px; background:#fff; border-bottom:2px solid var(--gris-200); }
+.leccion-top{ height:64px; flex-shrink:0; display:flex; align-items:center; gap:14px; padding:0 22px; background:rgba(255,255,255,.78); backdrop-filter:blur(10px); border-bottom:2px solid rgba(229,229,229,.6); }
 .cerrar-btn{ font-size:1.4rem; color:var(--gris-400); background:none; width:36px; height:36px; border-radius:10px; display:flex; align-items:center; justify-content:center; }
 .cerrar-btn:hover{ background:var(--gris-100); }
 .progreso-barra{ flex:1; height:16px; background:var(--gris-200); border-radius:10px; overflow:hidden; }
@@ -120,7 +119,7 @@ input{ font-family:inherit; }
 .tab{ flex:1; padding:10px 8px; text-align:center; border-radius:14px 14px 0 0; font-weight:800; font-size:.9rem; background:var(--gris-200); color:var(--gris-700); }
 .tab.activo{ background:#fff; color:var(--azul-dark); }
 .tab.hecho::after{ content:" ✓"; color:var(--verde-dark); }
-.contenido{ flex:1; background:#fff; overflow:hidden; display:flex; flex-direction:column; padding:26px 6vw; }
+.contenido{ flex:1; background:#fff; overflow:hidden; display:flex; flex-direction:column; padding:26px 6vw; margin:0 2.5vw; border-radius:26px 26px 0 0; box-shadow:0 -6px 24px rgba(28,176,246,.06); }
 .clase-wrap{ flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px; overflow:hidden; }
 .clase-card{ width:min(680px, 100%); max-height:100%; overflow:auto; background:var(--gris-100); border-radius:24px; padding:34px 38px; text-align:center; display:flex; flex-direction:column; gap:14px; align-items:center; justify-content:center; }
 .clase-card .emoji-grande{ font-size:3rem; }
@@ -156,9 +155,31 @@ input{ font-family:inherit; }
 .quiz-resultado{ display:flex; flex-direction:column; align-items:center; gap:14px; }
 .quiz-resultado .emoji-grande{ font-size:3.4rem; }
 .quiz-resultado h2{ font-size:1.6rem; }
-.pie-accion{ flex-shrink:0; padding:16px 6vw 22px; display:flex; justify-content:center; background:#fff; border-top:2px solid var(--gris-100); }
+.pie-accion{ flex-shrink:0; padding:16px 6vw 22px; display:flex; justify-content:center; background:#fff; margin:0 2.5vw 2.5vw; border-radius:0 0 26px 26px; box-shadow:0 6px 24px rgba(28,176,246,.06); }
 
-/* ---------- Zona de profesor (tema oscuro, distinto a la de los niños) ---------- */
+/* ---------- Pantalla: Mi Progreso ---------- */
+.progreso-perfil{ display:flex; align-items:center; gap:16px; margin-bottom:22px; }
+.progreso-nombre{ font-family:'Baloo 2',sans-serif; font-size:1.3rem; font-weight:700; }
+.progreso-sub{ font-weight:700; color:var(--gris-700); font-size:.85rem; }
+
+.progreso-stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-bottom:26px; }
+.progreso-stat-card{ background:var(--gris-100); border-radius:16px; padding:14px; display:flex; align-items:center; gap:10px; }
+.progreso-stat-card svg{ width:22px; height:22px; color:var(--azul-dark); flex-shrink:0; }
+.pstat-num{ font-weight:800; font-size:1.2rem; }
+.pstat-label{ font-weight:700; font-size:.7rem; color:var(--gris-400); text-transform:uppercase; }
+
+.progreso-seccion-titulo{ font-size:1rem; margin:20px 0 12px; }
+
+.logros-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(120px,1fr)); gap:12px; margin-bottom:10px; }
+.logro-card{ text-align:center; border-radius:16px; padding:14px 10px; border:2px solid var(--gris-200); }
+.logro-card.obtenido{ background:#FFF9E5; border-color:var(--amarillo-dark); }
+.logro-card.bloqueado{ opacity:.55; }
+.logro-nombre{ font-weight:800; font-size:.8rem; margin-bottom:2px; }
+.logro-desc{ font-size:.68rem; color:var(--gris-700); font-weight:600; line-height:1.3; }
+
+.progreso-modulos-lista{ display:flex; flex-direction:column; gap:8px; padding-bottom:20px; }
+.progreso-modulo-fila{ display:flex; align-items:center; gap:12px; background:var(--gris-100); border-radius:12px; padding:10px 14px; }
+.progreso-modulo-nombre{ font-weight:700; font-size:.85rem; flex:1; }
 .profesor-fondo{ background:linear-gradient(160deg,#0F172A 0%,#111827 60%,#1E293B 100%); align-items:center; justify-content:center; }
 .profesor-login-panel{ background:#111827; border-radius:24px; width:min(400px,90vw); padding:34px 32px; box-shadow:0 20px 50px rgba(0,0,0,.45); }
 .profesor-login-panel .campo label{ color:#94A3B8; }
@@ -169,6 +190,34 @@ input{ font-family:inherit; }
 .profesor-resumen{ display:flex; gap:14px; padding:16px 26px 0; flex-wrap:wrap; flex-shrink:0; }
 .resumen-chip{ background:#111827; border:1px solid #1E293B; border-radius:14px; padding:10px 18px; font-weight:800; color:#38BDF8; font-size:.9rem; display:flex; align-items:center; gap:8px; }
 .profesor-tabla-wrap{ flex:1; overflow:auto; padding:18px 26px 26px; }
+.fila-estudiante{ cursor:pointer; }
+.fila-estudiante:hover{ background:#1E293B; }
+
+.profesor-ranking{ padding:14px 26px 0; flex-shrink:0; }
+.ranking-titulo{ display:flex; align-items:center; gap:8px; color:#FFC800; font-size:1rem; margin-bottom:10px; }
+.ranking-lista{ display:flex; gap:10px; overflow-x:auto; padding-bottom:4px; }
+.ranking-item{ display:flex; align-items:center; gap:8px; background:#111827; border:1px solid #1E293B; border-radius:14px; padding:10px 16px; flex-shrink:0; min-width:160px; }
+.ranking-puesto{ font-weight:800; color:#64748B; width:18px; }
+.ranking-nombre{ font-weight:800; color:#E2E8F0; font-size:.85rem; flex:1; white-space:nowrap; }
+.ranking-puntos{ display:flex; align-items:center; gap:4px; color:#FFC800; font-weight:800; font-size:.8rem; }
+.ranking-item.medalla-oro{ border-color:#FFC800; box-shadow:0 0 0 1px #FFC800 inset; }
+.ranking-item.medalla-oro .ranking-puesto{ color:#FFC800; }
+.ranking-item.medalla-plata{ border-color:#CBD5E1; }
+.ranking-item.medalla-plata .ranking-puesto{ color:#CBD5E1; }
+.ranking-item.medalla-bronce{ border-color:#D97706; }
+.ranking-item.medalla-bronce .ranking-puesto{ color:#D97706; }
+
+/* ---------- Modal de detalle de estudiante ---------- */
+.modal-fondo{ position:fixed; inset:0; background:rgba(15,23,42,.6); display:flex; align-items:center; justify-content:center; z-index:50; padding:20px; }
+.modal-caja{ background:#fff; border-radius:24px; width:min(480px,100%); max-height:85vh; overflow:auto; padding:26px; animation: aparecerPanel .3s ease both; }
+.modal-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+.modal-stats{ display:flex; gap:10px; margin-bottom:16px; }
+.modal-logros{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:18px; }
+.mini-logro{ display:flex; align-items:center; gap:6px; background:#FFF7E5; border:1px solid var(--amarillo-dark); color:#6b4a00; font-weight:800; font-size:.75rem; padding:6px 12px; border-radius:20px; }
+.detalle-modulos-lista{ display:flex; flex-direction:column; gap:10px; }
+.detalle-modulo{ display:flex; align-items:center; gap:12px; background:var(--gris-100); border-radius:14px; padding:10px 14px; }
+.detalle-modulo-nombre{ font-weight:800; font-size:.85rem; }
+.detalle-modulo-estado{ font-size:.72rem; color:var(--gris-700); font-weight:700; display:flex; align-items:center; gap:2px; flex-wrap:wrap; }
 table.tabla-estudiantes{ width:100%; border-collapse:collapse; background:#111827; border-radius:16px; overflow:hidden; }
 .tabla-estudiantes th, .tabla-estudiantes td{ padding:12px 14px; text-align:left; font-size:.87rem; white-space:nowrap; }
 .tabla-estudiantes thead th{ background:#1E293B; color:#94A3B8; font-weight:800; text-transform:uppercase; font-size:.68rem; letter-spacing:.5px; position:sticky; top:0; }
@@ -301,7 +350,7 @@ svg{ display:block; width:1.15em; height:1.15em; flex-shrink:0; }
 /* ===========================================================
    MEJORAS VISUALES GENERALES
    =========================================================== */
-body{ background:var(--gris-100); }
+body{ background: linear-gradient(165deg, #E3F6FF 0%, #EFFBF0 45%, #FFF8E8 100%); background-attachment: fixed; }
 
 .nodo{ position:relative; overflow:hidden; }
 .nodo::before{
@@ -348,6 +397,23 @@ body{ background:var(--gris-100); }
 @keyframes caerConfeti{
   0%{ opacity:1; transform:translateY(0) rotate(0deg); }
   100%{ opacity:0; transform:translateY(120px) rotate(280deg); }
+}
+
+/* Aviso flotante de logro nuevo */
+.toast-logro{
+  position:fixed; top:20px; right:20px; z-index:100;
+  display:flex; align-items:center; gap:12px;
+  background:#fff; border-radius:18px; padding:12px 18px;
+  box-shadow:0 10px 30px rgba(0,0,0,.18);
+  transform:translateX(120%); transition:transform .35s cubic-bezier(.2,.9,.3,1.3);
+}
+.toast-logro.mostrar{ transform:translateX(0); }
+.toast-logro-titulo{ font-size:.7rem; font-weight:800; color:var(--gris-400); text-transform:uppercase; letter-spacing:.5px; }
+.toast-logro-nombre{ font-weight:800; color:var(--texto); font-size:.95rem; }
+@media (max-width:760px){
+  .toast-logro{ left:16px; right:16px; top:16px; }
+  .toast-logro{ transform:translateY(-140%); }
+  .toast-logro.mostrar{ transform:translateY(0); }
 }
 
 /* ===========================================================
@@ -449,7 +515,7 @@ body{ background:var(--gris-100); }
     <div class="topbar-brand" id="topbar-brand"></div>
     <div class="topbar-user">
       <div class="racha" id="racha-chip"></div>
-      <div class="puntos" id="puntos-chip"></div>
+      <div class="puntos" id="puntos-chip" style="cursor:pointer;" title="Ver mi progreso"></div>
       <div class="avatar-chip" id="avatar-chip" title="Cerrar sesión"></div>
     </div>
   </div>
@@ -474,19 +540,62 @@ body{ background:var(--gris-100); }
 </div>
 
 <!-- =========================================================
+     PANTALLA: MI PROGRESO (estadísticas y logros del estudiante)
+     ========================================================= -->
+<div id="pantalla-progreso" class="pantalla oculto">
+  <div class="leccion-top">
+    <button class="cerrar-btn" id="btn-cerrar-progreso"></button>
+    <div class="topbar-brand" style="border:none;">Mi Progreso</div>
+  </div>
+  <div class="contenido" id="contenido-progreso" style="overflow:auto;"></div>
+</div>
+
+<!-- =========================================================
      PANTALLA: LOGIN DE PROFESOR
      ========================================================= -->
 <div id="pantalla-profesor-login" class="pantalla profesor-fondo oculto">
   <div class="profesor-login-panel">
     <div class="splash-logo"><span class="logo-badge logo-badge-profesor"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z" /><path d="M22 10v6" /><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5" /></svg></span><h1 style="color:#38BDF8;">Panel del Profesor</h1></div>
-    <p class="splash-sub" style="color:#94A3B8;">Ingresa tu contraseña para ver el progreso de tus estudiantes.</p>
-    <div class="campo">
-      <label>Contraseña</label>
-      <input type="password" id="profesor-clave" placeholder="••••••••" autocomplete="off">
+
+    <div id="profesor-paso-inicio" class="splash-opciones">
+      <p class="splash-sub" style="color:#94A3B8;">Cada profesor tiene su propia cuenta.</p>
+      <button class="btn btn-azul btn-ancho btn-lg" id="profesor-btn-nuevo">Crear mi cuenta</button>
+      <button class="btn btn-blanco btn-ancho btn-lg" id="profesor-btn-ingresar" style="background:#1E293B;color:#E2E8F0;border-color:#334155;">Ya tengo cuenta</button>
     </div>
-    <div id="profesor-error" class="error-msg oculto"></div>
-    <button class="btn btn-azul btn-ancho btn-lg" id="profesor-entrar">Entrar<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg></button>
-    <button type="button" class="btn btn-ghost btn-ancho" id="profesor-volver"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><path d="m15 18-6-6 6-6" /></svg>Volver</button>
+
+    <form id="profesor-paso-crear" class="splash-opciones oculto">
+      <div class="campo">
+        <label style="color:#94A3B8;">Tu nombre de usuario</label>
+        <input type="text" id="profesor-crear-usuario" placeholder="Ej: profe_carlos" maxlength="24" autocomplete="off">
+      </div>
+      <div class="campo">
+        <label style="color:#94A3B8;">Crea una contraseña</label>
+        <input type="password" id="profesor-crear-clave" placeholder="Mínimo 4 caracteres" autocomplete="off">
+      </div>
+      <div class="campo">
+        <label style="color:#94A3B8;">Código de invitación</label>
+        <input type="password" id="profesor-crear-codigo" placeholder="Te lo da la dirección/profesor a cargo" autocomplete="off">
+      </div>
+      <div id="profesor-crear-error" class="error-msg oculto"></div>
+      <button type="submit" class="btn btn-azul btn-ancho btn-lg" id="profesor-crear-submit">Crear mi cuenta</button>
+      <button type="button" class="btn btn-ghost btn-ancho" id="profesor-crear-volver" style="color:#94A3B8;">Volver</button>
+    </form>
+
+    <form id="profesor-paso-ingresar" class="splash-opciones oculto">
+      <div class="campo">
+        <label style="color:#94A3B8;">Tu nombre de usuario</label>
+        <input type="text" id="profesor-clave-usuario" placeholder="Ej: profe_carlos" maxlength="24" autocomplete="off">
+      </div>
+      <div class="campo">
+        <label style="color:#94A3B8;">Contraseña</label>
+        <input type="password" id="profesor-clave" placeholder="••••••••" autocomplete="off">
+      </div>
+      <div id="profesor-error" class="error-msg oculto"></div>
+      <button class="btn btn-azul btn-ancho btn-lg" id="profesor-entrar">Entrar<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg></button>
+      <button type="button" class="btn btn-ghost btn-ancho" id="profesor-ingresar-volver" style="color:#94A3B8;">Volver</button>
+    </form>
+
+    <div class="link-cambio"><a id="profesor-volver-inicio" style="color:#94A3B8;">← Volver al inicio</a></div>
   </div>
 </div>
 
@@ -495,16 +604,25 @@ body{ background:var(--gris-100); }
      ========================================================= -->
 <div id="pantalla-profesor-panel" class="pantalla profesor-tema oculto">
   <div class="profesor-top">
-    <div class="profesor-brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z" /><path d="M22 10v6" /><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5" /></svg>Panel del Profesor</div>
+    <div class="profesor-brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z" /><path d="M22 10v6" /><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5" /></svg><span id="profesor-panel-nombre">Panel del Profesor</span></div>
     <div class="topbar-user">
+      <button class="btn btn-blanco" id="profesor-exportar" style="padding:10px 16px;background:#1E293B;color:#E2E8F0;border-color:#334155;">Exportar CSV</button>
       <button class="btn btn-blanco" id="profesor-actualizar" style="padding:10px 16px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" /><path d="M21 3v5h-5" /><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" /><path d="M8 16H3v5" /></svg>Actualizar</button>
       <button class="btn btn-ghost" id="profesor-salir" style="color:#94A3B8;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><path d="m16 17 5-5-5-5" /><path d="M21 12H9" /><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /></svg>Salir</button>
     </div>
   </div>
   <div class="profesor-resumen" id="profesor-resumen"></div>
+  <div class="profesor-ranking" id="profesor-ranking"></div>
   <div class="profesor-tabla-wrap" id="profesor-tabla-wrap">
     <p class="profesor-empty">Cargando estudiantes...</p>
   </div>
+</div>
+
+<!-- =========================================================
+     PANTALLA: DETALLE DE UN ESTUDIANTE (dentro del panel de profesor)
+     ========================================================= -->
+<div id="modal-detalle-estudiante" class="modal-fondo oculto">
+  <div class="modal-caja" id="modal-detalle-contenido"></div>
 </div>
 
 <script>
@@ -523,13 +641,19 @@ body{ background:var(--gris-100); }
             match /usuarios/{usuarioId} {
               allow read, write: if true;
             }
+            match /profesores/{profesorId} {
+              allow read, write: if true;
+            }
           }
         }
 
    4. ⚙️ Configuración del proyecto → "Tus apps" → ícono "</>" (Web)
       → regístrala → copia el objeto firebaseConfig y pégalo abajo,
       reemplazando el de ejemplo.
-   5. Cambia CLAVE_PROFESOR por la contraseña que quieras usar.
+   5. Cambia CODIGO_INVITACION_PROFESOR por una palabra o frase que solo
+      tú (y otros profesores de confianza) conozcan. Sin ese código, nadie
+      puede crear una cuenta de profesor nueva — así un estudiante curioso
+      no puede entrar "por accidente" al panel con los datos de todos.
    =========================================================== */
 const firebaseConfig = {
   apiKey: "AIzaSyDz-AARSJQ6Fpg7OfDFs-u8Ss_XCl2YqLE",
@@ -539,7 +663,7 @@ const firebaseConfig = {
   messagingSenderId: "57026759449",
   appId: "1:57026759449:web:8a51b65bd3b2f7db399388"
 };
-const CLAVE_PROFESOR = "Sukuna2026";
+const CODIGO_INVITACION_PROFESOR = "robotica-inem-2026";
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
@@ -672,7 +796,7 @@ const MODULOS = [
         "eyebrow": "Comunidad",
         "subtitulo": "Learn te enseña paso a paso; Discover te conecta con creadores del mundo.",
         "coach": "No estás solo: hay tutoriales integrados y una comunidad enorme para inspirarte.",
-        "clave": "Learn tiene lecciones progresivas; en Discover puedes explorar, remixar y compartir diseños.",
+        "clave": "Learn tiene lecciones progresivas; en Discover puedes explorar, modificar y compartir diseños.",
         "tipo": "flujo",
         "flujo": [
           {
@@ -796,10 +920,10 @@ const MODULOS = [
       {
         "pregunta": "¿Qué puedes hacer en la sección Discover?",
         "pista": "Tiene que ver con la comunidad.",
-        "explicacion": "Discover muestra creaciones de otros usuarios que puedes explorar y remixar.",
+        "explicacion": "Discover muestra creaciones de otros usuarios que puedes explorar y modificar.",
         "opciones": [
           {
-            "texto": "Ver y remixar diseños de la comunidad",
+            "texto": "Ver y modificar diseños de la comunidad",
             "correcta": true
           },
           {
@@ -846,6 +970,44 @@ const MODULOS = [
           },
           {
             "texto": "JPG",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Qué encuentras en la sección Learn de Tinkercad?",
+        "pista": "Tiene que ver con aprender.",
+        "explicacion": "Learn ofrece tutoriales interactivos dentro de la misma plataforma.",
+        "opciones": [
+          {
+            "texto": "Tutoriales interactivos para aprender paso a paso",
+            "correcta": true
+          },
+          {
+            "texto": "Una tienda de componentes",
+            "correcta": false
+          },
+          {
+            "texto": "Un editor de video",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Qué hace la herramienta de agrupar formas?",
+        "pista": "Piensa en unir piezas.",
+        "explicacion": "Agrupar fusiona varias formas en una sola pieza nueva.",
+        "opciones": [
+          {
+            "texto": "Fusiona varias formas en una sola pieza",
+            "correcta": true
+          },
+          {
+            "texto": "Cambia el color de una figura",
+            "correcta": false
+          },
+          {
+            "texto": "Borra el diseño completo",
             "correcta": false
           }
         ]
@@ -1154,6 +1316,44 @@ const MODULOS = [
             "correcta": false
           }
         ]
+      },
+      {
+        "pregunta": "¿Cuál es la ventaja de simular en Tinkercad antes de usar hardware real?",
+        "pista": "Piensa en el riesgo.",
+        "explicacion": "Simular te deja practicar y cometer errores sin dañar componentes reales.",
+        "opciones": [
+          {
+            "texto": "Puedes practicar y equivocarte sin dañar nada",
+            "correcta": true
+          },
+          {
+            "texto": "Es más lento que el hardware real",
+            "correcta": false
+          },
+          {
+            "texto": "No sirve para aprender",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Qué representa la 'tríada' sensor-cerebro-actuador?",
+        "pista": "Son 3 partes que trabajan juntas.",
+        "explicacion": "Juntas, estas 3 partes forman el ciclo completo de cualquier robot.",
+        "opciones": [
+          {
+            "texto": "Las 3 partes básicas de cualquier robot",
+            "correcta": true
+          },
+          {
+            "texto": "Tres lenguajes de programación",
+            "correcta": false
+          },
+          {
+            "texto": "Tres tipos de pantallas",
+            "correcta": false
+          }
+        ]
       }
     ]
   },
@@ -1449,6 +1649,44 @@ const MODULOS = [
           },
           {
             "texto": "Ignorar el error",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Cómo están organizados los bloques en el entorno de trabajo?",
+        "pista": "Piensa en un armario ordenado.",
+        "explicacion": "Los bloques se agrupan por categorías según su función (movimiento, lógica, etc.).",
+        "opciones": [
+          {
+            "texto": "Por categorías según su función",
+            "correcta": true
+          },
+          {
+            "texto": "Por orden alfabético únicamente",
+            "correcta": false
+          },
+          {
+            "texto": "Al azar cada vez que abres el proyecto",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "Además de imprimir en 3D, ¿qué otra cosa puedes exportar desde tus bloques?",
+        "pista": "Piensa en Arduino.",
+        "explicacion": "Puedes convertir tus bloques en código Arduino C++ real.",
+        "opciones": [
+          {
+            "texto": "Código Arduino en C++",
+            "correcta": true
+          },
+          {
+            "texto": "Un archivo de audio",
+            "correcta": false
+          },
+          {
+            "texto": "Una hoja de cálculo",
             "correcta": false
           }
         ]
@@ -1757,6 +1995,44 @@ const MODULOS = [
             "correcta": false
           }
         ]
+      },
+      {
+        "pregunta": "¿Qué significa que Arduino sea de 'código abierto'?",
+        "pista": "Piensa en compartir.",
+        "explicacion": "Cualquiera puede usar, modificar y compartir libremente su diseño y software.",
+        "opciones": [
+          {
+            "texto": "Cualquiera puede usarlo, modificarlo y compartirlo",
+            "correcta": true
+          },
+          {
+            "texto": "Solo empresas grandes pueden usarlo",
+            "correcta": false
+          },
+          {
+            "texto": "Es un secreto industrial",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Cuál de estos es un proyecto típico que puedes construir con Arduino?",
+        "pista": "Piensa en algo que se mueva o reaccione.",
+        "explicacion": "Arduino permite construir desde robots siguelíneas hasta casas automáticas.",
+        "opciones": [
+          {
+            "texto": "Un robot que sigue una línea en el piso",
+            "correcta": true
+          },
+          {
+            "texto": "Una película animada",
+            "correcta": false
+          },
+          {
+            "texto": "Un libro digital",
+            "correcta": false
+          }
+        ]
       }
     ]
   },
@@ -2051,6 +2327,44 @@ const MODULOS = [
           },
           {
             "texto": "pinMode()",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Para qué sirve el Monitor Serie?",
+        "pista": "Te deja 'ver' lo que hace tu programa.",
+        "explicacion": "El Monitor Serie muestra datos en tiempo real mientras tu programa corre.",
+        "opciones": [
+          {
+            "texto": "Ver datos en tiempo real mientras el programa corre",
+            "correcta": true
+          },
+          {
+            "texto": "Borrar el sketch completo",
+            "correcta": false
+          },
+          {
+            "texto": "Cambiar el color de un LED",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Cómo usas código que ya hizo la comunidad, sin escribirlo desde cero?",
+        "pista": "Empieza con el símbolo #.",
+        "explicacion": "Con #include importas una librería y usas sus funciones ya hechas.",
+        "opciones": [
+          {
+            "texto": "Con #include, importando una librería",
+            "correcta": true
+          },
+          {
+            "texto": "Copiando y pegando en el Monitor Serie",
+            "correcta": false
+          },
+          {
+            "texto": "No es posible, todo se escribe desde cero",
             "correcta": false
           }
         ]
@@ -2359,6 +2673,44 @@ const MODULOS = [
             "correcta": false
           }
         ]
+      },
+      {
+        "pregunta": "¿Qué hace un condensador en un circuito?",
+        "pista": "Piensa en una mini batería.",
+        "explicacion": "El condensador guarda una pequeña carga de energía, como una mini batería.",
+        "opciones": [
+          {
+            "texto": "Guarda una pequeña carga de energía",
+            "correcta": true
+          },
+          {
+            "texto": "Emite luz de colores",
+            "correcta": false
+          },
+          {
+            "texto": "Mide la temperatura",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Qué diferencia hay entre un buzzer activo y uno pasivo?",
+        "pista": "Uno se puede ajustar, el otro no.",
+        "explicacion": "El buzzer activo tiene un tono fijo; el pasivo permite ajustar el tono, ideal para melodías.",
+        "opciones": [
+          {
+            "texto": "El pasivo permite ajustar el tono; el activo tiene un tono fijo",
+            "correcta": true
+          },
+          {
+            "texto": "No hay ninguna diferencia real",
+            "correcta": false
+          },
+          {
+            "texto": "El activo no necesita electricidad",
+            "correcta": false
+          }
+        ]
       }
     ]
   },
@@ -2657,6 +3009,44 @@ const MODULOS = [
             "correcta": true
           }
         ]
+      },
+      {
+        "pregunta": "¿Por qué el orden de los pasos es tan importante al programar?",
+        "pista": "Piensa en ponerte los zapatos antes que los calcetines.",
+        "explicacion": "Cada paso depende del anterior; cambiar el orden puede cambiar todo el resultado.",
+        "opciones": [
+          {
+            "texto": "Porque cada paso depende del anterior",
+            "correcta": true
+          },
+          {
+            "texto": "En realidad el orden nunca importa",
+            "correcta": false
+          },
+          {
+            "texto": "Solo importa en matemáticas, no en programación",
+            "correcta": false
+          }
+        ]
+      },
+      {
+        "pregunta": "¿Qué hace un lenguaje visual como Scratch?",
+        "pista": "Es un puente entre tú y la máquina.",
+        "explicacion": "Traduce tus ideas humanas a instrucciones que la computadora puede ejecutar.",
+        "opciones": [
+          {
+            "texto": "Traduce tus ideas a instrucciones que la máquina entiende",
+            "correcta": true
+          },
+          {
+            "texto": "Solo sirve para dibujar",
+            "correcta": false
+          },
+          {
+            "texto": "Reemplaza a la computadora",
+            "correcta": false
+          }
+        ]
       }
     ]
   }
@@ -2760,13 +3150,42 @@ function icono(clave, atributos){
 const RK_SESSION_KEY = "robokids_sesion";
 const RK_PROFESOR_KEY = "robokids_sesion_profesor";
 const COL_USUARIOS = "usuarios";
+const COL_PROFESORES = "profesores";
 
 function idDeUsuario(nombre){
   return (nombre || "").trim().toLowerCase().replace(/\s+/g, "_");
 }
+function idDeProfesor(usuario){
+  return (usuario || "").trim().toLowerCase().replace(/\s+/g, "_");
+}
 function progresoVacio(){
   return { claseVista:false, labHecho:false, quizMejorPuntaje:0, completado:false };
 }
+
+// Rellena cualquier campo que falte (por ejemplo, si el documento en Firestore
+// quedó incompleto de una version anterior) con su valor por defecto. Así
+// nunca se manda "undefined" a Firestore, que lo rechaza por completo.
+function normalizarProgreso(p){
+  return Object.assign(progresoVacio(), p || {});
+}
+
+function contarCompletados(u){
+  if(!u || !u.progreso) return 0;
+  return MODULOS.filter(m => u.progreso[m.id] && u.progreso[m.id].completado).length;
+}
+
+const LOGROS = [
+  { id:"primer_paso", nombre:"Primer paso", descripcion:"Completa tu primer tema", icono:"sparkle",
+    condicion: (u) => contarCompletados(u) >= 1 },
+  { id:"racha_3", nombre:"En racha", descripcion:"Completa 3 temas seguidos", icono:"flame",
+    condicion: (u) => (u.racha||0) >= 3 },
+  { id:"cientifico", nombre:"Científico", descripcion:"Termina 5 laboratorios", icono:"flask",
+    condicion: (u) => MODULOS.filter(m => u.progreso && u.progreso[m.id] && u.progreso[m.id].labHecho).length >= 5 },
+  { id:"perfeccionista", nombre:"Perfeccionista", descripcion:"Saca 100% en un quiz", icono:"trophy",
+    condicion: (u) => MODULOS.some(m => u.progreso && u.progreso[m.id] && u.progreso[m.id].quizMejorPuntaje === 100) },
+  { id:"explorador", nombre:"Explorador", descripcion:"Completa los 7 temas", icono:"rocket",
+    condicion: (u) => contarCompletados(u) >= MODULOS.length },
+];
 
 const RoboKids = {
   _usuario: null,
@@ -2829,29 +3248,30 @@ const RoboKids = {
 
   progresoModulo(moduloId){
     if(!this._usuario || !this._usuario.progreso) return progresoVacio();
-    return this._usuario.progreso[moduloId] || progresoVacio();
+    return normalizarProgreso(this._usuario.progreso[moduloId]);
   },
 
   async marcarClaseVista(moduloId){
     const u = this._usuario;
     if(!u) return;
     if(!u.progreso) u.progreso = {};
-    if(!u.progreso[moduloId]) u.progreso[moduloId] = progresoVacio();
+    u.progreso[moduloId] = normalizarProgreso(u.progreso[moduloId]);
     u.progreso[moduloId].claseVista = true;
-    await db.collection(COL_USUARIOS).doc(u.id).set({ progreso: { [moduloId]: { claseVista:true } } }, { merge:true });
+    await db.collection(COL_USUARIOS).doc(u.id).set({ progreso: { [moduloId]: u.progreso[moduloId] } }, { merge:true });
   },
 
   async marcarLabHecho(moduloId){
     const u = this._usuario;
     if(!u) return;
     if(!u.progreso) u.progreso = {};
-    if(!u.progreso[moduloId]) u.progreso[moduloId] = progresoVacio();
-    const cambios = { progreso: { [moduloId]: { labHecho:true } } };
+    u.progreso[moduloId] = normalizarProgreso(u.progreso[moduloId]);
+    const cambios = { progreso: {} };
     if(!u.progreso[moduloId].labHecho){
       u.puntos = (u.puntos || 0) + 10;
       cambios.puntos = firebase.firestore.FieldValue.increment(10);
     }
     u.progreso[moduloId].labHecho = true;
+    cambios.progreso[moduloId] = u.progreso[moduloId];
     await db.collection(COL_USUARIOS).doc(u.id).set(cambios, { merge:true });
   },
 
@@ -2859,21 +3279,21 @@ const RoboKids = {
     const u = this._usuario;
     if(!u) return;
     if(!u.progreso) u.progreso = {};
-    if(!u.progreso[moduloId]) u.progreso[moduloId] = progresoVacio();
+    u.progreso[moduloId] = normalizarProgreso(u.progreso[moduloId]);
     const p = u.progreso[moduloId];
     const puntaje = Math.round((aciertos/total) * 100);
     if(puntaje > p.quizMejorPuntaje) p.quizMejorPuntaje = puntaje;
-    const cambios = { progreso: { [moduloId]: { quizMejorPuntaje: p.quizMejorPuntaje } } };
     let aprobadoAhora = false;
+    const cambios = { progreso: {} };
     if(puntaje >= 60 && !p.completado){
       p.completado = true;
       u.puntos = (u.puntos || 0) + 20;
       u.racha = (u.racha || 0) + 1;
-      cambios.progreso[moduloId].completado = true;
       cambios.puntos = firebase.firestore.FieldValue.increment(20);
       cambios.racha = firebase.firestore.FieldValue.increment(1);
       aprobadoAhora = true;
     }
+    cambios.progreso[moduloId] = p;
     await db.collection(COL_USUARIOS).doc(u.id).set(cambios, { merge:true });
     return { aprobado: puntaje >= 60, puntaje, aprobadoAhora };
   },
@@ -2886,12 +3306,68 @@ const RoboKids = {
     return !!(p && p.completado);
   },
 
-  sesionProfesorActiva(){ return sessionStorage.getItem(RK_PROFESOR_KEY) === "1"; },
-  ingresarProfesor(clave){
-    if(clave === CLAVE_PROFESOR){ sessionStorage.setItem(RK_PROFESOR_KEY, "1"); return true; }
-    return false;
+  _profesor: null,
+
+  async crearProfesor(usuario, clave){
+    usuario = (usuario || "").trim();
+    if(usuario.length < 3) return { ok:false, error:"El usuario debe tener al menos 3 letras." };
+    if((clave || "").length < 4) return { ok:false, error:"La contraseña debe tener al menos 4 caracteres." };
+    const id = idDeProfesor(usuario);
+    try{
+      const ref = db.collection(COL_PROFESORES).doc(id);
+      const existente = await ref.get();
+      if(existente.exists) return { ok:false, error:"Ese usuario ya existe. Intenta iniciar sesión." };
+      const nuevo = { usuario, clave, creado: new Date().toISOString() };
+      await ref.set(nuevo);
+      this._profesor = Object.assign({ id }, nuevo);
+      sessionStorage.setItem(RK_PROFESOR_KEY, id);
+      return { ok:true };
+    }catch(e){
+      console.error(e);
+      return { ok:false, error:"No pudimos conectar con el servidor. Revisa tu internet e inténtalo de nuevo." };
+    }
   },
-  salirProfesor(){ sessionStorage.removeItem(RK_PROFESOR_KEY); },
+
+  async ingresarProfesor(usuario, clave){
+    const id = idDeProfesor(usuario);
+    try{
+      const doc = await db.collection(COL_PROFESORES).doc(id).get();
+      if(!doc.exists) return { ok:false, error:"No encontramos esa cuenta. ¿Ya la creaste?" };
+      const datos = doc.data();
+      if(datos.clave !== clave) return { ok:false, error:"Contraseña incorrecta." };
+      this._profesor = Object.assign({ id }, datos);
+      sessionStorage.setItem(RK_PROFESOR_KEY, id);
+      return { ok:true };
+    }catch(e){
+      console.error(e);
+      return { ok:false, error:"No pudimos conectar con el servidor. Revisa tu internet e inténtalo de nuevo." };
+    }
+  },
+
+  sesionProfesorActiva(){ return !!sessionStorage.getItem(RK_PROFESOR_KEY); },
+
+  async initProfesor(){
+    const id = sessionStorage.getItem(RK_PROFESOR_KEY);
+    if(!id){ this._profesor = null; return null; }
+    try{
+      const doc = await db.collection(COL_PROFESORES).doc(id).get();
+      if(!doc.exists){ this._profesor = null; return null; }
+      this._profesor = Object.assign({ id }, doc.data());
+      return this._profesor;
+    }catch(e){
+      console.error("No se pudo cargar el perfil de profesor:", e);
+      return this._profesor;
+    }
+  },
+
+  profesorActual(){ return this._profesor; },
+  salirProfesor(){ sessionStorage.removeItem(RK_PROFESOR_KEY); this._profesor = null; },
+
+  logrosObtenidos(usuario){
+    usuario = usuario || this._usuario;
+    if(!usuario) return [];
+    return LOGROS.filter(l => l.condicion(usuario));
+  },
 
   async listarEstudiantes(){
     const snap = await db.collection(COL_USUARIOS).get();
@@ -2906,7 +3382,7 @@ const RoboKids = {
 /* ===========================================================
    ENRUTADOR — cambia de "pantalla" sin recargar la página
    =========================================================== */
-const PANTALLAS = ["splash","dashboard","leccion","profesor-login","profesor-panel"];
+const PANTALLAS = ["splash","dashboard","leccion","progreso","profesor-login","profesor-panel"];
 function mostrarPantalla(id){
   PANTALLAS.forEach(p => document.getElementById("pantalla-"+p).classList.toggle("oculto", p !== id));
 }
@@ -2992,6 +3468,62 @@ function saludoSegunHora(){
   return "Buenas noches";
 }
 
+/* ===========================================================
+   SONIDOS — generados con Web Audio API, sin archivos externos
+   =========================================================== */
+let _audioCtx = null;
+function sonido(tipo){
+  try{
+    if(!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if(_audioCtx.state === "suspended") _audioCtx.resume();
+    const ahora = _audioCtx.currentTime;
+
+    function tono(freq, inicio, duracion, volumen){
+      const osc = _audioCtx.createOscillator();
+      const gain = _audioCtx.createGain();
+      osc.connect(gain); gain.connect(_audioCtx.destination);
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, ahora + inicio);
+      gain.gain.setValueAtTime(0.0001, ahora + inicio);
+      gain.gain.linearRampToValueAtTime(volumen, ahora + inicio + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ahora + inicio + duracion);
+      osc.start(ahora + inicio);
+      osc.stop(ahora + inicio + duracion + 0.02);
+    }
+
+    if(tipo === "acierto"){ tono(660, 0, 0.14, 0.16); tono(880, 0.06, 0.16, 0.13); }
+    else if(tipo === "error"){ tono(220, 0, 0.18, 0.13); }
+    else if(tipo === "exito"){ [523,659,784,1046].forEach((f,i) => tono(f, i*0.09, 0.28, 0.13)); }
+    else if(tipo === "logro"){ [784,988,1175].forEach((f,i) => tono(f, i*0.07, 0.3, 0.15)); }
+  }catch(e){ /* si el navegador bloquea audio sin interacción previa, simplemente no suena */ }
+}
+
+/* ===========================================================
+   LOGROS — notificación tipo "toast" cuando se desbloquea uno nuevo
+   =========================================================== */
+function idsDeLogros(usuario){ return RoboKids.logrosObtenidos(usuario).map(l => l.id); }
+
+function mostrarLogrosNuevos(idsAntes, usuarioActualizado){
+  const idsAhora = idsDeLogros(usuarioActualizado);
+  const nuevos = idsAhora.filter(id => !idsAntes.includes(id));
+  if(nuevos.length === 0) return;
+  sonido("logro");
+  nuevos.forEach((id, i) => {
+    const logro = LOGROS.find(l => l.id === id);
+    setTimeout(() => {
+      const toast = document.createElement("div");
+      toast.className = "toast-logro";
+      toast.innerHTML = `
+        <span class="icon-badge amarillo">${icono(logro.icono)}</span>
+        <div><div class="toast-logro-titulo">¡Nuevo logro!</div><div class="toast-logro-nombre">${logro.nombre}</div></div>
+      `;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.classList.add("mostrar"), 20);
+      setTimeout(() => { toast.classList.remove("mostrar"); setTimeout(() => toast.remove(), 400); }, 3600);
+    }, i * 600);
+  });
+}
+
 function initDashboard(){
   const usuario = RoboKids.usuarioActual();
   if(!usuario){ mostrarPantalla("splash"); return; }
@@ -3005,6 +3537,7 @@ function initDashboard(){
   `;
   document.getElementById("racha-chip").innerHTML = `${icono('flame')}<span id="racha-num">${usuario.racha || 0}</span>`;
   document.getElementById("puntos-chip").innerHTML = `${icono('star')}<span id="puntos-num">${usuario.puntos || 0}</span>`;
+  document.getElementById("puntos-chip").onclick = () => { mostrarPantalla("progreso"); initProgreso(); };
   document.getElementById("avatar-chip").innerHTML = icono(usuario.avatar || 'robot', '');
 
   document.getElementById("avatar-chip").onclick = () => {
@@ -3044,6 +3577,65 @@ function initDashboard(){
     }
     rutaEl.appendChild(nodo);
   });
+}
+
+/* ===========================================================
+   PANTALLA: MI PROGRESO
+   =========================================================== */
+document.getElementById("btn-cerrar-progreso").innerHTML = icono('close');
+document.getElementById("btn-cerrar-progreso").onclick = () => { mostrarPantalla("dashboard"); initDashboard(); };
+
+function initProgreso(){
+  const usuario = RoboKids.usuarioActual();
+  if(!usuario) return;
+  const cont = document.getElementById("contenido-progreso");
+  const completados = contarCompletados(usuario);
+  const logrosObtenidos = RoboKids.logrosObtenidos(usuario);
+  const idsObtenidos = logrosObtenidos.map(l => l.id);
+
+  cont.innerHTML = `
+    <div class="progreso-perfil">
+      <span class="icon-badge" style="width:64px;height:64px;border-radius:22px;">${icono(usuario.avatar || 'robot', 'style="width:32px;height:32px;"')}</span>
+      <div>
+        <div class="progreso-nombre">${usuario.nombre}</div>
+        <div class="progreso-sub">${completados} de ${MODULOS.length} temas completados</div>
+      </div>
+    </div>
+
+    <div class="progreso-stats">
+      <div class="progreso-stat-card">${icono('star')}<div><div class="pstat-num">${usuario.puntos || 0}</div><div class="pstat-label">Puntos</div></div></div>
+      <div class="progreso-stat-card">${icono('flame')}<div><div class="pstat-num">${usuario.racha || 0}</div><div class="pstat-label">Racha</div></div></div>
+      <div class="progreso-stat-card">${icono('checkcircle')}<div><div class="pstat-num">${completados}/${MODULOS.length}</div><div class="pstat-label">Temas</div></div></div>
+    </div>
+
+    <h3 class="progreso-seccion-titulo">Mis medallas</h3>
+    <div class="logros-grid">
+      ${LOGROS.map(l => {
+        const obtenido = idsObtenidos.includes(l.id);
+        return `
+          <div class="logro-card ${obtenido ? 'obtenido' : 'bloqueado'}">
+            <span class="icon-badge ${obtenido ? 'amarillo' : ''}" style="margin:0 auto 8px;">${icono(obtenido ? l.icono : 'lock')}</span>
+            <div class="logro-nombre">${l.nombre}</div>
+            <div class="logro-desc">${l.descripcion}</div>
+          </div>
+        `;
+      }).join("")}
+    </div>
+
+    <h3 class="progreso-seccion-titulo">Mi ruta</h3>
+    <div class="progreso-modulos-lista">
+      ${MODULOS.map(m => {
+        const p = (usuario.progreso && usuario.progreso[m.id]) || progresoVacio();
+        return `
+          <div class="progreso-modulo-fila">
+            <span class="icon-badge chico">${icono(m.icono)}</span>
+            <span class="progreso-modulo-nombre">${m.nombre}</span>
+            <span class="progreso-modulo-estado">${p.completado ? icono('checkcircle','style="width:16px;height:16px;color:var(--verde-dark);"') : icono('close','style="width:16px;height:16px;color:var(--gris-400);"')}</span>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
 }
 
 /* ===========================================================
@@ -3290,6 +3882,7 @@ function renderLabEscenario(){
 }
 
 function mostrarResultadoLab(exito, reintentar){
+  sonido(exito ? "exito" : "error");
   contenidoEl.innerHTML = `
     <div class="quiz-wrap"><div class="quiz-resultado">
       <div class="icon-badge ${exito ? 'verde' : 'amarillo'}" style="width:64px;height:64px;border-radius:22px;">${icono(exito ? 'party' : 'help', 'style="width:32px;height:32px;"')}</div>
@@ -3311,17 +3904,30 @@ function renderQuiz(){
   pintarPregunta();
 }
 
+function mezclarArray(arr){
+  const copia = [...arr];
+  for(let i = copia.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [copia[i], copia[j]] = [copia[j], copia[i]];
+  }
+  return copia;
+}
+
 function pintarPregunta(){
   quizRespondida = false;
   const total = modulo.quiz.length;
   const q = modulo.quiz[quizIndex];
+  // Mezclamos el ORDEN en que se muestran las opciones, pero cada boton
+  // conserva su indice original (data-idx), asi la logica de "cual es la
+  // correcta" no cambia en nada.
+  const ordenMostrado = mezclarArray(q.opciones.map((_, i) => i));
   contenidoEl.innerHTML = `
     <div class="quiz-wrap">
       <div style="font-weight:800;color:var(--gris-400);">Pregunta ${quizIndex+1} de ${total}</div>
       <div class="quiz-pregunta">${q.pregunta}</div>
       <button class="btn-pista" id="btn-pista">${icono('bulb')}Ver pista</button>
       <div class="pista-texto oculto" id="pista-texto">${q.pista}</div>
-      <div class="quiz-opciones" id="quiz-opciones">${q.opciones.map((op,i)=>`<button class="quiz-opcion" data-idx="${i}">${op.texto}</button>`).join("")}</div>
+      <div class="quiz-opciones" id="quiz-opciones">${ordenMostrado.map(i => `<button class="quiz-opcion" data-idx="${i}">${q.opciones[i].texto}</button>`).join("")}</div>
     </div>
   `;
   document.getElementById("btn-pista").onclick = () => {
@@ -3336,6 +3942,7 @@ function responder(idx, q){
   quizRespondida = true;
   const correctaIdx = q.opciones.findIndex(o => o.correcta);
   const acerto = idx === correctaIdx;
+  sonido(acerto ? "acierto" : "error");
 
   document.querySelectorAll(".quiz-opcion").forEach(btn => {
     btn.disabled = true;
@@ -3351,7 +3958,8 @@ function responder(idx, q){
 
   if(acerto) quizAciertos++;
 
-  pieEl.innerHTML = `<button class="btn btn-azul btn-lg" id="btn-quiz-siguiente">Continuar</button>`;
+  const esUltimaPregunta = quizIndex === modulo.quiz.length - 1;
+  pieEl.innerHTML = `<button class="btn btn-azul btn-lg" id="btn-quiz-siguiente">${esUltimaPregunta ? 'Finalizar' : 'Continuar'}${icono('chevronright')}</button>`;
   document.getElementById("btn-quiz-siguiente").onclick = async () => {
     quizIndex++;
     if(quizIndex < modulo.quiz.length){ pintarPregunta(); } else { await terminarQuiz(); }
@@ -3360,8 +3968,20 @@ function responder(idx, q){
 
 async function terminarQuiz(){
   const total = modulo.quiz.length;
-  const resultado = await RoboKids.registrarQuiz(modulo.id, quizAciertos, total);
+  const puntajeLocal = Math.round((quizAciertos/total) * 100);
+  const idsAntes = idsDeLogros(RoboKids.usuarioActual());
+  let resultado;
+  try{
+    resultado = await RoboKids.registrarQuiz(modulo.id, quizAciertos, total);
+  }catch(err){
+    console.error("No se pudo guardar el resultado del quiz:", err);
+    // Aunque falle el guardado en la nube, el estudiante siempre ve su resultado
+    // y puede seguir. RoboKids ya actualizó el progreso local dentro de sí mismo.
+    resultado = { aprobado: puntajeLocal >= 60, puntaje: puntajeLocal };
+  }
   actualizarProgresoBarra();
+  sonido(resultado.aprobado ? "exito" : "error");
+  if(resultado.aprobado) mostrarLogrosNuevos(idsAntes, RoboKids.usuarioActual());
 
   const coloresConfeti = ['#58CC02','#1CB0F6','#FFC800','#FF4B4B','#CE82FF'];
   const confeti = resultado.aprobado ? Array.from({length:14}).map((_,i) => {
@@ -3393,35 +4013,101 @@ async function terminarQuiz(){
 
 
 /* ===========================================================
-   PANTALLA: PROFESOR (login + panel con todos los estudiantes)
+   PANTALLA: PROFESOR (cuentas individuales + panel con estudiantes)
    =========================================================== */
-document.getElementById("profesor-volver").onclick = () => mostrarPantalla("splash");
+const profesorPasoInicio = document.getElementById("profesor-paso-inicio");
+const profesorPasoCrear = document.getElementById("profesor-paso-crear");
+const profesorPasoIngresar = document.getElementById("profesor-paso-ingresar");
 
-document.getElementById("profesor-entrar").onclick = async () => {
-  const clave = document.getElementById("profesor-clave").value;
-  const errorBox = document.getElementById("profesor-error");
-  if(RoboKids.ingresarProfesor(clave)){
+function mostrarPasoProfesor(paso){
+  [profesorPasoInicio, profesorPasoCrear, profesorPasoIngresar].forEach(p => p.classList.add("oculto"));
+  paso.classList.remove("oculto");
+}
+
+document.getElementById("profesor-btn-nuevo").onclick = () => mostrarPasoProfesor(profesorPasoCrear);
+document.getElementById("profesor-btn-ingresar").onclick = () => mostrarPasoProfesor(profesorPasoIngresar);
+document.getElementById("profesor-crear-volver").onclick = () => mostrarPasoProfesor(profesorPasoInicio);
+document.getElementById("profesor-ingresar-volver").onclick = () => mostrarPasoProfesor(profesorPasoInicio);
+document.getElementById("profesor-volver-inicio").onclick = () => mostrarPantalla("splash");
+
+document.getElementById("profesor-paso-crear").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const usuario = document.getElementById("profesor-crear-usuario").value;
+  const clave = document.getElementById("profesor-crear-clave").value;
+  const codigo = document.getElementById("profesor-crear-codigo").value;
+  const errorBox = document.getElementById("profesor-crear-error");
+  const boton = document.getElementById("profesor-crear-submit");
+
+  if(codigo !== CODIGO_INVITACION_PROFESOR){
+    errorBox.textContent = "Ese código de invitación no es correcto.";
+    errorBox.classList.remove("oculto");
+    return;
+  }
+
+  boton.disabled = true; boton.textContent = "Creando...";
+  try{
+    const res = await RoboKids.crearProfesor(usuario, clave);
+    if(!res.ok){ errorBox.textContent = res.error; errorBox.classList.remove("oculto"); return; }
     errorBox.classList.add("oculto");
-    document.getElementById("profesor-clave").value = "";
     mostrarPantalla("profesor-panel");
     await cargarProfesorPanel();
-  }else{
-    errorBox.textContent = "Contraseña incorrecta.";
+  }catch(err){
+    console.error(err);
+    errorBox.textContent = "Algo salió mal. Revisa tu conexión e inténtalo de nuevo.";
     errorBox.classList.remove("oculto");
+  }finally{
+    boton.disabled = false; boton.textContent = "Crear mi cuenta";
   }
-};
+});
+
+document.getElementById("profesor-paso-ingresar").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const usuario = document.getElementById("profesor-clave-usuario").value;
+  const clave = document.getElementById("profesor-clave").value;
+  const errorBox = document.getElementById("profesor-error");
+  const boton = document.getElementById("profesor-entrar");
+  boton.disabled = true;
+  try{
+    const res = await RoboKids.ingresarProfesor(usuario, clave);
+    if(!res.ok){ errorBox.textContent = res.error; errorBox.classList.remove("oculto"); return; }
+    errorBox.classList.add("oculto");
+    mostrarPantalla("profesor-panel");
+    await cargarProfesorPanel();
+  }catch(err){
+    console.error(err);
+    errorBox.textContent = "Algo salió mal. Revisa tu conexión e inténtalo de nuevo.";
+    errorBox.classList.remove("oculto");
+  }finally{
+    boton.disabled = false;
+  }
+});
 
 document.getElementById("profesor-salir").onclick = () => {
   RoboKids.salirProfesor();
+  mostrarPasoProfesor(profesorPasoInicio);
   mostrarPantalla("splash");
 };
 
 document.getElementById("profesor-actualizar").onclick = () => cargarProfesorPanel();
 
+document.getElementById("profesor-exportar").onclick = () => exportarEstudiantesCSV(ultimosEstudiantesCargados);
+
+document.getElementById("modal-detalle-estudiante").addEventListener("click", (e) => {
+  if(e.target.id === "modal-detalle-estudiante") cerrarModalDetalle();
+});
+function cerrarModalDetalle(){ document.getElementById("modal-detalle-estudiante").classList.add("oculto"); }
+
+let ultimosEstudiantesCargados = [];
+
 async function cargarProfesorPanel(){
   const wrap = document.getElementById("profesor-tabla-wrap");
   const resumen = document.getElementById("profesor-resumen");
+  const ranking = document.getElementById("profesor-ranking");
   wrap.innerHTML = `<p class="profesor-empty">Cargando estudiantes...</p>`;
+  ranking.innerHTML = "";
+
+  const profesor = RoboKids.profesorActual();
+  document.getElementById("profesor-panel-nombre").textContent = profesor ? `Hola, ${profesor.usuario}` : "Panel del Profesor";
 
   let estudiantes = [];
   try{
@@ -3431,6 +4117,8 @@ async function cargarProfesorPanel(){
     wrap.innerHTML = `<p class="profesor-empty">No pudimos cargar los datos. Revisa tu conexión o la configuración de Firebase.</p>`;
     return;
   }
+
+  ultimosEstudiantesCargados = estudiantes;
 
   if(estudiantes.length === 0){
     resumen.innerHTML = "";
@@ -3450,7 +4138,25 @@ async function cargarProfesorPanel(){
     <div class="resumen-chip">${icono('star')}${promedioPuntos} puntos promedio</div>
   `;
 
-  const filas = estudiantes.map(es => {
+  // ---- Ranking: mejores 5 ----
+  const top5 = [...estudiantes].sort((a,b)=>(b.puntos||0)-(a.puntos||0)).slice(0,5);
+  const medallas = ['oro','plata','bronce'];
+  ranking.innerHTML = `
+    <h3 class="ranking-titulo">${icono('trophy')}Los 5 mejores</h3>
+    <div class="ranking-lista">
+      ${top5.map((es, i) => `
+        <div class="ranking-item ${medallas[i] ? 'medalla-'+medallas[i] : ''}">
+          <span class="ranking-puesto">${i+1}</span>
+          <span class="icon-badge chico">${icono(es.avatar || 'robot')}</span>
+          <span class="ranking-nombre">${es.nombre}</span>
+          <span class="ranking-puntos">${icono('star')}${es.puntos || 0}</span>
+        </div>
+      `).join("")}
+    </div>
+  `;
+
+  // ---- Tabla completa ----
+  const filas = estudiantes.map((es, idx) => {
     const badges = MODULOS.map(m => {
       const p = es.progreso && es.progreso[m.id];
       let clase = "vacio", simbolo = "–";
@@ -3460,7 +4166,7 @@ async function cargarProfesorPanel(){
     }).join("");
 
     return `
-      <tr>
+      <tr class="fila-estudiante" data-idx="${idx}">
         <td><div class="estudiante-nombre"><span class="icon-badge chico">${icono(es.avatar || 'robot')}</span> ${es.nombre}</div></td>
         <td>${icono('star')}${es.puntos || 0}</td>
         <td>${icono('flame')}${es.racha || 0}</td>
@@ -3476,12 +4182,83 @@ async function cargarProfesorPanel(){
           <th>Estudiante</th>
           <th>Puntos</th>
           <th>Racha</th>
-          <th>Progreso por tema (${MODULOS.map(m=>m.icono).join(" ")})</th>
+          <th>Progreso por tema (toca una fila para ver el detalle)</th>
         </tr>
       </thead>
       <tbody>${filas}</tbody>
     </table>
   `;
+
+  document.querySelectorAll(".fila-estudiante").forEach(fila => {
+    fila.onclick = () => mostrarDetalleEstudiante(estudiantes[parseInt(fila.dataset.idx)]);
+  });
+}
+
+function mostrarDetalleEstudiante(es){
+  const logros = RoboKids.logrosObtenidos(es);
+  const filasModulos = MODULOS.map(m => {
+    const p = (es.progreso && es.progreso[m.id]) || progresoVacio();
+    return `
+      <div class="detalle-modulo">
+        <span class="icon-badge chico">${icono(m.icono)}</span>
+        <div class="detalle-modulo-info">
+          <div class="detalle-modulo-nombre">${m.nombre}</div>
+          <div class="detalle-modulo-estado">
+            ${p.claseVista ? icono('checkcircle','style="width:14px;height:14px;color:var(--verde-dark);"') : icono('close','style="width:14px;height:14px;color:var(--gris-400);"')} Clase
+            &nbsp;·&nbsp;
+            ${p.labHecho ? icono('checkcircle','style="width:14px;height:14px;color:var(--verde-dark);"') : icono('close','style="width:14px;height:14px;color:var(--gris-400);"')} Laboratorio
+            &nbsp;·&nbsp;
+            Quiz: ${p.quizMejorPuntaje || 0}%
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  document.getElementById("modal-detalle-contenido").innerHTML = `
+    <div class="modal-header">
+      <div class="estudiante-nombre" style="font-size:1.2rem;"><span class="icon-badge">${icono(es.avatar || 'robot')}</span> ${es.nombre}</div>
+      <button class="cerrar-btn" id="modal-cerrar">${icono('close')}</button>
+    </div>
+    <div class="modal-stats">
+      <div class="resumen-chip" style="color:var(--azul-dark);background:var(--gris-100);border:none;">${icono('star')}${es.puntos || 0} puntos</div>
+      <div class="resumen-chip" style="color:var(--azul-dark);background:var(--gris-100);border:none;">${icono('flame')}${es.racha || 0} de racha</div>
+    </div>
+    ${logros.length ? `
+      <div class="modal-logros">
+        ${logros.map(l => `<span class="mini-logro" title="${l.descripcion}">${icono(l.icono)}${l.nombre}</span>`).join("")}
+      </div>
+    ` : `<p style="color:var(--gris-400);font-weight:700;font-size:.85rem;">Todavía no desbloquea logros.</p>`}
+    <div class="detalle-modulos-lista">${filasModulos}</div>
+  `;
+  document.getElementById("modal-cerrar").onclick = cerrarModalDetalle;
+  document.getElementById("modal-detalle-estudiante").classList.remove("oculto");
+}
+
+function exportarEstudiantesCSV(estudiantes){
+  if(!estudiantes || estudiantes.length === 0){ alert("Todavía no hay estudiantes para exportar."); return; }
+  const encabezado = ["Nombre","Puntos","Racha", ...MODULOS.map(m => m.nombre)];
+  const filas = estudiantes.map(es => {
+    const cols = MODULOS.map(m => {
+      const p = es.progreso && es.progreso[m.id];
+      if(p && p.completado) return "Completado";
+      if(p && (p.claseVista || p.labHecho)) return "En progreso";
+      return "Sin empezar";
+    });
+    return [es.nombre, es.puntos || 0, es.racha || 0, ...cols];
+  });
+  const filasCSV = [encabezado, ...filas].map(fila =>
+    fila.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")
+  ).join("\n");
+  const blob = new Blob(["\uFEFF" + filasCSV], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `robokids-estudiantes-${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 /* ===========================================================

@@ -48,6 +48,18 @@ así que se ven igual sin importar el dispositivo que use cada estudiante.
    `PEGA_AQUI_TU_apiKey` y reemplaza todo el objeto `firebaseConfig` por
    el que te dio Firebase.
 
+6. Justo debajo, busca `CODIGO_INVITACION_PROFESOR` y cámbialo por una
+   palabra o frase que solo tú (y otros profesores de confianza) conozcan:
+
+   ```js
+   const CODIGO_INVITACION_PROFESOR = "robotica-inem-2026";
+   ```
+
+   Este código es lo único que evita que un estudiante curioso cree una
+   cuenta de profesor por accidente y vea el progreso de todos — solo se
+   pide al **crear** una cuenta nueva, no al iniciar sesión con una que
+   ya existe.
+
 6. Justo debajo, cambia esta línea por la contraseña que quieras usar para
    entrar al panel de profesor:
 
