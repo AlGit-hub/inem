@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <link rel="icon" type="image/png" href="./robot.png">
+<link rel="apple-touch-icon" href="./robot.png">
+<meta name="theme-color" content="#1CB0F6">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="RoboKids">
+<link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjoiUm9ib0tpZHMgLSBBcHJlbmRlIHJvYm90aWNhIGp1Z2FuZG8iLCJzaG9ydF9uYW1lIjoiUm9ib0tpZHMiLCJzdGFydF91cmwiOiIuL2luZGV4Lmh0bWwiLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjMUNCMEY2IiwidGhlbWVfY29sb3IiOiIjMUNCMEY2IiwiaWNvbnMiOlt7InNyYyI6Ii4vcm9ib3QucG5nIiwic2l6ZXMiOiI1MTJ4NTEyIiwidHlwZSI6ImltYWdlL3BuZyIsInB1cnBvc2UiOiJhbnkgbWFza2FibGUifV19">
 <title>RoboKids · Aprende robótica jugando</title>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -44,6 +51,17 @@ button{ font-family:inherit; cursor:pointer; border:none; }
 input{ font-family:inherit; }
 
 .pantalla{ width:100vw; height:100vh; display:flex; flex-direction:column; overflow:hidden; }
+
+/* ---------- Aviso de sin conexión ---------- */
+.offline-banner{
+  position:fixed; top:0; left:0; right:0; z-index:9999;
+  background:var(--rojo); color:#fff;
+  font-family:'Baloo 2', sans-serif; font-weight:700; font-size:.92rem;
+  text-align:center; padding:10px 16px;
+  box-shadow:0 4px 0 var(--rojo-dark);
+  transform:translateY(-100%); transition:transform .25s ease;
+}
+.offline-banner.mostrar{ transform:translateY(0); }
 
 /* ---------- Botones ---------- */
 .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:14px 28px; border-radius:16px; font-weight:800; font-size:1.05rem; letter-spacing:.3px; transition:transform .08s ease, filter .15s ease; white-space:nowrap; }
@@ -92,6 +110,8 @@ input{ font-family:inherit; }
 .topbar-brand .emoji{ font-size:1.6rem; }
 .topbar-user{ display:flex; align-items:center; gap:14px; }
 .racha, .puntos{ display:flex; align-items:center; gap:6px; font-weight:800; font-size:1rem; color:var(--gris-700); background:var(--gris-100); padding:8px 14px; border-radius:14px; }
+.equipo-chip{ display:flex; align-items:center; gap:8px; font-weight:800; font-size:.85rem; color:var(--gris-700); background:var(--gris-100); padding:8px 14px; border-radius:14px; }
+.equipo-chip .equipo-punto{ width:12px; height:12px; border-radius:50%; }
 .avatar-chip{ width:40px; height:40px; border-radius:50%; background:var(--gris-100); display:flex; align-items:center; justify-content:center; font-size:1.3rem; border:2px solid var(--gris-200); cursor:pointer; color:var(--azul-dark); }
 .avatar-chip svg{ width:20px; height:20px; }
 .ruta-wrap{ flex:1; display:flex; align-items:center; justify-content:center; padding:14px 6vw; overflow:hidden; }
@@ -206,6 +226,20 @@ input{ font-family:inherit; }
 .ranking-item.medalla-plata .ranking-puesto{ color:#CBD5E1; }
 .ranking-item.medalla-bronce{ border-color:#D97706; }
 .ranking-item.medalla-bronce .ranking-puesto{ color:#D97706; }
+
+.profesor-equipos{ padding:14px 26px 0; flex-shrink:0; }
+.equipos-titulo{ display:flex; align-items:center; gap:8px; color:#38BDF8; font-size:1rem; margin-bottom:10px; }
+.equipos-lista{ display:flex; gap:10px; overflow-x:auto; padding-bottom:4px; margin-bottom:10px; }
+.equipo-chip{ display:flex; align-items:center; gap:8px; background:#111827; border-radius:14px; padding:10px 16px; flex-shrink:0; min-width:150px; border:2px solid transparent; }
+.equipo-punto{ width:14px; height:14px; border-radius:50%; flex-shrink:0; }
+.equipo-nombre{ font-weight:800; color:#E2E8F0; font-size:.88rem; }
+.equipo-puntos{ font-weight:800; font-size:.82rem; color:#94A3B8; }
+.form-nuevo-equipo{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+.form-nuevo-equipo input{ background:#1E293B; border:2px solid #334155; color:#E2E8F0; border-radius:12px; padding:8px 14px; font-weight:700; font-size:.85rem; width:180px; }
+.selector-color{ display:flex; gap:6px; }
+.selector-color span{ width:22px; height:22px; border-radius:50%; cursor:pointer; border:2px solid transparent; }
+.selector-color span.selec{ border-color:#fff; }
+.selector-equipo-estudiante{ background:#1E293B; border:1px solid #334155; color:#E2E8F0; border-radius:8px; padding:4px 8px; font-weight:700; font-size:.78rem; }
 
 /* ---------- Modal de detalle de estudiante ---------- */
 .modal-fondo{ position:fixed; inset:0; background:rgba(15,23,42,.6); display:flex; align-items:center; justify-content:center; z-index:50; padding:20px; }
@@ -446,6 +480,7 @@ body{ background: linear-gradient(165deg, #E3F6FF 0%, #EFFBF0 45%, #FFF8E8 100%)
 </style>
 </head>
 <body>
+<div id="offline-banner" class="offline-banner">📡 Sin conexión a internet — tu progreso se guardará cuando vuelva la señal</div>
 
 <!-- =========================================================
      PANTALLA: SPLASH (crear usuario / iniciar sesión)
@@ -514,6 +549,7 @@ body{ background: linear-gradient(165deg, #E3F6FF 0%, #EFFBF0 45%, #FFF8E8 100%)
   <div class="topbar">
     <div class="topbar-brand" id="topbar-brand"></div>
     <div class="topbar-user">
+      <div class="equipo-chip oculto" id="equipo-chip" title="Tu equipo"></div>
       <div class="racha" id="racha-chip"></div>
       <div class="puntos" id="puntos-chip" style="cursor:pointer;" title="Ver mi progreso"></div>
       <div class="avatar-chip" id="avatar-chip" title="Cerrar sesión"></div>
@@ -602,6 +638,22 @@ body{ background: linear-gradient(165deg, #E3F6FF 0%, #EFFBF0 45%, #FFF8E8 100%)
 <!-- =========================================================
      PANTALLA: PANEL DE PROFESOR (todos los estudiantes)
      ========================================================= -->
+<!-- =========================================================
+     PANTALLA: 404 (ruta no encontrada)
+     ========================================================= -->
+<div id="pantalla-404" class="pantalla splash oculto">
+  <div class="splash-blob blob1"></div>
+  <div class="splash-blob blob2"></div>
+  <div class="splash-blob blob3"></div>
+  <div style="background:#fff;border-radius:24px;width:min(420px,90vw);padding:36px 32px;box-shadow:0 20px 50px rgba(0,0,0,.2);text-align:center;">
+    <div style="font-size:64px;margin-bottom:8px;">🤖💭</div>
+    <p class="splash-sub" style="font-family:'Baloo 2',sans-serif;font-weight:800;font-size:.8rem;letter-spacing:.05em;color:var(--gris-400);margin-bottom:6px;">ERROR 404</p>
+    <h1 style="color:var(--azul-dark);font-size:1.5rem;margin-bottom:10px;">¡Uy! Esta página se perdió en el espacio</h1>
+    <p class="splash-sub">No encontramos lo que buscabas. Puede que el enlace esté mal escrito o que la página ya no exista.</p>
+    <button class="btn btn-verde btn-ancho btn-lg" id="btn-404-inicio">Volver al inicio</button>
+  </div>
+</div>
+
 <div id="pantalla-profesor-panel" class="pantalla profesor-tema oculto">
   <div class="profesor-top">
     <div class="profesor-brand"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z" /><path d="M22 10v6" /><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5" /></svg><span id="profesor-panel-nombre">Panel del Profesor</span></div>
@@ -613,6 +665,7 @@ body{ background: linear-gradient(165deg, #E3F6FF 0%, #EFFBF0 45%, #FFF8E8 100%)
   </div>
   <div class="profesor-resumen" id="profesor-resumen"></div>
   <div class="profesor-ranking" id="profesor-ranking"></div>
+  <div class="profesor-equipos" id="profesor-equipos"></div>
   <div class="profesor-tabla-wrap" id="profesor-tabla-wrap">
     <p class="profesor-empty">Cargando estudiantes...</p>
   </div>
@@ -634,15 +687,49 @@ body{ background: linear-gradient(165deg, #E3F6FF 0%, #EFFBF0 45%, #FFF8E8 100%)
    2. Menú izquierdo → "Firestore Database" → "Crear base de datos"
       → modo de producción → elige la región más cercana.
    3. En "Reglas" de Firestore pega esto y publica:
+      (nota: esta app es 100% estática, sin servidor propio, así que no
+      podemos exigir login real de Firebase Auth para leer/escribir sin
+      rehacer el sistema de cuentas. Estas reglas SÍ bloquean el borrado
+      desde fuera de la app y validan que los documentos tengan la forma
+      esperada, pero no evitan que alguien con la URL de tu proyecto pueda
+      leer/editar datos si se lo propone. Las claves ahora se guardan
+      con hash (ver más abajo), así que aunque alguien lea la colección
+      no vería contraseñas ni PIN reales.)
 
         rules_version = '2';
         service cloud.firestore {
           match /databases/{database}/documents {
             match /usuarios/{usuarioId} {
-              allow read, write: if true;
+              allow read: if true;
+              allow create: if request.resource.data.keys().hasAll(
+                              ['nombre','pin','sal','avatar','creado','puntos','racha','progreso'])
+                            && request.resource.data.puntos is int
+                            && request.resource.data.racha is int;
+              allow update: if request.resource.data.diff(resource.data)
+                              .affectedKeys()
+                              .hasOnly(['puntos','racha','progreso','equipoId']);
+              // Permite SOLO la migración automática de cuentas viejas (creadas antes del
+              // hash): se puede reescribir pin+sal una única vez, y solo si el documento
+              // todavía NO tiene el campo 'sal'. Una vez migrada, esta regla ya no aplica.
+              allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['pin','sal'])
+                            && !('sal' in resource.data);
+              allow delete: if false;
             }
             match /profesores/{profesorId} {
-              allow read, write: if true;
+              allow read: if true;
+              allow create: if request.resource.data.keys().hasAll(['usuario','clave','sal','creado']);
+              // Permite SOLO la migración automática de cuentas viejas (creadas antes del
+              // hash): se puede reescribir clave+sal una única vez, y solo si el documento
+              // todavía NO tiene el campo 'sal'. Una vez migrada, esta regla ya no aplica.
+              allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['clave','sal'])
+                            && !('sal' in resource.data);
+              allow delete: if false;
+            }
+            match /equipos/{equipoId} {
+              allow read: if true;
+              allow create: if request.resource.data.keys().hasAll(['nombre','color','creado']);
+              allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['nombre','color']);
+              allow delete: if false;
             }
           }
         }
@@ -667,6 +754,34 @@ const CODIGO_INVITACION_PROFESOR = "robotica-inem-2026";
 
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+try{ db.enablePersistence({ synchronizeTabs:true }); }catch(e){ /* varias pestañas abiertas o navegador no compatible: seguimos sin caché offline */ }
+
+function actualizarBannerConexion(){
+  const banner = document.getElementById("offline-banner");
+  if(!banner) return;
+  banner.classList.toggle("mostrar", !navigator.onLine);
+}
+window.addEventListener("online", actualizarBannerConexion);
+window.addEventListener("offline", actualizarBannerConexion);
+
+/* ---------------------------------------------------------------
+   Hash de claves (PIN de estudiante / contraseña de profesor)
+   -----------------------------------------------------------------
+   Nunca guardamos el PIN o la contraseña en texto plano en Firestore.
+   Cada usuario tiene una "sal" aleatoria propia; guardamos solo el
+   hash SHA-256 de (clave + sal). Así, aunque alguien logre leer la
+   colección, no puede ver la clave real de nadie.
+   ------------------------------------------------------------------- */
+function generarSal(){
+  const arr = new Uint8Array(16);
+  crypto.getRandomValues(arr);
+  return Array.from(arr, b => b.toString(16).padStart(2, "0")).join("");
+}
+async function hashConSal(valor, sal){
+  const datos = new TextEncoder().encode(String(valor) + ":" + sal);
+  const buffer = await crypto.subtle.digest("SHA-256", datos);
+  return Array.from(new Uint8Array(buffer), b => b.toString(16).padStart(2, "0")).join("");
+}
 </script>
 
 <script>
@@ -3151,6 +3266,8 @@ const RK_SESSION_KEY = "robokids_sesion";
 const RK_PROFESOR_KEY = "robokids_sesion_profesor";
 const COL_USUARIOS = "usuarios";
 const COL_PROFESORES = "profesores";
+const COL_EQUIPOS = "equipos";
+const COLORES_EQUIPO = ["verde","azul","amarillo","rojo","morado","naranja"];
 
 function idDeUsuario(nombre){
   return (nombre || "").trim().toLowerCase().replace(/\s+/g, "_");
@@ -3158,6 +3275,41 @@ function idDeUsuario(nombre){
 function idDeProfesor(usuario){
   return (usuario || "").trim().toLowerCase().replace(/\s+/g, "_");
 }
+
+/* ---------------------------------------------------------------
+   Bloqueo temporal tras intentos fallidos de inicio de sesión
+   -----------------------------------------------------------------
+   Nota: esto es una barrera del lado del navegador (localStorage),
+   no del servidor. Frena a alguien tanteando PINs uno por uno desde
+   la pantalla normal, pero no reemplaza una protección real del
+   lado del servidor (eso requiere migrar a Firebase Authentication).
+   ------------------------------------------------------------------- */
+const MAX_INTENTOS = 5;
+const BLOQUEO_MS = 60 * 1000; // 1 minuto
+
+function estadoIntentos(claveAlmacen){
+  try{ return JSON.parse(localStorage.getItem(claveAlmacen)) || { fallos:0, bloqueadoHasta:0 }; }
+  catch(e){ return { fallos:0, bloqueadoHasta:0 }; }
+}
+function segundosBloqueoRestante(tipo, id){
+  const st = estadoIntentos(`rk_intentos_${tipo}_${id}`);
+  const restante = st.bloqueadoHasta - Date.now();
+  return restante > 0 ? Math.ceil(restante / 1000) : 0;
+}
+function registrarIntentoFallido(tipo, id){
+  const claveAlmacen = `rk_intentos_${tipo}_${id}`;
+  const st = estadoIntentos(claveAlmacen);
+  st.fallos = (st.fallos || 0) + 1;
+  if(st.fallos >= MAX_INTENTOS){
+    st.bloqueadoHasta = Date.now() + BLOQUEO_MS;
+    st.fallos = 0;
+  }
+  localStorage.setItem(claveAlmacen, JSON.stringify(st));
+}
+function limpiarIntentos(tipo, id){
+  localStorage.removeItem(`rk_intentos_${tipo}_${id}`);
+}
+
 function progresoVacio(){
   return { claseVista:false, labHecho:false, quizMejorPuntaje:0, completado:false };
 }
@@ -3185,6 +3337,14 @@ const LOGROS = [
     condicion: (u) => MODULOS.some(m => u.progreso && u.progreso[m.id] && u.progreso[m.id].quizMejorPuntaje === 100) },
   { id:"explorador", nombre:"Explorador", descripcion:"Completa los 7 temas", icono:"rocket",
     condicion: (u) => contarCompletados(u) >= MODULOS.length },
+  { id:"constante", nombre:"Mente constante", descripcion:"Llega a una racha de 5 temas", icono:"brain",
+    condicion: (u) => (u.racha||0) >= 5 },
+  { id:"coleccionista", nombre:"Coleccionista", descripcion:"Junta 100 puntos", icono:"coins",
+    condicion: (u) => (u.puntos||0) >= 100 },
+  { id:"manos_obra", nombre:"Manos a la obra", descripcion:"Termina todos los laboratorios", icono:"wrench",
+    condicion: (u) => MODULOS.every(m => u.progreso && u.progreso[m.id] && u.progreso[m.id].labHecho) },
+  { id:"maestro_quiz", nombre:"Maestro del quiz", descripcion:"Saca 100% en todos los quizzes", icono:"star",
+    condicion: (u) => MODULOS.every(m => u.progreso && u.progreso[m.id] && u.progreso[m.id].quizMejorPuntaje === 100) },
 ];
 
 const RoboKids = {
@@ -3219,7 +3379,9 @@ const RoboKids = {
       const ref = db.collection(COL_USUARIOS).doc(id);
       const existente = await ref.get();
       if(existente.exists) return { ok:false, error:"Ese nombre ya existe. ¡Elige otro o inicia sesión!" };
-      const nuevo = { nombre, pin, avatar: avatar || "robot", creado: new Date().toISOString(), puntos:0, racha:0, progreso:{} };
+      const sal = generarSal();
+      const pinHash = await hashConSal(pin, sal);
+      const nuevo = { nombre, pin: pinHash, sal, avatar: avatar || "robot", creado: new Date().toISOString(), puntos:0, racha:0, progreso:{} };
       await ref.set(nuevo);
       this._usuario = Object.assign({ id }, nuevo);
       this.iniciarSesion(id);
@@ -3232,11 +3394,28 @@ const RoboKids = {
 
   async ingresar(nombre, pin){
     const id = idDeUsuario(nombre);
+    const restante = segundosBloqueoRestante("est", id);
+    if(restante > 0){
+      return { ok:false, error:`Demasiados intentos. Espera ${restante} segundos e intenta de nuevo.` };
+    }
     try{
       const doc = await db.collection(COL_USUARIOS).doc(id).get();
       if(!doc.exists) return { ok:false, error:"No encontramos ese usuario. ¿Ya lo creaste?" };
       const datos = doc.data();
-      if(datos.pin !== pin) return { ok:false, error:"Código secreto incorrecto. ¡Intenta de nuevo!" };
+      if(datos.sal){
+        const pinHash = await hashConSal(pin, datos.sal);
+        if(datos.pin !== pinHash){ registrarIntentoFallido("est", id); return { ok:false, error:"Código secreto incorrecto. ¡Intenta de nuevo!" }; }
+      } else {
+        // Cuenta creada antes de este cambio: el PIN aún está en texto plano.
+        // Si coincide, lo migramos a hash automáticamente para no dejar a nadie fuera.
+        if(datos.pin !== pin){ registrarIntentoFallido("est", id); return { ok:false, error:"Código secreto incorrecto. ¡Intenta de nuevo!" }; }
+        const sal = generarSal();
+        const pinHash = await hashConSal(pin, sal);
+        await doc.ref.update({ pin: pinHash, sal });
+        datos.pin = pinHash;
+        datos.sal = sal;
+      }
+      limpiarIntentos("est", id);
       this._usuario = Object.assign({ id }, datos);
       this.iniciarSesion(id);
       return { ok:true };
@@ -3317,7 +3496,9 @@ const RoboKids = {
       const ref = db.collection(COL_PROFESORES).doc(id);
       const existente = await ref.get();
       if(existente.exists) return { ok:false, error:"Ese usuario ya existe. Intenta iniciar sesión." };
-      const nuevo = { usuario, clave, creado: new Date().toISOString() };
+      const sal = generarSal();
+      const claveHash = await hashConSal(clave, sal);
+      const nuevo = { usuario, clave: claveHash, sal, creado: new Date().toISOString() };
       await ref.set(nuevo);
       this._profesor = Object.assign({ id }, nuevo);
       sessionStorage.setItem(RK_PROFESOR_KEY, id);
@@ -3330,11 +3511,28 @@ const RoboKids = {
 
   async ingresarProfesor(usuario, clave){
     const id = idDeProfesor(usuario);
+    const restante = segundosBloqueoRestante("prof", id);
+    if(restante > 0){
+      return { ok:false, error:`Demasiados intentos. Espera ${restante} segundos e intenta de nuevo.` };
+    }
     try{
       const doc = await db.collection(COL_PROFESORES).doc(id).get();
       if(!doc.exists) return { ok:false, error:"No encontramos esa cuenta. ¿Ya la creaste?" };
       const datos = doc.data();
-      if(datos.clave !== clave) return { ok:false, error:"Contraseña incorrecta." };
+      if(datos.sal){
+        const claveHash = await hashConSal(clave, datos.sal);
+        if(datos.clave !== claveHash){ registrarIntentoFallido("prof", id); return { ok:false, error:"Contraseña incorrecta." }; }
+      } else {
+        // Cuenta creada antes de este cambio: la contraseña aún está en texto plano.
+        // Si coincide, la migramos a hash automáticamente.
+        if(datos.clave !== clave){ registrarIntentoFallido("prof", id); return { ok:false, error:"Contraseña incorrecta." }; }
+        const sal = generarSal();
+        const claveHash = await hashConSal(clave, sal);
+        await doc.ref.update({ clave: claveHash, sal });
+        datos.clave = claveHash;
+        datos.sal = sal;
+      }
+      limpiarIntentos("prof", id);
       this._profesor = Object.assign({ id }, datos);
       sessionStorage.setItem(RK_PROFESOR_KEY, id);
       return { ok:true };
@@ -3375,6 +3573,37 @@ const RoboKids = {
     snap.forEach(doc => lista.push(Object.assign({ id: doc.id }, doc.data())));
     lista.sort((a,b) => (b.puntos||0) - (a.puntos||0));
     return lista;
+  },
+
+  async listarEquipos(){
+    const snap = await db.collection(COL_EQUIPOS).get();
+    const lista = [];
+    snap.forEach(doc => lista.push(Object.assign({ id: doc.id }, doc.data())));
+    lista.sort((a,b) => (a.creado||"").localeCompare(b.creado||""));
+    return lista;
+  },
+
+  async crearEquipo(nombre, color){
+    nombre = (nombre || "").trim();
+    if(nombre.length < 2) return { ok:false, error:"El nombre del equipo debe tener al menos 2 letras." };
+    if(!COLORES_EQUIPO.includes(color)) color = "azul";
+    try{
+      const ref = await db.collection(COL_EQUIPOS).add({ nombre, color, creado: new Date().toISOString() });
+      return { ok:true, id: ref.id };
+    }catch(e){
+      console.error(e);
+      return { ok:false, error:"No pudimos crear el equipo. Revisa tu conexión." };
+    }
+  },
+
+  async asignarEquipo(usuarioId, equipoId){
+    try{
+      await db.collection(COL_USUARIOS).doc(usuarioId).set({ equipoId: equipoId || null }, { merge:true });
+      return { ok:true };
+    }catch(e){
+      console.error(e);
+      return { ok:false, error:"No pudimos asignar el equipo. Revisa tu conexión." };
+    }
   }
 };
 </script>
@@ -3382,7 +3611,7 @@ const RoboKids = {
 /* ===========================================================
    ENRUTADOR — cambia de "pantalla" sin recargar la página
    =========================================================== */
-const PANTALLAS = ["splash","dashboard","leccion","progreso","profesor-login","profesor-panel"];
+const PANTALLAS = ["splash","dashboard","leccion","progreso","profesor-login","profesor-panel","404"];
 function mostrarPantalla(id){
   PANTALLAS.forEach(p => document.getElementById("pantalla-"+p).classList.toggle("oculto", p !== id));
 }
@@ -3527,6 +3756,21 @@ function mostrarLogrosNuevos(idsAntes, usuarioActualizado){
 function initDashboard(){
   const usuario = RoboKids.usuarioActual();
   if(!usuario){ mostrarPantalla("splash"); return; }
+
+  const equipoChip = document.getElementById("equipo-chip");
+  if(usuario.equipoId){
+    db.collection(COL_EQUIPOS).doc(usuario.equipoId).get().then(async (doc) => {
+      if(!doc.exists) return;
+      const eq = doc.data();
+      const snap = await db.collection(COL_USUARIOS).where("equipoId", "==", usuario.equipoId).get();
+      let puntosEquipo = 0;
+      snap.forEach(d => puntosEquipo += (d.data().puntos || 0));
+      equipoChip.innerHTML = `<span class="equipo-punto" style="background:var(--${eq.color});"></span>${eq.nombre} · ${puntosEquipo} pts`;
+      equipoChip.classList.remove("oculto");
+    }).catch(e => console.error("Error cargando equipo:", e));
+  } else {
+    equipoChip.classList.add("oculto");
+  }
 
   document.getElementById("topbar-brand").innerHTML = `
     <span class="logo-badge" style="width:38px;height:38px;border-radius:12px;">${icono('robot','')}</span>
@@ -4098,20 +4342,24 @@ document.getElementById("modal-detalle-estudiante").addEventListener("click", (e
 function cerrarModalDetalle(){ document.getElementById("modal-detalle-estudiante").classList.add("oculto"); }
 
 let ultimosEstudiantesCargados = [];
+let ultimosEquiposCargados = [];
 
 async function cargarProfesorPanel(){
   const wrap = document.getElementById("profesor-tabla-wrap");
   const resumen = document.getElementById("profesor-resumen");
   const ranking = document.getElementById("profesor-ranking");
+  const equiposWrap = document.getElementById("profesor-equipos");
   wrap.innerHTML = `<p class="profesor-empty">Cargando estudiantes...</p>`;
   ranking.innerHTML = "";
+  equiposWrap.innerHTML = "";
 
   const profesor = RoboKids.profesorActual();
   document.getElementById("profesor-panel-nombre").textContent = profesor ? `Hola, ${profesor.usuario}` : "Panel del Profesor";
 
   let estudiantes = [];
+  let equipos = [];
   try{
-    estudiantes = await RoboKids.listarEstudiantes();
+    [estudiantes, equipos] = await Promise.all([RoboKids.listarEstudiantes(), RoboKids.listarEquipos()]);
   }catch(e){
     console.error(e);
     wrap.innerHTML = `<p class="profesor-empty">No pudimos cargar los datos. Revisa tu conexión o la configuración de Firebase.</p>`;
@@ -4119,6 +4367,8 @@ async function cargarProfesorPanel(){
   }
 
   ultimosEstudiantesCargados = estudiantes;
+  ultimosEquiposCargados = equipos;
+  renderEquiposPanel(equipos, estudiantes);
 
   if(estudiantes.length === 0){
     resumen.innerHTML = "";
@@ -4165,11 +4415,18 @@ async function cargarProfesorPanel(){
       return `<span class="badge-mod ${clase}" title="${m.nombre}">${simbolo}</span>`;
     }).join("");
 
+    const opcionesEquipo = `<option value="">— Sin equipo —</option>` + equipos.map(eq =>
+      `<option value="${eq.id}" ${es.equipoId === eq.id ? "selected" : ""}>${eq.nombre}</option>`
+    ).join("");
+
     return `
       <tr class="fila-estudiante" data-idx="${idx}">
         <td><div class="estudiante-nombre"><span class="icon-badge chico">${icono(es.avatar || 'robot')}</span> ${es.nombre}</div></td>
         <td>${icono('star')}${es.puntos || 0}</td>
         <td>${icono('flame')}${es.racha || 0}</td>
+        <td onclick="event.stopPropagation()">
+          <select class="selector-equipo-estudiante" data-usuario-id="${es.id}">${opcionesEquipo}</select>
+        </td>
         <td>${badges}</td>
       </tr>
     `;
@@ -4182,6 +4439,7 @@ async function cargarProfesorPanel(){
           <th>Estudiante</th>
           <th>Puntos</th>
           <th>Racha</th>
+          <th>Equipo</th>
           <th>Progreso por tema (toca una fila para ver el detalle)</th>
         </tr>
       </thead>
@@ -4192,6 +4450,63 @@ async function cargarProfesorPanel(){
   document.querySelectorAll(".fila-estudiante").forEach(fila => {
     fila.onclick = () => mostrarDetalleEstudiante(estudiantes[parseInt(fila.dataset.idx)]);
   });
+
+  document.querySelectorAll(".selector-equipo-estudiante").forEach(sel => {
+    sel.onclick = (e) => e.stopPropagation();
+    sel.onchange = async () => {
+      const r = await RoboKids.asignarEquipo(sel.dataset.usuarioId, sel.value || null);
+      if(r.ok) cargarProfesorPanel();
+      else alert(r.error);
+    };
+  });
+}
+
+function renderEquiposPanel(equipos, estudiantes){
+  const cont = document.getElementById("profesor-equipos");
+  const chips = equipos.map(eq => {
+    const puntosEquipo = estudiantes.filter(es => es.equipoId === eq.id).reduce((a,es)=>a+(es.puntos||0),0);
+    const integrantes = estudiantes.filter(es => es.equipoId === eq.id).length;
+    return `
+      <div class="equipo-chip">
+        <span class="equipo-punto" style="background:var(--${eq.color});"></span>
+        <div>
+          <div class="equipo-nombre">${eq.nombre}</div>
+          <div class="equipo-puntos">${integrantes} · ${icono('star','style="width:12px;height:12px;vertical-align:-1px;"')}${puntosEquipo} pts</div>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  const swatches = COLORES_EQUIPO.map((c, i) =>
+    `<span data-color="${c}" class="${i===0?'selec':''}" style="background:var(--${c});"></span>`
+  ).join("");
+
+  cont.innerHTML = `
+    <h3 class="equipos-titulo">${icono('users')}Equipos</h3>
+    ${equipos.length ? `<div class="equipos-lista">${chips}</div>` : `<p class="profesor-empty" style="padding:0 0 10px;">Todavía no has creado equipos.</p>`}
+    <form class="form-nuevo-equipo" id="form-nuevo-equipo">
+      <input type="text" id="nuevo-equipo-nombre" placeholder="Nombre del equipo" maxlength="24" autocomplete="off">
+      <div class="selector-color" id="selector-color-equipo">${swatches}</div>
+      <button type="submit" class="btn btn-azul" style="padding:8px 16px;font-size:.85rem;">Crear equipo</button>
+    </form>
+  `;
+
+  let colorElegido = COLORES_EQUIPO[0];
+  document.querySelectorAll("#selector-color-equipo span").forEach(s => {
+    s.onclick = () => {
+      document.querySelectorAll("#selector-color-equipo span").forEach(x => x.classList.remove("selec"));
+      s.classList.add("selec");
+      colorElegido = s.dataset.color;
+    };
+  });
+
+  document.getElementById("form-nuevo-equipo").onsubmit = async (e) => {
+    e.preventDefault();
+    const input = document.getElementById("nuevo-equipo-nombre");
+    const r = await RoboKids.crearEquipo(input.value, colorElegido);
+    if(r.ok){ input.value = ""; cargarProfesorPanel(); }
+    else alert(r.error);
+  };
 }
 
 function mostrarDetalleEstudiante(es){
@@ -4237,7 +4552,7 @@ function mostrarDetalleEstudiante(es){
 
 function exportarEstudiantesCSV(estudiantes){
   if(!estudiantes || estudiantes.length === 0){ alert("Todavía no hay estudiantes para exportar."); return; }
-  const encabezado = ["Nombre","Puntos","Racha", ...MODULOS.map(m => m.nombre)];
+  const encabezado = ["Nombre","Puntos","Racha","Equipo", ...MODULOS.map(m => m.nombre)];
   const filas = estudiantes.map(es => {
     const cols = MODULOS.map(m => {
       const p = es.progreso && es.progreso[m.id];
@@ -4245,7 +4560,8 @@ function exportarEstudiantesCSV(estudiantes){
       if(p && (p.claseVista || p.labHecho)) return "En progreso";
       return "Sin empezar";
     });
-    return [es.nombre, es.puntos || 0, es.racha || 0, ...cols];
+    const nombreEquipo = (ultimosEquiposCargados.find(eq => eq.id === es.equipoId) || {}).nombre || "";
+    return [es.nombre, es.puntos || 0, es.racha || 0, nombreEquipo, ...cols];
   });
   const filasCSV = [encabezado, ...filas].map(fila =>
     fila.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")
@@ -4264,7 +4580,23 @@ function exportarEstudiantesCSV(estudiantes){
 /* ===========================================================
    INICIO DE LA APP
    =========================================================== */
+document.getElementById("btn-404-inicio").addEventListener("click", () => {
+  history.replaceState(null, "", "/");
+  mostrarPantalla("splash");
+});
+
+function rutaValida(){
+  const partes = window.location.pathname.split("/");
+  const ultima = (partes[partes.length - 1] || "").toLowerCase();
+  return ultima === "" || ultima === "index.html";
+}
+
 (async () => {
+  actualizarBannerConexion();
+  if(!rutaValida()){
+    mostrarPantalla("404");
+    return;
+  }
   await RoboKids.init();
   if(RoboKids.usuarioActual()){
     mostrarPantalla("dashboard");
