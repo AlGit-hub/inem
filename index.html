@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="RoboKids">
-<link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjoiUm9ib0tpZHMgLSBBcHJlbmRlIHJvYm90aWNhIGp1Z2FuZG8iLCJzaG9ydF9uYW1lIjoiUm9ib0tpZHMiLCJzdGFydF91cmwiOiIuL2luZGV4Lmh0bWwiLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjMUNCMEY2IiwidGhlbWVfY29sb3IiOiIjMUNCMEY2IiwiaWNvbnMiOlt7InNyYyI6Ii4vcm9ib3QucG5nIiwic2l6ZXMiOiI1MTJ4NTEyIiwidHlwZSI6ImltYWdlL3BuZyIsInB1cnBvc2UiOiJhbnkgbWFza2FibGUifV19">
+<link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjoiUm9ib0tpZHMgLSBBcHJlbmRlIHJvYm90aWNhIGp1Z2FuZG8iLCJzaG9ydF9uYW1lIjoiUm9ib0tpZHMiLCJzdGFydF91cmwiOiIuL2luZGV4Lmh0bWwiLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjMUNCMEY2IiwidGhlbWVfY29sb3IiOiIjMUNCMEY2IiwiaWNvbnMiOlt7InNyYyI6Ii4vcm9ib3QucG5nIiwic2l6ZXMiOiI1MTJ4NTEyIiwidHlwZSI6ImltYWdlL3BuZyIsInB1cnBvc2UiOiJhbnkifV19">
 <title>RoboKids · Aprende robótica jugando</title>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -58,10 +58,9 @@ input{ font-family:inherit; }
   background:var(--rojo); color:#fff;
   font-family:'Baloo 2', sans-serif; font-weight:700; font-size:.92rem;
   text-align:center; padding:10px 16px;
-  box-shadow:0 4px 0 var(--rojo-dark);
   transform:translateY(-100%); transition:transform .25s ease;
 }
-.offline-banner.mostrar{ transform:translateY(0); }
+.offline-banner.mostrar{ transform:translateY(0); box-shadow:0 4px 0 var(--rojo-dark); }
 
 /* ---------- Botones ---------- */
 .btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; padding:14px 28px; border-radius:16px; font-weight:800; font-size:1.05rem; letter-spacing:.3px; transition:transform .08s ease, filter .15s ease; white-space:nowrap; }
@@ -475,6 +474,21 @@ body{ background: linear-gradient(165deg, #E3F6FF 0%, #EFFBF0 45%, #FFF8E8 100%)
   .clase-card .emoji-grande, .icon-badge{ display:none; }
   .clase-card h2{ font-size:1.1rem; }
   .clase-card p{ font-size:.85rem; }
+}
+
+/* ---------- Panel de profesor en pantallas angostas (celular) ---------- */
+@media (max-width:760px){
+  .profesor-top{ height:auto; flex-wrap:wrap; gap:10px; padding:14px 16px; }
+  .profesor-brand{ font-size:1rem; width:100%; }
+  .profesor-top .topbar-user{ width:100%; justify-content:flex-start; flex-wrap:wrap; gap:8px; }
+  .profesor-top .topbar-user .btn{ padding:8px 12px; font-size:.78rem; }
+  .profesor-resumen, .profesor-ranking, .profesor-equipos, .profesor-tabla-wrap{ padding-left:16px; padding-right:16px; }
+  .profesor-resumen{ gap:8px; }
+  .ranking-item{ min-width:130px; padding:8px 12px; }
+  .form-nuevo-equipo input{ width:100%; }
+  .form-nuevo-equipo{ width:100%; }
+  .equipo-chip{ min-width:120px; }
+  .tabla-estudiantes th, .tabla-estudiantes td{ padding:9px 8px; font-size:.78rem; }
 }
 
 </style>
@@ -3782,7 +3796,7 @@ function initDashboard(){
   document.getElementById("racha-chip").innerHTML = `${icono('flame')}<span id="racha-num">${usuario.racha || 0}</span>`;
   document.getElementById("puntos-chip").innerHTML = `${icono('star')}<span id="puntos-num">${usuario.puntos || 0}</span>`;
   document.getElementById("puntos-chip").onclick = () => { mostrarPantalla("progreso"); initProgreso(); };
-  document.getElementById("avatar-chip").innerHTML = icono(usuario.avatar || 'robot', '');
+  document.getElementById("avatar-chip").innerHTML = icono('logout', '');
 
   document.getElementById("avatar-chip").onclick = () => {
     if(confirm("¿Quieres cerrar sesión, " + usuario.nombre + "?")){
