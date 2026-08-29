@@ -127,6 +127,33 @@ input{ font-family:inherit; }
 .nodo .insignia-completo{ position:absolute; top:8px; right:10px; width:18px; height:18px; }
 .nodo.bloqueado{ background:var(--gris-200); color:var(--gris-400); box-shadow:0 5px 0 #d2d2d2; cursor:not-allowed; }
 .nodo.bloqueado .icono{ filter:grayscale(1); opacity:.6; }
+.nodo.actividades{ background:linear-gradient(150deg, var(--morado) 0%, #9333EA 100%); box-shadow:0 5px 0 var(--morado-dark); cursor:pointer; }
+
+/* ---------- Actividades ---------- */
+.actividades-filtros{ display:flex; gap:8px; flex-wrap:wrap; padding-bottom:18px; }
+.actividad-chip{ background:var(--gris-100); color:var(--gris-700); font-weight:800; font-size:.82rem; padding:9px 16px; border-radius:999px; border:2px solid transparent; }
+.actividad-chip.activo{ background:#F3E8FF; color:#7E22CE; border-color:var(--morado); }
+.actividades-lista{ display:flex; flex-direction:column; gap:16px; padding-bottom:24px; }
+.actividad-card{ background:var(--gris-100); border-radius:20px; padding:22px 24px; display:flex; flex-direction:column; gap:12px; }
+.actividad-card-top{ display:flex; align-items:flex-start; gap:14px; }
+.actividad-card-top .icon-badge{ flex-shrink:0; }
+.actividad-titulo{ font-family:'Baloo 2', sans-serif; font-size:1.15rem; color:var(--texto); font-weight:700; }
+.actividad-modulo{ font-size:.74rem; font-weight:800; color:#7E22CE; text-transform:uppercase; letter-spacing:.4px; }
+.actividad-desc{ font-size:.95rem; line-height:1.5; color:var(--gris-700); font-weight:600; }
+.actividad-acciones{ display:flex; flex-wrap:wrap; gap:10px; }
+.btn-morado{ background:var(--morado); color:#fff; box-shadow:0 4px 0 var(--morado-dark); }
+.btn-morado:hover{ filter:brightness(1.05); }
+.btn-sm{ padding:10px 18px; font-size:.85rem; border-radius:14px; }
+.btn-sm .icon-inline{ width:16px; height:16px; }
+.codigo-bloque{ background:#1E1E2E; border-radius:14px; overflow:hidden; }
+.codigo-bloque-header{ display:flex; align-items:center; justify-content:space-between; padding:9px 16px; background:#181825; }
+.codigo-bloque-header span{ color:#A6ADC8; font-size:.72rem; font-weight:800; text-transform:uppercase; letter-spacing:.5px; }
+.codigo-copiar{ display:flex; align-items:center; gap:6px; background:none; color:#CDD6F4; font-size:.76rem; font-weight:700; padding:5px 10px; border-radius:8px; }
+.codigo-copiar:hover{ background:#313244; }
+.codigo-copiar .icon-inline{ width:14px; height:14px; }
+.codigo-bloque pre{ margin:0; padding:16px; overflow-x:auto; }
+.codigo-bloque code{ color:#CDD6F4; font-family:'Courier New', monospace; font-size:.86rem; line-height:1.55; white-space:pre; }
+.actividades-vacio{ text-align:center; padding:40px 20px; color:var(--gris-400); font-weight:700; }
 
 /* ---------- Lección ---------- */
 .leccion-top{ height:64px; flex-shrink:0; display:flex; align-items:center; gap:14px; padding:0 22px; background:rgba(255,255,255,.78); backdrop-filter:blur(10px); border-bottom:2px solid rgba(229,229,229,.6); }
@@ -491,6 +518,100 @@ body{ background: linear-gradient(165deg, #E3F6FF 0%, #EFFBF0 45%, #FFF8E8 100%)
   .tabla-estudiantes th, .tabla-estudiantes td{ padding:9px 8px; font-size:.78rem; }
 }
 
+/* ===========================================================
+   NAVEGACIÓN ESTILO "APP" — BARRA LATERAL (ESCRITORIO) Y
+   BARRA INFERIOR (MÓVIL) PARA LA PANTALLA DEL DASHBOARD
+   =========================================================== */
+:root{
+  --sidebar-w: 240px;
+  --bottom-nav-h: 66px;
+}
+
+#pantalla-dashboard{ flex-direction: row; }
+.dash-shell{ flex:1; display:flex; flex-direction:column; overflow:hidden; }
+
+.app-sidebar{
+  display:none;
+  width: var(--sidebar-w);
+  flex-shrink:0;
+  background:#fff;
+  border-right:2px solid var(--gris-200);
+  padding:22px 14px;
+  flex-direction:column;
+  gap:6px;
+}
+.app-sidebar .logo-badge{ width:42px; height:42px; border-radius:14px; }
+.sidebar-brand{ display:flex; align-items:center; gap:10px; padding:0 8px 20px; margin-bottom:10px; border-bottom:2px solid var(--gris-100); }
+.sidebar-brand h1{ font-size:1.35rem; color:var(--azul-dark); }
+.sidebar-nav-btn{
+  display:flex; align-items:center; gap:12px; padding:13px 14px; border-radius:16px;
+  font-family:'Baloo 2',sans-serif; font-weight:800; font-size:1rem; color:var(--gris-700);
+  background:none; text-align:left; width:100%;
+}
+.sidebar-nav-btn:hover{ background:var(--gris-100); }
+.sidebar-nav-btn.activo{ background:#EAF7FF; color:var(--azul-dark); }
+.sidebar-nav-btn .icon-inline{ width:20px; height:20px; }
+.sidebar-nav-spacer{ flex:1; }
+.sidebar-nav-btn.salir{ color:var(--rojo-dark); }
+.sidebar-nav-btn.salir:hover{ background:#FFEAEA; }
+
+.app-bottom-nav{
+  display:none;
+  position:fixed; left:0; right:0; bottom:0; z-index:60;
+  height:var(--bottom-nav-h);
+  background:#fff; border-top:2px solid var(--gris-200);
+  align-items:center; justify-content:space-around;
+}
+.bottom-nav-btn{
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+  color:var(--gris-400); font-family:'Baloo 2',sans-serif; font-weight:800; font-size:.68rem;
+  background:none; padding:6px 14px; border-radius:14px;
+}
+.bottom-nav-btn.activo{ color:var(--azul-dark); background:#EAF7FF; }
+.bottom-nav-btn .icon-inline{ width:22px; height:22px; }
+
+@media (min-width:900px){
+  .app-sidebar{ display:flex; }
+}
+@media (max-width:899px){
+  .app-bottom-nav{ display:flex; }
+  #pantalla-dashboard .ruta-wrap{ padding-bottom: calc(var(--bottom-nav-h) + 10px); }
+}
+
+/* ---------- Ruta en zigzag (visual estilo "app de misiones") ---------- */
+@media (min-width:601px){
+  .ruta.ruta-zigzag{
+    display:flex; flex-direction:column; align-items:center; gap:22px;
+    max-width:640px; height:auto; max-height:none; overflow-y:auto; padding:8px 0 24px;
+  }
+  .ruta-zigzag .nodo{
+    width:150px; min-height:150px; border-radius:50%;
+    aspect-ratio:1/1;
+  }
+  .ruta-zigzag .nodo:nth-child(4n+2){ transform:translateX(90px); }
+  .ruta-zigzag .nodo:nth-child(4n+3){ transform:translateX(120px); }
+  .ruta-zigzag .nodo:nth-child(4n+4){ transform:translateX(60px); }
+  .ruta-zigzag .nodo:not(.bloqueado):hover{ transform-origin:center; }
+  .ruta-zigzag .nodo:nth-child(4n+2):not(.bloqueado):hover{ transform:translateX(90px) translateY(-4px); }
+  .ruta-zigzag .nodo:nth-child(4n+3):not(.bloqueado):hover{ transform:translateX(120px) translateY(-4px); }
+  .ruta-zigzag .nodo:nth-child(4n+4):not(.bloqueado):hover{ transform:translateX(60px) translateY(-4px); }
+  .ruta-wrap{ align-items:flex-start !important; overflow-y:auto !important; }
+}
+
+/* ===========================================================
+   RESPLANDOR DE MOUSE ESTILO "PRO GAMING" (solo en computador)
+   =========================================================== */
+#cursor-glow{
+  position:fixed; top:0; left:0; width:300px; height:300px;
+  margin-left:-150px; margin-top:-150px; border-radius:50%;
+  pointer-events:none; z-index:9999;
+  background:radial-gradient(circle, rgba(255,255,255,.35) 0%, #1CB0F6 32%, rgba(28,176,246,0) 70%);
+  filter:blur(22px) hue-rotate(0deg);
+  opacity:0; transition:opacity .35s ease; mix-blend-mode:screen;
+  animation:cursorGlowHue 5s linear infinite; will-change:transform;
+}
+@keyframes cursorGlowHue{ 0%{filter:blur(22px) hue-rotate(0deg);} 100%{filter:blur(22px) hue-rotate(360deg);} }
+
 </style>
 </head>
 <body>
@@ -560,16 +681,36 @@ body{ background: linear-gradient(165deg, #E3F6FF 0%, #EFFBF0 45%, #FFF8E8 100%)
      PANTALLA: DASHBOARD (ruta de módulos)
      ========================================================= -->
 <div id="pantalla-dashboard" class="pantalla oculto">
-  <div class="topbar">
-    <div class="topbar-brand" id="topbar-brand"></div>
-    <div class="topbar-user">
-      <div class="equipo-chip oculto" id="equipo-chip" title="Tu equipo"></div>
-      <div class="racha" id="racha-chip"></div>
-      <div class="puntos" id="puntos-chip" style="cursor:pointer;" title="Ver mi progreso"></div>
-      <div class="avatar-chip" id="avatar-chip" title="Cerrar sesión"></div>
+  <nav class="app-sidebar" id="app-sidebar">
+    <div class="sidebar-brand">
+      <span class="logo-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8" /><rect width="16" height="12" x="4" y="8" rx="2" /><path d="M2 14h2" /><path d="M20 14h2" /><path d="M15 13v2" /><path d="M9 13v2" /></svg></span>
+      <h1>RoboKids</h1>
     </div>
+    <button class="sidebar-nav-btn activo" id="sidebar-btn-ruta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><path d="M9 20l-5.447-2.724A1 1 0 0 1 3 16.382V5.618a1 1 0 0 1 1.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0 0 21 18.382V7.618a1 1 0 0 0-.553-.894L15 4m0 13V4m0 0L9 7" /></svg>Mi Ruta</button>
+    <button class="sidebar-nav-btn" id="sidebar-btn-actividades"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><path d="m18 16 4-4-4-4M6 8l-4 4 4 4m8.5-12-5 16" /></svg>Actividades</button>
+    <button class="sidebar-nav-btn" id="sidebar-btn-progreso"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><path d="M3 3v16a2 2 0 0 0 2 2h16" /><path d="m19 9-5 5-4-4-3 3" /></svg>Mi Progreso</button>
+    <div class="sidebar-nav-spacer"></div>
+    <button class="sidebar-nav-btn salir" id="sidebar-btn-salir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><path d="m16 17 5-5-5-5" /><path d="M21 12H9" /><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /></svg>Cerrar sesión</button>
+  </nav>
+
+  <div class="dash-shell">
+    <div class="topbar">
+      <div class="topbar-brand" id="topbar-brand"></div>
+      <div class="topbar-user">
+        <div class="equipo-chip oculto" id="equipo-chip" title="Tu equipo"></div>
+        <div class="racha" id="racha-chip"></div>
+        <div class="puntos" id="puntos-chip" style="cursor:pointer;" title="Ver mi progreso"></div>
+        <div class="avatar-chip" id="avatar-chip" title="Cerrar sesión"></div>
+      </div>
+    </div>
+    <div class="ruta-wrap"><div class="ruta ruta-zigzag" id="ruta"></div></div>
   </div>
-  <div class="ruta-wrap"><div class="ruta" id="ruta"></div></div>
+
+  <nav class="app-bottom-nav" id="app-bottom-nav">
+    <button class="bottom-nav-btn activo" id="bottomnav-btn-ruta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><path d="M9 20l-5.447-2.724A1 1 0 0 1 3 16.382V5.618a1 1 0 0 1 1.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0 0 21 18.382V7.618a1 1 0 0 0-.553-.894L15 4m0 13V4m0 0L9 7" /></svg>Ruta</button>
+    <button class="bottom-nav-btn" id="bottomnav-btn-actividades"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><path d="m18 16 4-4-4-4M6 8l-4 4 4 4m8.5-12-5 16" /></svg>Actividades</button>
+    <button class="bottom-nav-btn" id="bottomnav-btn-progreso"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><path d="M3 3v16a2 2 0 0 0 2 2h16" /><path d="m19 9-5 5-4-4-3 3" /></svg>Progreso</button>
+  </nav>
 </div>
 
 <!-- =========================================================
@@ -598,6 +739,17 @@ body{ background: linear-gradient(165deg, #E3F6FF 0%, #EFFBF0 45%, #FFF8E8 100%)
     <div class="topbar-brand" style="border:none;">Mi Progreso</div>
   </div>
   <div class="contenido" id="contenido-progreso" style="overflow:auto;"></div>
+</div>
+
+<!-- =========================================================
+     PANTALLA: ACTIVIDADES (Tinkercad y códigos de referencia)
+     ========================================================= -->
+<div id="pantalla-actividades" class="pantalla oculto">
+  <div class="leccion-top">
+    <button class="cerrar-btn" id="btn-cerrar-actividades"></button>
+    <div class="topbar-brand" style="border:none;">Actividades</div>
+  </div>
+  <div class="contenido" id="contenido-actividades" style="overflow:auto;"></div>
 </div>
 
 <!-- =========================================================
@@ -3186,6 +3338,59 @@ function obtenerModulo(id){
   return MODULOS.find(m => m.id === id);
 }
 
+/* ===========================================================
+   ACTIVIDADES — banco de proyectos de Tinkercad y códigos guía
+   ===========================================================
+   Aquí Al puede dejar lo que ya se hizo en clase: el enlace al
+   proyecto de Tinkercad y el código usado, para que los
+   estudiantes lo tengan como referencia (ahorra tiempo y evita
+   errores de tipeo al escribir el código desde cero).
+
+   Cómo agregar una actividad nueva: copia un bloque { ... },
+   pégalo dentro del arreglo y completa sus campos:
+     - moduloId:    debe coincidir con el "id" de un módulo de
+                     MODULOS (tinkercad, bloques, codigo, arduino,
+                     fundamentos, componentes, basica)
+     - titulo:      nombre corto de la actividad
+     - descripcion: 1-2 frases explicando qué se hizo
+     - tinkercadUrl: (opcional) enlace al proyecto en Tinkercad,
+                     déjalo como "" si no aplica
+     - lenguaje:    (opcional) etiqueta del bloque de código,
+                     ej. "Arduino (C++)", "Bloques", "Python"
+     - codigo:      (opcional) el código como texto, déjalo como
+                     "" si la actividad no tiene código
+   =========================================================== */
+const ACTIVIDADES = [
+  {
+    "moduloId": "arduino",
+    "titulo": "Contador con display de 7 segmentos",
+    "descripcion": "Circuito armado en clase: un Arduino Uno controla un display de 7 segmentos a través de resistencias en una protoboard.",
+    "tinkercadUrl": "",
+    "lenguaje": "Arduino (C++)",
+    "codigo": `int segmentos[] = {2, 3, 4, 5, 6, 7, 8};
+
+void setup() {
+  for (int i = 0; i < 7; i++) {
+    pinMode(segmentos[i], OUTPUT);
+  }
+}
+
+void loop() {
+  // Enciende cada segmento uno por uno
+  for (int i = 0; i < 7; i++) {
+    digitalWrite(segmentos[i], HIGH);
+    delay(300);
+    digitalWrite(segmentos[i], LOW);
+  }
+}`
+  }
+];
+
+// Utilidad: actividades de un módulo específico
+function actividadesDeModulo(moduloId){
+  return ACTIVIDADES.filter(a => a.moduloId === moduloId);
+}
+
 const ICONOS = {
   "robot": "<path d=\"M12 8V4H8\" /><rect width=\"16\" height=\"12\" x=\"4\" y=\"8\" rx=\"2\" /><path d=\"M2 14h2\" /><path d=\"M20 14h2\" /><path d=\"M15 13v2\" /><path d=\"M9 13v2\" />",
   "rocket": "<path d=\"M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5\" /><path d=\"M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09\" /><path d=\"M9 12a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.4 22.4 0 0 1-4 2z\" /><path d=\"M9 12H4s.55-3.03 2-4c1.62-1.08 5 .05 5 .05\" />",
@@ -3625,7 +3830,7 @@ const RoboKids = {
 /* ===========================================================
    ENRUTADOR — cambia de "pantalla" sin recargar la página
    =========================================================== */
-const PANTALLAS = ["splash","dashboard","leccion","progreso","profesor-login","profesor-panel","404"];
+const PANTALLAS = ["splash","dashboard","leccion","progreso","actividades","profesor-login","profesor-panel","404"];
 function mostrarPantalla(id){
   PANTALLAS.forEach(p => document.getElementById("pantalla-"+p).classList.toggle("oculto", p !== id));
 }
@@ -3770,6 +3975,7 @@ function mostrarLogrosNuevos(idsAntes, usuarioActualizado){
 function initDashboard(){
   const usuario = RoboKids.usuarioActual();
   if(!usuario){ mostrarPantalla("splash"); return; }
+  if(typeof marcarNavActiva === "function") marcarNavActiva('ruta');
 
   const equipoChip = document.getElementById("equipo-chip");
   if(usuario.equipoId){
@@ -3835,6 +4041,16 @@ function initDashboard(){
     }
     rutaEl.appendChild(nodo);
   });
+
+  const nodoActividades = document.createElement("button");
+  nodoActividades.className = "nodo actividades";
+  nodoActividades.innerHTML = `
+    <span class="icono icono-nodo">${icono('code','')}</span>
+    <span class="nombre">Actividades</span>
+    <span class="estado">Tinkercad y códigos</span>
+  `;
+  nodoActividades.onclick = () => { mostrarPantalla("actividades"); initActividades(); };
+  rutaEl.appendChild(nodoActividades);
 }
 
 /* ===========================================================
@@ -3894,6 +4110,93 @@ function initProgreso(){
       }).join("")}
     </div>
   `;
+}
+
+/* ===========================================================
+   PANTALLA: ACTIVIDADES
+   =========================================================== */
+document.getElementById("btn-cerrar-actividades").innerHTML = icono('close');
+document.getElementById("btn-cerrar-actividades").onclick = () => { mostrarPantalla("dashboard"); initDashboard(); };
+
+let filtroActividades = "todos";
+
+function initActividades(){
+  filtroActividades = "todos";
+  renderActividades();
+}
+
+function renderActividades(){
+  const cont = document.getElementById("contenido-actividades");
+  const modulosConActividades = MODULOS.filter(m => actividadesDeModulo(m.id).length > 0);
+
+  const chips = `
+    <div class="actividades-filtros">
+      <button class="actividad-chip ${filtroActividades === 'todos' ? 'activo' : ''}" data-filtro="todos">Todas</button>
+      ${modulosConActividades.map(m => `<button class="actividad-chip ${filtroActividades === m.id ? 'activo' : ''}" data-filtro="${m.id}">${m.nombre}</button>`).join("")}
+    </div>
+  `;
+
+  const lista = filtroActividades === "todos" ? ACTIVIDADES : actividadesDeModulo(filtroActividades);
+
+  const tarjetas = lista.length === 0 ? `
+    <div class="actividades-vacio">${icono('box','style="width:40px;height:40px;margin-bottom:10px;"')}<br>Todavía no hay actividades aquí.</div>
+  ` : lista.map((a, i) => {
+    const m = obtenerModulo(a.moduloId);
+    return `
+      <div class="actividad-card">
+        <div class="actividad-card-top">
+          <span class="icon-badge" style="background:linear-gradient(145deg, var(--morado) 0%, #9333EA 100%);">${icono(m ? m.icono : 'box')}</span>
+          <div>
+            <div class="actividad-modulo">${m ? m.nombre : ''}</div>
+            <div class="actividad-titulo">${a.titulo}</div>
+          </div>
+        </div>
+        ${a.descripcion ? `<div class="actividad-desc">${a.descripcion}</div>` : ''}
+        ${a.tinkercadUrl ? `
+          <div class="actividad-acciones">
+            <a class="btn btn-morado btn-sm" href="${a.tinkercadUrl}" target="_blank" rel="noopener">${icono('link','class="icon-inline"')}Abrir en Tinkercad</a>
+          </div>
+        ` : ''}
+        ${a.codigo ? `
+          <div class="codigo-bloque">
+            <div class="codigo-bloque-header">
+              <span>${a.lenguaje || 'Código'}</span>
+              <button class="codigo-copiar" data-idx="${i}">${icono('clipboard','class="icon-inline"')}Copiar</button>
+            </div>
+            <pre><code>${a.codigo.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</code></pre>
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }).join("");
+
+  cont.innerHTML = chips + `<div class="actividades-lista">${tarjetas}</div>`;
+
+  cont.querySelectorAll(".actividad-chip").forEach(chip => {
+    chip.onclick = () => { filtroActividades = chip.dataset.filtro; renderActividades(); };
+  });
+
+  cont.querySelectorAll(".codigo-copiar").forEach(btn => {
+    btn.onclick = () => {
+      const idx = Number(btn.dataset.idx);
+      const codigo = lista[idx].codigo;
+      const marcarCopiado = () => {
+        const original = btn.innerHTML;
+        btn.innerHTML = `${icono('checkcircle','class="icon-inline"')}¡Copiado!`;
+        setTimeout(() => { btn.innerHTML = original; }, 1500);
+      };
+      if(navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(codigo).then(marcarCopiado).catch(() => alert("No se pudo copiar el código."));
+      } else {
+        const area = document.createElement("textarea");
+        area.value = codigo;
+        document.body.appendChild(area);
+        area.select();
+        try{ document.execCommand("copy"); marcarCopiado(); }catch(e){ alert("No se pudo copiar el código."); }
+        document.body.removeChild(area);
+      }
+    };
+  });
 }
 
 /* ===========================================================
@@ -4618,6 +4921,66 @@ function rutaValida(){
   }else{
     mostrarPantalla("splash");
   }
+})();
+
+/* ===========================================================
+   NAVEGACIÓN DE LA BARRA LATERAL / BARRA INFERIOR (dashboard)
+   =========================================================== */
+function marcarNavActiva(destino){
+  document.querySelectorAll('.sidebar-nav-btn[data-destino], .bottom-nav-btn[data-destino]').forEach(b => {
+    b.classList.toggle('activo', b.dataset.destino === destino);
+  });
+}
+document.getElementById('sidebar-btn-ruta').dataset.destino = 'ruta';
+document.getElementById('sidebar-btn-actividades').dataset.destino = 'actividades';
+document.getElementById('sidebar-btn-progreso').dataset.destino = 'progreso';
+document.getElementById('bottomnav-btn-ruta').dataset.destino = 'ruta';
+document.getElementById('bottomnav-btn-actividades').dataset.destino = 'actividades';
+document.getElementById('bottomnav-btn-progreso').dataset.destino = 'progreso';
+
+function irARuta(){ marcarNavActiva('ruta'); mostrarPantalla('dashboard'); initDashboard(); }
+function irAActividades(){ marcarNavActiva('actividades'); mostrarPantalla('actividades'); initActividades(); }
+function irAProgreso(){ marcarNavActiva('progreso'); mostrarPantalla('progreso'); initProgreso(); }
+function salirDeSesion(){
+  const usuario = RoboKids.usuarioActual();
+  if(confirm("¿Quieres cerrar sesión" + (usuario ? ", " + usuario.nombre : "") + "?")){
+    RoboKids.cerrarSesion();
+    mostrarPantalla("splash");
+    mostrarPasoSplash(pasoInicio);
+  }
+}
+
+document.getElementById('sidebar-btn-ruta').onclick = irARuta;
+document.getElementById('sidebar-btn-actividades').onclick = irAActividades;
+document.getElementById('sidebar-btn-progreso').onclick = irAProgreso;
+document.getElementById('sidebar-btn-salir').onclick = salirDeSesion;
+document.getElementById('bottomnav-btn-ruta').onclick = irARuta;
+document.getElementById('bottomnav-btn-actividades').onclick = irAActividades;
+document.getElementById('bottomnav-btn-progreso').onclick = irAProgreso;
+
+/* ===========================================================
+   RESPLANDOR DE MOUSE ESTILO "PRO GAMING" — solo en dispositivos
+   con mouse real (no interfiere con tablets/celulares).
+   =========================================================== */
+(function initCursorGlow(){
+  if(!window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+  const glow = document.createElement('div');
+  glow.id = 'cursor-glow';
+  document.body.appendChild(glow);
+  let mouseX = window.innerWidth/2, mouseY = window.innerHeight/2;
+  let glowX = mouseX, glowY = mouseY;
+  document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX; mouseY = e.clientY;
+    glow.style.opacity = '1';
+  });
+  document.addEventListener('mouseleave', () => { glow.style.opacity = '0'; });
+  function animar(){
+    glowX += (mouseX - glowX) * 0.16;
+    glowY += (mouseY - glowY) * 0.16;
+    glow.style.transform = `translate(${glowX}px, ${glowY}px)`;
+    requestAnimationFrame(animar);
+  }
+  animar();
 })();
 </script>
 </body>
