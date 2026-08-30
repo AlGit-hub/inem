@@ -21,6 +21,7 @@
    RoboKids · Estilos globales (todo en un solo archivo)
    =========================================================== */
 @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root{
   --verde:      #58CC02;
@@ -33,6 +34,8 @@
   --rojo-dark:  #E63E3E;
   --morado:     #CE82FF;
   --morado-dark:#B563E0;
+  --magenta:    #E91E9C;
+  --magenta-dark:#C4127F;
   --naranja:    #FF9600;
   --gris-100:   #F7F8FA;
   --gris-200:   #E5E5E5;
@@ -121,7 +124,8 @@ input{ font-family:inherit; }
 .nodo .icono{ font-size:2.3rem; }
 .nodo .nombre{ font-weight:800; font-size:.92rem; line-height:1.15; }
 .nodo .estado{ font-size:.72rem; font-weight:700; opacity:.9; }
-.nodo.disponible{ background:var(--azul); box-shadow:0 5px 0 var(--azul-dark); cursor:pointer; }
+.nodo.disponible{ background:var(--verde); box-shadow:0 5px 0 var(--verde-dark); cursor:pointer; }
+.nodo.en-progreso{ background:var(--magenta); box-shadow:0 5px 0 var(--magenta-dark); cursor:pointer; }
 .nodo.completo{ background:var(--verde); box-shadow:0 5px 0 var(--verde-dark); cursor:pointer; }
 .nodo.completo{ background:linear-gradient(150deg, var(--verde) 0%, #16A34A 100%); }
 .nodo .insignia-completo{ position:absolute; top:8px; right:10px; width:18px; height:18px; }
@@ -291,11 +295,28 @@ table.tabla-estudiantes{ width:100%; border-collapse:collapse; background:#11182
 .estudiante-nombre{ display:flex; align-items:center; gap:8px; font-weight:800; }
 
 @media (max-width:760px){
-  .ruta{ grid-template-columns:repeat(2, minmax(0,1fr)); grid-template-rows:repeat(4,1fr); }
   .match-grid{ grid-template-columns:1fr 1fr; gap:12px; }
   .contenido{ padding:18px 4vw; }
   .clase-card{ padding:22px 20px; }
   .splash-panel{ padding:26px 20px; }
+}
+
+/* ---------- Móvil: módulos en lista vertical, uno debajo del otro ---------- */
+@media (max-width:600px){
+  .ruta-wrap{ align-items:flex-start; justify-content:flex-start; overflow-y:auto; padding:16px 5vw 10px; }
+  .ruta{
+    display:flex; flex-direction:column; gap:14px;
+    width:100%; max-width:480px; margin:0 auto;
+    height:auto; max-height:none;
+  }
+  .nodo{
+    flex-direction:row; align-items:center; justify-content:flex-start;
+    width:100%; padding:14px 16px; border-radius:20px; gap:14px; text-align:left;
+  }
+  .nodo .num{ display:none; }
+  .nodo .icono-nodo{ width:40px; height:40px; flex-shrink:0; }
+  .nodo .nombre{ font-size:1rem; }
+  .nodo .insignia-completo{ top:50%; transform:translateY(-50%); right:14px; width:20px; height:20px; }
 }
 
 /* ---------- Lección enriquecida: eyebrow, coach, clave, tarjetas/flujo ---------- */
@@ -412,6 +433,13 @@ svg{ display:block; width:1.15em; height:1.15em; flex-shrink:0; }
    =========================================================== */
 body{ background: linear-gradient(165deg, #E3F6FF 0%, #EFFBF0 45%, #FFF8E8 100%); background-attachment: fixed; }
 
+/* ---------- Retroalimentación táctil al dar clic/tap (todo dispositivo) ---------- */
+button:active, .nodo:not(.bloqueado):active, .tab:not(.bloqueado):active,
+.actividad-chip:active, .avatar-chip:active, a:active{
+  filter: brightness(.82) saturate(1.3);
+  transition: filter .06s ease;
+}
+
 .nodo{ position:relative; overflow:hidden; }
 .nodo::before{
   content:""; position:absolute; inset:0;
@@ -420,10 +448,18 @@ body{ background: linear-gradient(165deg, #E3F6FF 0%, #EFFBF0 45%, #FFF8E8 100%)
 }
 .nodo .icono-nodo{ width:34px; height:34px; }
 .nodo .icono-nodo svg{ width:100%; height:100%; }
-.nodo.disponible{ background:linear-gradient(150deg, var(--azul) 0%, #0EA5E9 100%); }
-.nodo.completo{ background:linear-gradient(150deg, var(--verde) 0%, #16A34A 100%); }
+.nodo.disponible{ background:linear-gradient(150deg, var(--verde) 0%, #46A302 100%); }
+.nodo.en-progreso{ background:linear-gradient(150deg, var(--magenta) 0%, #A80F6B 100%); }
+.nodo.completo{
+  background:linear-gradient(150deg, var(--verde) 0%, #16A34A 100%);
+  animation: aparecerNodo .5s ease backwards, nodoCompletoColor 16s linear infinite;
+}
 .nodo.bloqueado{ background:var(--gris-200); }
-.nodo.disponible, .nodo.completo{ animation: aparecerNodo .5s ease backwards; }
+.nodo.disponible, .nodo.en-progreso{ animation: aparecerNodo .5s ease backwards; }
+@keyframes nodoCompletoColor{
+  0%{ filter:hue-rotate(0deg); }
+  100%{ filter:hue-rotate(360deg); }
+}
 .ruta .nodo:nth-child(1){ animation-delay:.02s; }
 .ruta .nodo:nth-child(2){ animation-delay:.08s; }
 .ruta .nodo:nth-child(3){ animation-delay:.14s; }
@@ -528,32 +564,48 @@ body{ background: linear-gradient(165deg, #E3F6FF 0%, #EFFBF0 45%, #FFF8E8 100%)
 }
 
 #pantalla-dashboard{ flex-direction: row; }
-.dash-shell{ flex:1; display:flex; flex-direction:column; overflow:hidden; }
+.dash-shell{ flex:1; display:flex; flex-direction:column; overflow:hidden; order:1; }
 
 .app-sidebar{
   display:none;
+  order:2;
   width: var(--sidebar-w);
   flex-shrink:0;
   background:#fff;
-  border-right:2px solid var(--gris-200);
+  border-left:2px solid var(--gris-200);
   padding:22px 14px;
   flex-direction:column;
   gap:6px;
+  position:relative;
+  transition: width .18s ease, padding .18s ease, opacity .18s ease;
 }
+.app-sidebar.colapsada{ width:0; padding:22px 0; opacity:0; overflow:hidden; border-left:none; pointer-events:none; }
 .app-sidebar .logo-badge{ width:42px; height:42px; border-radius:14px; }
 .sidebar-brand{ display:flex; align-items:center; gap:10px; padding:0 8px 20px; margin-bottom:10px; border-bottom:2px solid var(--gris-100); }
-.sidebar-brand h1{ font-size:1.35rem; color:var(--azul-dark); }
+.sidebar-brand h1{ font-size:1.35rem; color:var(--azul-dark); white-space:nowrap; }
 .sidebar-nav-btn{
   display:flex; align-items:center; gap:12px; padding:13px 14px; border-radius:16px;
   font-family:'Baloo 2',sans-serif; font-weight:800; font-size:1rem; color:var(--gris-700);
-  background:none; text-align:left; width:100%;
+  background:none; text-align:left; width:100%; white-space:nowrap;
 }
 .sidebar-nav-btn:hover{ background:var(--gris-100); }
 .sidebar-nav-btn.activo{ background:#EAF7FF; color:var(--azul-dark); }
-.sidebar-nav-btn .icon-inline{ width:20px; height:20px; }
+.sidebar-nav-btn .icon-inline{ width:20px; height:20px; flex-shrink:0; }
 .sidebar-nav-spacer{ flex:1; }
 .sidebar-nav-btn.salir{ color:var(--rojo-dark); }
 .sidebar-nav-btn.salir:hover{ background:#FFEAEA; }
+
+.sidebar-toggle-tab{
+  display:none;
+  position:fixed; top:18px; right:0; z-index:70;
+  background:#fff; border:2px solid var(--gris-200); border-right:none;
+  border-radius:14px 0 0 14px; width:34px; height:44px;
+  align-items:center; justify-content:center; color:var(--gris-700);
+  box-shadow:-2px 0 10px rgba(0,0,0,.06);
+  transition: right .18s ease;
+}
+.sidebar-toggle-tab .icon-inline{ width:18px; height:18px; }
+.sidebar-toggle-tab.visible{ display:flex; }
 
 .app-bottom-nav{
   display:none;
@@ -572,6 +624,7 @@ body{ background: linear-gradient(165deg, #E3F6FF 0%, #EFFBF0 45%, #FFF8E8 100%)
 
 @media (min-width:900px){
   .app-sidebar{ display:flex; }
+  .app-sidebar.colapsada + .sidebar-toggle-tab{ display:flex; }
 }
 @media (max-width:899px){
   .app-bottom-nav{ display:flex; }
@@ -611,6 +664,189 @@ body{ background: linear-gradient(165deg, #E3F6FF 0%, #EFFBF0 45%, #FFF8E8 100%)
   animation:cursorGlowHue 5s linear infinite; will-change:transform;
 }
 @keyframes cursorGlowHue{ 0%{filter:blur(22px) hue-rotate(0deg);} 100%{filter:blur(22px) hue-rotate(360deg);} }
+
+
+/* ===========================================================
+   SIMULADOR LUMA — estilos embebidos (pantalla-luma)
+   =========================================================== */
+#pantalla-luma{
+    --bg-deep:#070A16;
+    --panel:#101A30;
+    --panel-2:#0A0E1C;
+    --border:rgba(47,111,235,0.20);
+    --blue:#2F6FEB;
+    --blue-dim:rgba(47,111,235,0.35);
+    --cyan:#33E7D6;
+    --cyan-dim:rgba(51,231,214,0.35);
+    --gold:#FFC24B;
+    --text:#F1EAFB;
+    --muted:#8B7FA8;
+    --red:#FF3B4E;
+    --success:#39FFB0;
+    --radius:14px;
+  }
+#pantalla-luma *{box-sizing:border-box;}
+#pantalla-luma .luma-viewport{margin:0;padding:0;}
+#pantalla-luma .luma-viewport{
+    background:
+      radial-gradient(ellipse 80% 60% at 15% -10%, rgba(47,111,235,0.14), transparent 60%),
+      radial-gradient(ellipse 60% 50% at 100% 0%, rgba(255,194,75,0.08), transparent 55%),
+      var(--bg-deep);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    min-height:100%;
+    padding:28px 20px 60px;
+  }
+#pantalla-luma .luma-app{max-width:1280px;margin:0 auto;}
+#pantalla-luma header.luma-top{margin-bottom:22px;}
+#pantalla-luma header.luma-top .luma-eyebrow{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;letter-spacing:0.14em;text-transform:uppercase;
+    color:var(--blue);opacity:0.9;margin-bottom:6px;
+  }
+#pantalla-luma h1{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:clamp(26px,4vw,38px);
+    font-weight:700;margin:0 0 6px;letter-spacing:-0.01em;
+  }
+#pantalla-luma h1 .luma-accent{color:var(--cyan);}
+#pantalla-luma header.luma-top p{margin:0;color:var(--muted);font-size:14.5px;max-width:680px;line-height:1.5;}
+#pantalla-luma .luma-layout{display:grid;grid-template-columns:340px 1fr 300px;gap:16px;}
+@media (max-width:1180px){
+#pantalla-luma .luma-layout{grid-template-columns:1fr;}
+}
+#pantalla-luma .luma-panel{
+    background:linear-gradient(180deg,var(--panel),var(--panel-2));
+    border:1px solid var(--border);border-radius:var(--radius);padding:16px;
+    clip-path:polygon(0 0,100% 0,100% calc(100% - 10px),calc(100% - 10px) 100%,0 100%);
+  }
+#pantalla-luma .luma-section-label{
+    font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:600;
+    letter-spacing:0.06em;text-transform:uppercase;color:var(--muted);margin:0 0 10px;
+  }
+#pantalla-luma .luma-section-label.luma-mt{margin-top:16px;}
+#pantalla-luma .luma-seg{display:flex;background:var(--bg-deep);border:1px solid var(--border);border-radius:10px;padding:3px;gap:3px;margin-bottom:14px;}
+#pantalla-luma .luma-seg button{flex:1;border:none;background:transparent;color:var(--muted);font-family:'Inter',sans-serif;font-weight:600;font-size:12px;padding:8px 6px;border-radius:8px;cursor:pointer;transition:all .15s ease;}
+#pantalla-luma .luma-seg button.luma-active{background:var(--blue);color:#FFFFFF;}
+#pantalla-luma .luma-seg button:not(.luma-active):hover{color:var(--text);background:rgba(255,255,255,0.04);}
+#pantalla-luma .luma-blocks{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:6px;}
+#pantalla-luma .luma-blocks button{
+    display:flex;align-items:center;gap:6px;background:var(--bg-deep);border:1px solid var(--border);
+    color:var(--text);font-family:'Inter',sans-serif;font-size:12px;font-weight:500;
+    padding:8px 7px;border-radius:9px;cursor:pointer;text-align:left;transition:all .15s ease;
+  }
+#pantalla-luma .luma-blocks button:hover{border-color:var(--blue);background:rgba(47,111,235,0.10);transform:translateY(-1px);}
+#pantalla-luma .luma-blocks button.luma-wide{grid-column:1/-1;}
+#pantalla-luma .luma-blocks button .luma-ic{font-size:14px;}
+#pantalla-luma textarea#luma-code{
+    width:100%;min-height:230px;resize:vertical;background:var(--bg-deep);
+    border:1px solid var(--border);border-radius:10px;color:var(--cyan);
+    font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.6;padding:11px;outline:none;
+  }
+#pantalla-luma textarea#luma-code:focus{border-color:var(--blue);}
+#pantalla-luma .luma-run-row{display:flex;gap:8px;margin-top:12px;}
+#pantalla-luma .luma-btn{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:13px;border:none;border-radius:9px;padding:11px 14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:transform .12s ease, filter .12s ease;}
+#pantalla-luma .luma-btn:active{transform:scale(0.97);}
+#pantalla-luma .luma-btn-primary{background:var(--blue);color:#FFFFFF;flex:1;}
+#pantalla-luma .luma-btn-primary:hover{filter:brightness(1.1);}
+#pantalla-luma .luma-btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted);}
+#pantalla-luma .luma-btn-ghost:hover{color:var(--text);border-color:var(--blue-dim);}
+#pantalla-luma .luma-btn:disabled{opacity:0.4;cursor:not-allowed;}
+#pantalla-luma .luma-example-link{margin-top:9px;background:none;border:none;color:var(--muted);font-family:'Inter',sans-serif;font-size:11.5px;text-decoration:underline;cursor:pointer;padding:0;}
+#pantalla-luma .luma-example-link:hover{color:var(--blue);}
+#pantalla-luma .luma-stage-wrap{display:flex;flex-direction:column;gap:14px;}
+#pantalla-luma .luma-stage-panel{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--border);border-radius:var(--radius);padding:14px;}
+#pantalla-luma .luma-stage-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:10px;flex-wrap:wrap;}
+#pantalla-luma .luma-mission{font-size:13px;color:var(--muted);}
+#pantalla-luma .luma-mission b{color:var(--gold);font-weight:600;}
+#pantalla-luma #luma-canvasHolder{background:var(--bg-deep);border:1px solid var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+#pantalla-luma canvas{display:block;max-width:100%;height:auto;}
+#pantalla-luma .luma-status{font-family:'Inter',sans-serif;font-size:13px;font-weight:500;background:var(--bg-deep);border:1px solid var(--border);border-radius:10px;padding:10px 14px;min-height:18px;display:flex;align-items:center;gap:8px;transition:border-color .2s ease;}
+#pantalla-luma .luma-status.luma-ok{border-color:var(--success);color:var(--success);}
+#pantalla-luma .luma-status.luma-err{border-color:var(--red);color:var(--red);}
+#pantalla-luma .luma-status.luma-idle{color:var(--muted);}
+#pantalla-luma .luma-telemetry .luma-row{display:flex;justify-content:space-between;align-items:center;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);margin-bottom:9px;}
+#pantalla-luma .luma-telemetry .luma-row b{color:var(--text);font-weight:600;}
+#pantalla-luma .luma-bar{height:7px;border-radius:5px;background:var(--bg-deep);border:1px solid var(--border);overflow:hidden;margin-bottom:12px;}
+#pantalla-luma .luma-bar > div{height:100%;border-radius:5px;transition:width .12s linear, background .2s ease;}
+#pantalla-luma .luma-console{
+    margin-top:6px;background:var(--bg-deep);border:1px solid var(--border);border-radius:10px;
+    padding:9px 10px;height:200px;overflow-y:auto;font-family:'JetBrains Mono',monospace;font-size:11px;
+    color:var(--cyan);line-height:1.6;
+  }
+#pantalla-luma .luma-console .luma-sys{color:var(--muted);}
+#pantalla-luma .luma-console .luma-warn{color:var(--red);}
+#pantalla-luma .luma-console .luma-ok2{color:var(--success);}
+#pantalla-luma .luma-state-pill{display:inline-flex;align-items:center;gap:6px;font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:12px;padding:5px 10px;border-radius:20px;background:var(--bg-deep);border:1px solid var(--border);color:var(--muted);}
+#pantalla-luma .luma-state-pill.luma-run{color:var(--blue);border-color:var(--blue-dim);}
+#pantalla-luma .luma-state-pill.luma-crash{color:var(--red);border-color:rgba(255,59,78,0.4);}
+#pantalla-luma .luma-state-pill.luma-dead{color:var(--gold);border-color:rgba(255,194,75,0.4);}
+/* La pantalla de Luma usa su propio fondo oscuro; se anula el marco blanco
+   que .contenido aplica por defecto al resto de pantallas de la app. */
+#pantalla-luma .contenido{ background:transparent; padding:0; margin:0; border-radius:0; box-shadow:none; overflow-y:auto; }
+
+/* ===========================================================
+   ROBIK — asistente flotante
+   =========================================================== */
+.robik-fab{
+  position:fixed; z-index:80; right:22px; bottom:22px;
+  width:60px; height:60px; border-radius:50%;
+  background:linear-gradient(150deg, var(--azul) 0%, #0EA5E9 100%);
+  color:#fff; border:none; box-shadow:0 6px 0 var(--azul-dark), 0 8px 18px rgba(0,0,0,.18);
+  display:flex; align-items:center; justify-content:center; cursor:pointer;
+  animation: robikPulso 2.6s ease-in-out infinite;
+}
+.robik-fab svg{ width:30px; height:30px; }
+.robik-fab:active{ transform:translateY(3px); box-shadow:0 3px 0 var(--azul-dark); }
+@keyframes robikPulso{
+  0%,100%{ box-shadow:0 6px 0 var(--azul-dark), 0 8px 18px rgba(0,0,0,.18), 0 0 0 0 rgba(28,176,246,.45); }
+  50%{ box-shadow:0 6px 0 var(--azul-dark), 0 8px 18px rgba(0,0,0,.18), 0 0 0 10px rgba(28,176,246,0); }
+}
+@media (max-width:899px){
+  .robik-fab{ bottom: calc(var(--bottom-nav-h) + 16px); right:16px; width:54px; height:54px; }
+  .robik-fab svg{ width:26px; height:26px; }
+}
+
+.robik-panel{
+  position:fixed; z-index:90; right:22px; bottom:96px;
+  width:360px; max-width:calc(100vw - 32px); height:min(560px, 70vh);
+  background:#fff; border-radius:24px; box-shadow:0 20px 50px rgba(0,0,0,.25);
+  display:flex; flex-direction:column; overflow:hidden;
+  border:2px solid var(--gris-200);
+}
+.robik-panel-head{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 16px; background:linear-gradient(150deg, var(--azul) 0%, #0EA5E9 100%); color:#fff;
+  flex-shrink:0;
+}
+.robik-avatar{ width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,.2); display:flex; align-items:center; justify-content:center; }
+.robik-avatar svg{ width:20px; height:20px; }
+.robik-titulo{ font-family:'Baloo 2',sans-serif; font-weight:800; font-size:1rem; line-height:1.1; }
+.robik-subtitulo{ font-size:.7rem; opacity:.9; font-weight:600; }
+.robik-panel-head button{ background:rgba(255,255,255,.18); border:none; color:#fff; border-radius:10px; width:30px; height:30px; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+.robik-panel-head button svg{ width:16px; height:16px; }
+
+.robik-mensajes{ flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:10px; background:var(--gris-100); }
+.robik-msg{ max-width:82%; padding:10px 14px; border-radius:16px; font-size:.88rem; line-height:1.4; font-weight:600; }
+.robik-msg.usuario{ align-self:flex-end; background:var(--azul); color:#fff; border-bottom-right-radius:4px; }
+.robik-msg.robik{ align-self:flex-start; background:#fff; color:var(--texto); border:2px solid var(--gris-200); border-bottom-left-radius:4px; }
+.robik-msg.robik .robik-fuente{ display:block; margin-top:6px; font-size:.72rem; color:var(--azul-dark); font-weight:800; }
+
+.robik-form{ display:flex; gap:8px; padding:12px; border-top:2px solid var(--gris-200); flex-shrink:0; background:#fff; }
+.robik-form input{
+  flex:1; border:2px solid var(--gris-200); border-radius:14px; padding:10px 14px;
+  font-family:'Nunito',sans-serif; font-weight:700; font-size:.88rem; outline:none; color:var(--texto);
+}
+.robik-form input:focus{ border-color:var(--azul); }
+.robik-form button{
+  width:42px; height:42px; flex-shrink:0; border-radius:12px; border:none;
+  background:var(--azul); color:#fff; display:flex; align-items:center; justify-content:center; cursor:pointer;
+}
+.robik-form button svg{ width:18px; height:18px; }
+
+@media (max-width:600px){
+  .robik-panel{ right:10px; left:10px; width:auto; bottom:calc(var(--bottom-nav-h) + 78px); height:min(480px,60vh); }
+}
 
 </style>
 </head>
@@ -684,14 +920,17 @@ body{ background: linear-gradient(165deg, #E3F6FF 0%, #EFFBF0 45%, #FFF8E8 100%)
   <nav class="app-sidebar" id="app-sidebar">
     <div class="sidebar-brand">
       <span class="logo-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8" /><rect width="16" height="12" x="4" y="8" rx="2" /><path d="M2 14h2" /><path d="M20 14h2" /><path d="M15 13v2" /><path d="M9 13v2" /></svg></span>
-      <h1>RoboKids</h1>
+      <h1 style="flex:1;">RoboKids</h1>
+      <button id="sidebar-collapse-btn" title="Ocultar menú" style="background:none; border:none; color:var(--gris-400); cursor:pointer; padding:6px; border-radius:8px; display:flex;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline" style="width:18px;height:18px;"><path d="m9 18 6-6-6-6" /></svg></button>
     </div>
     <button class="sidebar-nav-btn activo" id="sidebar-btn-ruta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><path d="M9 20l-5.447-2.724A1 1 0 0 1 3 16.382V5.618a1 1 0 0 1 1.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0 0 21 18.382V7.618a1 1 0 0 0-.553-.894L15 4m0 13V4m0 0L9 7" /></svg>Mi Ruta</button>
     <button class="sidebar-nav-btn" id="sidebar-btn-actividades"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><path d="m18 16 4-4-4-4M6 8l-4 4 4 4m8.5-12-5 16" /></svg>Actividades</button>
     <button class="sidebar-nav-btn" id="sidebar-btn-progreso"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><path d="M3 3v16a2 2 0 0 0 2 2h16" /><path d="m19 9-5 5-4-4-3 3" /></svg>Mi Progreso</button>
+    <button class="sidebar-nav-btn" id="sidebar-btn-luma"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><circle cx="8.5" cy="16.5" r="1.4" /><circle cx="15.5" cy="16.5" r="1.4" /><path d="M12 11V7" /><path d="M9 4h6" /></svg>Luma <span style="font-size:10px;background:#2F6FEB;color:#fff;padding:2px 6px;border-radius:8px;margin-left:auto;">SIM</span></button>
     <div class="sidebar-nav-spacer"></div>
     <button class="sidebar-nav-btn salir" id="sidebar-btn-salir"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><path d="m16 17 5-5-5-5" /><path d="M21 12H9" /><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /></svg>Cerrar sesión</button>
   </nav>
+  <button class="sidebar-toggle-tab" id="sidebar-toggle-tab" title="Mostrar menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><path d="m15 18-6-6 6-6" /></svg></button>
 
   <div class="dash-shell">
     <div class="topbar">
@@ -710,6 +949,7 @@ body{ background: linear-gradient(165deg, #E3F6FF 0%, #EFFBF0 45%, #FFF8E8 100%)
     <button class="bottom-nav-btn activo" id="bottomnav-btn-ruta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><path d="M9 20l-5.447-2.724A1 1 0 0 1 3 16.382V5.618a1 1 0 0 1 1.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0 0 21 18.382V7.618a1 1 0 0 0-.553-.894L15 4m0 13V4m0 0L9 7" /></svg>Ruta</button>
     <button class="bottom-nav-btn" id="bottomnav-btn-actividades"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><path d="m18 16 4-4-4-4M6 8l-4 4 4 4m8.5-12-5 16" /></svg>Actividades</button>
     <button class="bottom-nav-btn" id="bottomnav-btn-progreso"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><path d="M3 3v16a2 2 0 0 0 2 2h16" /><path d="m19 9-5 5-4-4-3 3" /></svg>Progreso</button>
+    <button class="bottom-nav-btn" id="bottomnav-btn-luma"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon-inline"><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><circle cx="8.5" cy="16.5" r="1.4" /><circle cx="15.5" cy="16.5" r="1.4" /><path d="M12 11V7" /><path d="M9 4h6" /></svg>Luma</button>
   </nav>
 </div>
 
@@ -750,6 +990,104 @@ body{ background: linear-gradient(165deg, #E3F6FF 0%, #EFFBF0 45%, #FFF8E8 100%)
     <div class="topbar-brand" style="border:none;">Actividades</div>
   </div>
   <div class="contenido" id="contenido-actividades" style="overflow:auto;"></div>
+</div>
+
+<!-- =========================================================
+     PANTALLA: SIMULADOR LUMA
+     ========================================================= -->
+<div id="pantalla-luma" class="pantalla oculto">
+  <div class="leccion-top">
+    <button class="cerrar-btn" id="btn-cerrar-luma"></button>
+    <div class="topbar-brand" style="border:none;">Simulador Luma</div>
+  </div>
+  <div class="contenido">
+<div class="luma-viewport">
+<div class="luma-app">
+
+  <header class="luma-top">
+    <div class="luma-eyebrow">RoboKids · Módulo de programación</div>
+    <h1>🤖 Simulador <span class="luma-accent">LUMA</span></h1>
+    <p>Programá al dron <b style="color:var(--text)">LUMA</b> con <b style="color:var(--text)">configuracion()</b> y <b style="color:var(--text)">bucle()</b> para correr, saltar y esquivar obstáculos en su pista — como un juego de plataformas, pero con código real.</p>
+  </header>
+
+  <div class="luma-layout">
+
+    <!-- CONTROL PANEL -->
+    <div class="luma-panel">
+      <div class="luma-section-label">Pista</div>
+      <div class="luma-seg" id="luma-envSeg">
+        <button data-env="circuito" class="luma-active">🏁 Circuito 1</button>
+        <button data-env="fabrica">🏭 Circuito 2</button>
+      </div>
+
+      <div class="luma-section-label">Movimiento</div>
+      <div class="luma-blocks">
+        <button data-snip="avanzar(180);" class="luma-wide"><span class="luma-ic">➡️</span>Avanzar</button>
+        <button data-snip="saltar();"><span class="luma-ic">⤴️</span>Saltar</button>
+        <button data-snip="agacharse();"><span class="luma-ic">⤵️</span>Agacharse</button>
+        <button data-snip="detener();" class="luma-wide"><span class="luma-ic">🛑</span>Detener</button>
+      </div>
+
+      <div class="luma-section-label luma-mt">Sensores</div>
+      <div class="luma-blocks">
+        <button data-snip="si (leer_distancia() < 20) {\n  \n}\n" class="luma-wide"><span class="luma-ic">📡</span>Si hay obstáculo cerca</button>
+        <button data-snip="mostrar(leer_distancia());"><span class="luma-ic">📟</span>Ver distancia</button>
+        <button data-snip="mostrar(leer_bateria());"><span class="luma-ic">🔋</span>Ver batería</button>
+      </div>
+
+      <div class="luma-section-label luma-mt">Control</div>
+      <div class="luma-blocks">
+        <button data-snip="esperar(300);"><span class="luma-ic">⏱️</span>Esperar</button>
+        <button data-snip="repetir(3) {\n  \n}\n"><span class="luma-ic">🔁</span>Repetir</button>
+        <button data-snip="recoger();"><span class="luma-ic">✨</span>Recoger</button>
+        <button data-snip="si (cond) {\n  \n} sino {\n  \n}\n" class="luma-wide"><span class="luma-ic">🔀</span>Si / Sino</button>
+      </div>
+
+      <div class="luma-section-label luma-mt">Código</div>
+      <textarea id="luma-code" spellcheck="false"></textarea>
+      <button class="luma-example-link" id="luma-loadExample">Restablecer código de ejemplo</button>
+
+      <div class="luma-run-row">
+        <button class="luma-btn luma-btn-primary" id="luma-runBtn">▶ Ejecutar</button>
+        <button class="luma-btn luma-btn-ghost" id="luma-stopBtn" disabled>⏹ Detener</button>
+        <button class="luma-btn luma-btn-ghost" id="luma-resetBtn">⟲ Reiniciar</button>
+      </div>
+    </div>
+
+    <!-- STAGE -->
+    <div class="luma-stage-wrap">
+      <div class="luma-stage-panel">
+        <div class="luma-stage-head">
+          <div class="luma-mission" id="luma-mission">Misión: recoge <b>3</b> de <b>3</b> chips de energía.</div>
+          <span class="luma-state-pill luma-idle" id="luma-statePill">● En espera</span>
+        </div>
+        <div id="luma-canvasHolder"><canvas id="luma-stage"></canvas></div>
+      </div>
+      <div class="luma-status luma-idle" id="luma-status">🤖 LUMA está lista en la línea de salida.</div>
+    </div>
+
+    <!-- TELEMETRY -->
+    <div class="luma-panel luma-telemetry">
+      <div class="luma-section-label">Telemetría en vivo</div>
+
+      <div class="luma-row"><span>Velocidad</span><b id="luma-tVel">0</b></div>
+      <div class="luma-bar"><div id="luma-barVel" style="width:0%;background:var(--blue);"></div></div>
+
+      <div class="luma-row"><span>Distancia sensor</span><b id="luma-tDist">— cm</b></div>
+
+      <div class="luma-row"><span>Batería</span><b id="luma-tBat">100%</b></div>
+      <div class="luma-bar"><div id="luma-barBat" style="width:100%;background:var(--success);"></div></div>
+
+      <div class="luma-row"><span>Chips recogidos</span><b id="luma-tChips">0 / 3</b></div>
+
+      <div class="luma-section-label luma-mt">Consola serial</div>
+      <div class="luma-console" id="luma-consoleBox"></div>
+    </div>
+
+  </div>
+</div>
+</div>
+  </div>
 </div>
 
 <!-- =========================================================
@@ -818,6 +1156,35 @@ body{ background: linear-gradient(165deg, #E3F6FF 0%, #EFFBF0 45%, #FFF8E8 100%)
     <p class="splash-sub">No encontramos lo que buscabas. Puede que el enlace esté mal escrito o que la página ya no exista.</p>
     <button class="btn btn-verde btn-ancho btn-lg" id="btn-404-inicio">Volver al inicio</button>
   </div>
+</div>
+
+<!-- =========================================================
+     ROBIK — asistente flotante (botón + panel de chat)
+     ========================================================= -->
+<button id="btn-robik" class="robik-fab oculto" title="Pregúntale a Robik" aria-label="Abrir a Robik, el asistente">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8" /><rect width="16" height="12" x="4" y="8" rx="2" /><path d="M2 14h2" /><path d="M20 14h2" /><path d="M15 13v2" /><path d="M9 13v2" /></svg>
+</button>
+
+<div id="robik-panel" class="robik-panel oculto">
+  <div class="robik-panel-head">
+    <div style="display:flex; align-items:center; gap:10px;">
+      <span class="robik-avatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8" /><rect width="16" height="12" x="4" y="8" rx="2" /><path d="M2 14h2" /><path d="M20 14h2" /><path d="M15 13v2" /><path d="M9 13v2" /></svg></span>
+      <div>
+        <div class="robik-titulo">Robik</div>
+        <div class="robik-subtitulo">Tu asistente de RoboKids</div>
+      </div>
+    </div>
+    <button id="robik-cerrar" title="Cerrar" aria-label="Cerrar chat">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+    </button>
+  </div>
+  <div id="robik-mensajes" class="robik-mensajes"></div>
+  <form id="robik-form" class="robik-form">
+    <input id="robik-input" type="text" placeholder="Escríbele a Robik..." autocomplete="off" maxlength="240">
+    <button type="submit" title="Enviar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z" /><path d="M22 2 11 13" /></svg>
+    </button>
+  </form>
 </div>
 
 <div id="pantalla-profesor-panel" class="pantalla profesor-tema oculto">
@@ -3830,9 +4197,10 @@ const RoboKids = {
 /* ===========================================================
    ENRUTADOR — cambia de "pantalla" sin recargar la página
    =========================================================== */
-const PANTALLAS = ["splash","dashboard","leccion","progreso","actividades","profesor-login","profesor-panel","404"];
+const PANTALLAS = ["splash","dashboard","leccion","progreso","actividades","luma","profesor-login","profesor-panel","404"];
 function mostrarPantalla(id){
   PANTALLAS.forEach(p => document.getElementById("pantalla-"+p).classList.toggle("oculto", p !== id));
+  if(typeof actualizarVisibilidadRobik === "function") actualizarVisibilidadRobik();
 }
 
 /* ===========================================================
@@ -4019,9 +4387,14 @@ function initDashboard(){
     const desbloqueado = RoboKids.moduloDesbloqueado(i);
     const prog = RoboKids.progresoModulo(m.id);
     const completado = prog.completado;
+    const enProgreso = desbloqueado && !completado && (prog.claseVista || prog.labHecho);
 
     const nodo = document.createElement(desbloqueado ? "button" : "div");
-    nodo.className = "nodo " + (completado ? "completo" : (desbloqueado ? "disponible" : "bloqueado"));
+    let estadoClase = "bloqueado";
+    if(completado) estadoClase = "completo";
+    else if(enProgreso) estadoClase = "en-progreso";
+    else if(desbloqueado) estadoClase = "disponible";
+    nodo.className = "nodo " + estadoClase;
 
     let estadoTexto = "Bloqueado";
     let estadoIcono = "lock";
@@ -4255,6 +4628,7 @@ function cambiarVista(nueva){
   if(vista === "clase") renderClase();
   if(vista === "lab") renderLab();
   if(vista === "quiz") renderQuiz();
+  if(typeof actualizarVisibilidadRobik === "function") actualizarVisibilidadRobik();
 }
 
 /* ===========================================================
@@ -4895,6 +5269,169 @@ function exportarEstudiantesCSV(estudiantes){
 }
 
 /* ===========================================================
+   ROBIK — asistente flotante. Busca respuestas dentro del
+   contenido del curso (100% local, sin conexión a internet
+   ni claves de API expuestas). No aparece en Laboratorio ni Quiz.
+   =========================================================== */
+(function initRobik(){
+  const fab = document.getElementById('btn-robik');
+  const panel = document.getElementById('robik-panel');
+  const cerrarBtn = document.getElementById('robik-cerrar');
+  const mensajesEl = document.getElementById('robik-mensajes');
+  const form = document.getElementById('robik-form');
+  const input = document.getElementById('robik-input');
+  if(!fab || !panel || !form) return;
+
+  let indice = null;
+
+  function quitarAcentos(s){ return s.normalize('NFD').replace(/[\u0300-\u036f]/g,''); }
+  function normalizar(s){
+    return quitarAcentos(String(s).toLowerCase()).replace(/[^a-z0-9ñ\s]/g,' ').replace(/\s+/g,' ').trim();
+  }
+  const PALABRAS_VACIAS = new Set(['el','la','los','las','un','una','unos','unas','de','del','en','y','o','a',
+    'que','es','son','para','por','con','se','su','sus','como','al','lo','mi','tu','me','te','le','les',
+    'esta','este','estos','estas','no','si','pero','mas','muy','cual','cuales','porque','cuando','donde',
+    'sobre','hay','ese','esa','eso']);
+
+  function extraerTextos(obj, acc){
+    if(obj == null) return acc;
+    if(typeof obj === 'string'){ if(obj.length > 3) acc.push(obj); return acc; }
+    if(Array.isArray(obj)){ obj.forEach(v => extraerTextos(v, acc)); return acc; }
+    if(typeof obj === 'object'){
+      Object.keys(obj).forEach(k => {
+        if(k === 'id' || k === 'icono' || k === 'orden' || k === 'tipo') return;
+        extraerTextos(obj[k], acc);
+      });
+    }
+    return acc;
+  }
+
+  function partirEnFrases(textos){
+    const frases = [];
+    textos.forEach(t => {
+      t.split(/(?<=[.!?])\s+/).forEach(f => { f = f.trim(); if(f.length > 12) frases.push(f); });
+    });
+    return frases;
+  }
+
+  function construirIndice(){
+    if(indice) return indice;
+    indice = MODULOS.map(m => {
+      const textos = extraerTextos(m, []);
+      const frases = partirEnFrases(textos);
+      const corpus = normalizar(textos.join(' '));
+      const palabrasCorpus = new Set(corpus.split(' ').filter(w => w && !PALABRAS_VACIAS.has(w)));
+      return { modulo: m, frases, palabrasCorpus };
+    });
+    return indice;
+  }
+
+  function buscarRespuesta(pregunta){
+    const idx = construirIndice();
+    const palabrasPregunta = normalizar(pregunta).split(' ').filter(w => w.length > 2 && !PALABRAS_VACIAS.has(w));
+    if(palabrasPregunta.length === 0){
+      return { texto: "Cuéntame un poco más — ¿sobre qué tema de robótica quieres saber? 🤔", fuente: null };
+    }
+
+    let mejorModulo = null, mejorPuntaje = 0;
+    idx.forEach(entry => {
+      let puntaje = 0;
+      palabrasPregunta.forEach(p => { if(entry.palabrasCorpus.has(p)) puntaje++; });
+      if(puntaje > mejorPuntaje){ mejorPuntaje = puntaje; mejorModulo = entry; }
+    });
+
+    if(!mejorModulo || mejorPuntaje === 0){
+      return {
+        texto: "Todavía no tengo eso en el material del curso. ¿Le preguntas a tu profe? Mientras tanto, puedo ayudarte con Tinkercad, programación por bloques, Arduino, electrónica y más 🤖",
+        fuente: null
+      };
+    }
+
+    let mejorFrase = null, mejorPuntajeFrase = -1;
+    mejorModulo.frases.forEach(f => {
+      const palabrasFrase = new Set(normalizar(f).split(' '));
+      let puntaje = 0;
+      palabrasPregunta.forEach(p => { if(palabrasFrase.has(p)) puntaje++; });
+      if(puntaje > mejorPuntajeFrase){ mejorPuntajeFrase = puntaje; mejorFrase = f; }
+    });
+
+    const nombreModulo = mejorModulo.modulo.nombre;
+    if(!mejorFrase || mejorPuntajeFrase === 0){
+      return { texto: `Eso se relaciona con el módulo "${nombreModulo}". Te recomiendo repasarlo con calma — ¡seguro lo entiendes rapidísimo! 💪`, fuente: nombreModulo };
+    }
+    return { texto: mejorFrase, fuente: nombreModulo };
+  }
+
+  function claveHistorial(){
+    const u = RoboKids.usuarioActual();
+    return 'robokids_robik_historial_' + (u ? u.id : 'anon');
+  }
+  function cargarHistorial(){
+    try{ return JSON.parse(localStorage.getItem(claveHistorial())) || []; } catch(e){ return []; }
+  }
+  function guardarHistorial(historial){
+    try{ localStorage.setItem(claveHistorial(), JSON.stringify(historial.slice(-60))); } catch(e){}
+  }
+  function apodoUsuario(){
+    const u = RoboKids.usuarioActual();
+    if(!u || !u.nombre) return "";
+    return u.nombre.trim().split(' ')[0];
+  }
+
+  function pintarMensaje(tipo, texto, fuente){
+    const div = document.createElement('div');
+    div.className = 'robik-msg ' + tipo;
+    div.innerHTML = String(texto).replace(/</g,'&lt;') + (fuente ? `<span class="robik-fuente">📘 ${fuente}</span>` : '');
+    mensajesEl.appendChild(div);
+    mensajesEl.scrollTop = mensajesEl.scrollHeight;
+  }
+
+  function renderHistorial(){
+    mensajesEl.innerHTML = '';
+    const historial = cargarHistorial();
+    if(historial.length === 0){
+      const nombre = apodoUsuario();
+      pintarMensaje('robik', `¡Hola${nombre ? ", " + nombre : ""}! Soy Robik 🤖 Pregúntame lo que quieras sobre lo que hemos visto en el curso.`, null);
+    } else {
+      historial.forEach(h => { pintarMensaje('usuario', h.pregunta, null); pintarMensaje('robik', h.respuesta, h.fuente); });
+    }
+  }
+
+  function enviarPregunta(pregunta){
+    pregunta = pregunta.trim();
+    if(!pregunta) return;
+    pintarMensaje('usuario', pregunta, null);
+    const resultado = buscarRespuesta(pregunta);
+    setTimeout(() => {
+      pintarMensaje('robik', resultado.texto, resultado.fuente);
+      const historial = cargarHistorial();
+      historial.push({ pregunta, respuesta: resultado.texto, fuente: resultado.fuente, fecha: new Date().toISOString() });
+      guardarHistorial(historial);
+    }, 320);
+  }
+
+  form.onsubmit = (e) => { e.preventDefault(); const texto = input.value; input.value = ''; enviarPregunta(texto); };
+  fab.onclick = () => { panel.classList.remove('oculto'); renderHistorial(); input.focus(); };
+  cerrarBtn.onclick = () => panel.classList.add('oculto');
+
+  window.actualizarVisibilidadRobik = function(){
+    const usuario = (typeof RoboKids !== 'undefined' && RoboKids.usuarioActual) ? RoboKids.usuarioActual() : null;
+    const pantallasConRobik = ['dashboard','actividades','progreso'];
+    let visible = false;
+    if(usuario){
+      const activa = PANTALLAS.find(p => {
+        const el = document.getElementById('pantalla-'+p);
+        return el && !el.classList.contains('oculto');
+      });
+      if(pantallasConRobik.includes(activa)) visible = true;
+      else if(activa === 'leccion' && typeof vista !== 'undefined' && vista === 'clase') visible = true;
+    }
+    fab.classList.toggle('oculto', !visible);
+    if(!visible) panel.classList.add('oculto');
+  };
+})();
+
+/* ===========================================================
    INICIO DE LA APP
    =========================================================== */
 document.getElementById("btn-404-inicio").addEventListener("click", () => {
@@ -4934,13 +5471,32 @@ function marcarNavActiva(destino){
 document.getElementById('sidebar-btn-ruta').dataset.destino = 'ruta';
 document.getElementById('sidebar-btn-actividades').dataset.destino = 'actividades';
 document.getElementById('sidebar-btn-progreso').dataset.destino = 'progreso';
+document.getElementById('sidebar-btn-luma').dataset.destino = 'luma';
 document.getElementById('bottomnav-btn-ruta').dataset.destino = 'ruta';
 document.getElementById('bottomnav-btn-actividades').dataset.destino = 'actividades';
 document.getElementById('bottomnav-btn-progreso').dataset.destino = 'progreso';
+document.getElementById('bottomnav-btn-luma').dataset.destino = 'luma';
 
 function irARuta(){ marcarNavActiva('ruta'); mostrarPantalla('dashboard'); initDashboard(); }
+
+/* ---------- Colapsar / expandir la barra lateral (solo escritorio) ---------- */
+(function initSidebarToggle(){
+  const sidebar = document.getElementById('app-sidebar');
+  const btnColapsar = document.getElementById('sidebar-collapse-btn');
+  const tabExpandir = document.getElementById('sidebar-toggle-tab');
+  if(!sidebar || !btnColapsar || !tabExpandir) return;
+
+  function aplicarEstado(colapsada){
+    sidebar.classList.toggle('colapsada', colapsada);
+    localStorage.setItem('robokids_sidebar_colapsada', colapsada ? '1' : '0');
+  }
+  aplicarEstado(localStorage.getItem('robokids_sidebar_colapsada') === '1');
+  btnColapsar.onclick = () => aplicarEstado(true);
+  tabExpandir.onclick = () => aplicarEstado(false);
+})();
 function irAActividades(){ marcarNavActiva('actividades'); mostrarPantalla('actividades'); initActividades(); }
 function irAProgreso(){ marcarNavActiva('progreso'); mostrarPantalla('progreso'); initProgreso(); }
+function irALuma(){ marcarNavActiva('luma'); mostrarPantalla('luma'); if(typeof window.initLuma === 'function') window.initLuma(); }
 function salirDeSesion(){
   const usuario = RoboKids.usuarioActual();
   if(confirm("¿Quieres cerrar sesión" + (usuario ? ", " + usuario.nombre : "") + "?")){
@@ -4953,10 +5509,15 @@ function salirDeSesion(){
 document.getElementById('sidebar-btn-ruta').onclick = irARuta;
 document.getElementById('sidebar-btn-actividades').onclick = irAActividades;
 document.getElementById('sidebar-btn-progreso').onclick = irAProgreso;
+document.getElementById('sidebar-btn-luma').onclick = irALuma;
+document.getElementById('bottomnav-btn-luma').onclick = irALuma;
+document.getElementById('btn-cerrar-luma').innerHTML = icono('close');
+document.getElementById('btn-cerrar-luma').onclick = irARuta;
 document.getElementById('sidebar-btn-salir').onclick = salirDeSesion;
 document.getElementById('bottomnav-btn-ruta').onclick = irARuta;
 document.getElementById('bottomnav-btn-actividades').onclick = irAActividades;
 document.getElementById('bottomnav-btn-progreso').onclick = irAProgreso;
+
 
 /* ===========================================================
    RESPLANDOR DE MOUSE ESTILO "PRO GAMING" — solo en dispositivos
@@ -4982,6 +5543,687 @@ document.getElementById('bottomnav-btn-progreso').onclick = irAProgreso;
   }
   animar();
 })();
+</script>
+
+
+<!-- =========================================================
+     SIMULADOR LUMA — script embebido (todo dentro de su propio
+     closure, no expone nada al resto de la app salvo initLuma())
+     ========================================================= -->
+<script>
+
+(function(){
+  "use strict";
+
+  // ---------- DOM ----------
+  const codeEl = document.getElementById('luma-code');
+  const canvas = document.getElementById('luma-stage');
+  const ctx = canvas.getContext('2d');
+  const statusEl = document.getElementById('luma-status');
+  const missionEl = document.getElementById('luma-mission');
+  const statePill = document.getElementById('luma-statePill');
+  const runBtn = document.getElementById('luma-runBtn');
+  const stopBtn = document.getElementById('luma-stopBtn');
+  const resetBtn = document.getElementById('luma-resetBtn');
+  const consoleBox = document.getElementById('luma-consoleBox');
+  const tVel = document.getElementById('luma-tVel'), barVel = document.getElementById('luma-barVel');
+  const tDist = document.getElementById('luma-tDist');
+  const tBat = document.getElementById('luma-tBat'), barBat = document.getElementById('luma-barBat');
+  const tChips = document.getElementById('luma-tChips');
+
+  const EXAMPLE =
+`configuracion() {
+  mostrar("LUMA lista para correr");
+}
+
+bucle() {
+  avanzar(180);
+  si (leer_distancia() < 22) {
+    saltar();
+  }
+  si (leer_bateria() < 15) {
+    mostrar("Batería baja, bajando velocidad");
+    avanzar(70);
+  }
+  recoger();
+}`;
+
+  // ---------- World / physics constants ----------
+  const SCALE = 2.6;            // px por "cm" de mundo
+  const VIEW_W = 260, VIEW_H = 150; // "cm" visibles en pantalla (cámara)
+  const GROUND_Y = 108;          // altura del suelo en "cm" desde arriba
+  const MAX_SPEED_CMS = 46;      // cm/s a velocidad 255
+  const SENSOR_RANGE = 55;       // cm
+  const BOT_W = 9, BOT_H = 9;    // tamaño de colisión del dron
+  const GRAVITY = 230;           // cm/s^2
+  const JUMP_VEL = -100;         // cm/s (impulso de salto)
+  const BATTERY_DRAIN_FULL = 1.6; // % por segundo avanzando a máxima velocidad
+
+  const TRACKS = {
+    circuito: {
+      length: 420,
+      obstacles:[
+        {x:70, w:9, h:10, type:'pincho'},
+        {x:130, w:12, h:17, type:'caja'},
+        {x:200, w:9, h:10, type:'pincho'},
+        {x:270, w:9, h:10, type:'pincho'},
+        {x:330, w:14, h:17, type:'caja'}
+      ],
+      chips:[{x:100,taken:false},{x:230,taken:false},{x:360,taken:false}]
+    },
+    fabrica: {
+      length: 460,
+      obstacles:[
+        {x:60, w:12, h:17, type:'caja'},
+        {x:110, w:9, h:10, type:'pincho'},
+        {x:170, w:9, h:10, type:'pincho'},
+        {x:230, w:15, h:18, type:'caja'},
+        {x:300, w:9, h:10, type:'pincho'},
+        {x:360, w:9, h:10, type:'pincho'}
+      ],
+      chips:[{x:85,taken:false},{x:255,taken:false},{x:400,taken:false}]
+    }
+  };
+
+  // ---------- State ----------
+  let env = 'circuito';
+  let running = false, stopRequested = false;
+  let particles = [];
+  let flashColor = null, flashT = 0;
+  let bot = {};
+
+  function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+  function setStatus(msg, kind){ statusEl.textContent = msg; statusEl.className = 'status ' + (kind||'luma-idle'); }
+  function setState(label, cls){ statePill.textContent = '● ' + label; statePill.className = 'state-pill ' + (cls||''); }
+
+  function log(msg, cls){
+    const line = document.createElement('div');
+    if(cls) line.className = cls;
+    line.textContent = msg;
+    consoleBox.appendChild(line);
+    consoleBox.scrollTop = consoleBox.scrollHeight;
+    while(consoleBox.childNodes.length > 60) consoleBox.removeChild(consoleBox.firstChild);
+  }
+
+  function resetLevel(){
+    const track = TRACKS[env];
+    track.chips.forEach(c=>c.taken=false);
+    canvas.width = VIEW_W*SCALE; canvas.height = VIEW_H*SCALE;
+    bot = {
+      x:14, y:GROUND_Y, vy:0, grounded:true, ducking:false,
+      speed:0, battery:100, distance:SENSOR_RANGE, crashed:false, batteryDead:false, finished:false
+    };
+    particles = []; flashColor=null; flashT=0;
+    const total = track.chips.length;
+    missionEl.innerHTML = `Misión: recoge <b>${total}</b> de <b>${total}</b> chips de energía.`;
+    tChips.textContent = `0 / ${total}`;
+    consoleBox.innerHTML = '';
+    log('› Sistema listo. Esperando ejecución…', 'luma-sys');
+    setStatus('🤖 LUMA está lista en la línea de salida.', 'luma-idle');
+    setState('En espera', '');
+    updateTelemetry();
+  }
+
+  function switchEnv(newEnv){
+    env = newEnv;
+    document.querySelectorAll('#envSeg button').forEach(b=>b.classList.toggle('luma-active', b.dataset.env===newEnv));
+    resetLevel();
+  }
+
+  // ---------- Parser (idéntico al lenguaje base: si/sino, repetir, funciones) ----------
+  function parseProgram(src){
+    let i = 0; const n = src.length;
+    function skipWs(){ while(i<n && /\s/.test(src[i])) i++; }
+    function peekWord(w){
+      const save=i; skipWs();
+      if(src.slice(i,i+w.length)===w && !/[a-zA-Z0-9_]/.test(src[i+w.length]||'')){
+        i+=w.length; return true;
+      }
+      i=save; return false;
+    }
+    function readBalanced(open,close){
+      if(src[i]!==open) throw new Error(`Se esperaba "${open}"`);
+      let depth=0, start=i;
+      do{
+        if(src[i]===open) depth++;
+        else if(src[i]===close) depth--;
+        i++;
+      } while(depth>0 && i<=n);
+      if(depth!==0) throw new Error(`Falta "${close}" para cerrar`);
+      return src.slice(start+1, i-1);
+    }
+    function parseStatements(){
+      const stmts = [];
+      skipWs();
+      while(i<n && src[i] !== '}'){
+        stmts.push(parseStatement());
+        skipWs();
+        if(src[i] === ';'){ i++; skipWs(); }
+      }
+      return stmts;
+    }
+    function parseStatement(){
+      skipWs();
+      const start = i;
+      while(i<n && /[a-zA-Z_áéíóúñÁÉÍÓÚÑ]/.test(src[i])) i++;
+      const name = src.slice(start,i).toLowerCase();
+      if(!name) throw new Error('Comando no reconocido cerca de: "'+src.slice(i,i+12)+'"');
+      skipWs();
+      if(src[i] !== '(') throw new Error('Falta "(" después de "'+name+'"');
+      const inner = readBalanced('(',')');
+      skipWs();
+
+      if(name === 'si'){
+        const cond = parseCondition(inner);
+        if(src[i] !== '{') throw new Error('Falta "{" después de si(...)');
+        i++;
+        const body = parseStatements();
+        if(src[i] !== '}') throw new Error('Falta "}" para cerrar si');
+        i++; skipWs();
+        let elseBody = [];
+        if(peekWord('sino')){
+          skipWs();
+          if(src[i] !== '{') throw new Error('Falta "{" después de sino');
+          i++;
+          elseBody = parseStatements();
+          if(src[i] !== '}') throw new Error('Falta "}" para cerrar sino');
+          i++;
+        }
+        return {type:'if', cond, body, elseBody};
+      }
+      if(name === 'repetir'){
+        const times = parseInt(inner.trim(),10);
+        if(src[i] !== '{') throw new Error('Falta "{" después de repetir(...)');
+        i++;
+        const body = parseStatements();
+        if(src[i] !== '}') throw new Error('Falta "}" para cerrar repetir');
+        i++;
+        return {type:'repeat', times: isNaN(times)?1:times, body};
+      }
+      if(name === 'configuracion' || name === 'bucle'){
+        if(src[i] !== '{') throw new Error('Falta "{" después de '+name+'()');
+        i++;
+        const body = parseStatements();
+        if(src[i] !== '}') throw new Error('Falta "}" para cerrar '+name+'()');
+        i++;
+        return {type:'func', name, body};
+      }
+      return {type:'call', name, rawArgs: inner.trim()};
+    }
+    const program = parseStatements();
+    skipWs();
+    if(i < n) throw new Error('Símbolo inesperado cerca de: "'+src.slice(i,i+12)+'"');
+    return program;
+  }
+
+  function parseCondition(str){
+    const orGroups = str.split(/\s+o\s+/i);
+    return { type:'or', groups: orGroups.map(g=>{
+      const terms = g.split(/\s+y\s+/i).map(parseComparison);
+      return terms;
+    })};
+  }
+  function parseComparison(str){
+    const m = str.trim().match(/^(\w+\(\)|-?\d+(?:\.\d+)?)\s*(<=|>=|==|!=|<|>)\s*(\w+\(\)|-?\d+(?:\.\d+)?)$/);
+    if(!m) throw new Error('Condición no válida: "'+str.trim()+'"');
+    return { lhs: parseTerm(m[1]), op: m[2], rhs: parseTerm(m[3]) };
+  }
+  function parseTerm(tok){
+    if(/^\w+\(\)$/.test(tok)) return {type:'call', name: tok.slice(0,-2).toLowerCase()};
+    return {type:'num', value: parseFloat(tok)};
+  }
+  function parseArg(tok){
+    tok = tok.trim();
+    if(/^["'].*["']$/.test(tok)) return {type:'str', value: tok.slice(1,-1)};
+    if(/^\w+\(\)$/.test(tok)) return {type:'call', name: tok.slice(0,-2).toLowerCase()};
+    return {type:'num', value: parseFloat(tok)};
+  }
+
+  // ---------- Sensores ----------
+  function sensorRead(name){
+    if(name==='leer_distancia') return Math.round(bot.distance*10)/10;
+    if(name==='leer_bateria') return Math.round(bot.battery);
+    throw new Error('Función desconocida: "'+name+'()"');
+  }
+  function evalTerm(t){ return t.type==='num' ? t.value : sensorRead(t.name); }
+  function evalArg(a){
+    if(a.type==='str') return a.value;
+    if(a.type==='num') return a.value;
+    if(a.type==='call') return sensorRead(a.name);
+  }
+  function evalComparison(c){
+    const l = evalTerm(c.lhs), r = evalTerm(c.rhs);
+    switch(c.op){
+      case '<': return l<r; case '>': return l>r;
+      case '<=': return l<=r; case '>=': return l>=r;
+      case '==': return l===r; case '!=': return l!==r;
+    }
+  }
+  function evalCondition(cond){ return cond.groups.some(group => group.every(evalComparison)); }
+
+  // ---------- Intérprete ----------
+  async function runBlock(stmts){
+    for(const stmt of stmts){
+      if(stopRequested) return;
+      if(stmt.type==='repeat'){
+        for(let k=0;k<stmt.times;k++){ if(stopRequested) return; await runBlock(stmt.body); }
+      } else if(stmt.type==='if'){
+        const branch = evalCondition(stmt.cond) ? stmt.body : stmt.elseBody;
+        await runBlock(branch);
+      } else if(stmt.type==='call'){
+        await execCall(stmt.name, stmt.rawArgs);
+      }
+    }
+  }
+
+  function clampSpeed(v){ return Math.max(0, Math.min(255, v)); }
+
+  async function execCall(name, rawArgs){
+    if(stopRequested) return;
+    const args = rawArgs.length ? rawArgs.split(',').map(s=>s.trim()) : [];
+    const nums = args.map(a=>parseFloat(a));
+    switch(name){
+      case 'avanzar':
+        bot.speed = clampSpeed(nums[0]??180);
+        break;
+      case 'detener':
+        bot.speed = 0;
+        break;
+      case 'saltar':
+        if(bot.grounded && !bot.batteryDead){
+          bot.vy = JUMP_VEL; bot.grounded = false;
+          log('⤴ saltar()', 'luma-sys');
+        }
+        break;
+      case 'agacharse':
+        bot.ducking = true;
+        await sleep(260);
+        bot.ducking = false;
+        break;
+      case 'esperar':
+        await sleep(nums[0]??200);
+        break;
+      case 'recoger':
+        await collect();
+        break;
+      case 'mostrar': {
+        const a = args.length ? parseArg(args.join(',')) : {type:'str', value:''};
+        log('» ' + evalArg(a));
+        break;
+      }
+      case 'leer_distancia': case 'leer_bateria':
+        sensorRead(name);
+        break;
+      default:
+        throw new Error('Comando desconocido: "'+name+'()"');
+    }
+  }
+
+  async function collect(){
+    const track = TRACKS[env];
+    const found = track.chips.find(c=>!c.taken && Math.abs(c.x-bot.x) < 8);
+    if(found){
+      found.taken = true;
+      spawnParticles((bot.x-camX())*SCALE, (GROUND_Y-14)*SCALE, '#39FFB0', 16);
+      flashColor='success'; flashT=1;
+      log('✨ Chip de energía recogido', 'luma-ok2');
+      const remaining = track.chips.filter(c=>!c.taken).length, total = track.chips.length;
+      missionEl.innerHTML = `Misión: recoge <b>${total-remaining}</b> de <b>${total}</b> chips de energía.`;
+      tChips.textContent = `${total-remaining} / ${total}`;
+      if(remaining===0) log('🎉 ¡Misión completada!', 'luma-ok2');
+      await sleep(100);
+    } else {
+      log('… nada que recoger aquí', 'luma-sys');
+      await sleep(60);
+    }
+  }
+
+  function spawnParticles(x,y,color,count){
+    for(let i=0;i<count;i++){
+      const ang=Math.random()*Math.PI*2, sp=1+Math.random()*2.4;
+      particles.push({x,y,vx:Math.cos(ang)*sp,vy:Math.sin(ang)*sp,life:1,color});
+    }
+  }
+
+  // ---------- Físicas (loop continuo) ----------
+  let lastFrame = performance.now();
+  function camX(){ return Math.max(0, bot.x - 42); }
+
+  function physicsStep(dt){
+    const track = TRACKS[env];
+    if(!bot.batteryDead && !bot.finished){
+      const v = (bot.speed/255)*MAX_SPEED_CMS;
+      bot.x += v*dt;
+
+      // gravedad y salto
+      bot.vy += GRAVITY*dt;
+      bot.y += bot.vy*dt;
+      if(bot.y >= GROUND_Y){ bot.y = GROUND_Y; bot.vy = 0; bot.grounded = true; }
+
+      // colisión con obstáculos: cada uno tiene su propia altura (h).
+      // LUMA los esquiva si ya alcanzó suficiente elevación al pasar por su x.
+      const elevacion = GROUND_Y - bot.y; // 0 = en el suelo, crece al saltar
+      const chocando = track.obstacles.some(o=>{
+        const overlapX = Math.abs(o.x - bot.x) < (o.w/2 + BOT_W/2 - 2);
+        return overlapX && elevacion < o.h;
+      });
+      if(chocando){
+        if(!bot.crashed){
+          bot.crashed = true;
+          flashColor='danger'; flashT=1;
+          bot.speed = Math.max(0, bot.speed-60);
+          log('💥 ¡Choque! LUMA no saltó lo suficientemente alto', 'luma-warn');
+        }
+      } else {
+        bot.crashed = false;
+      }
+
+      if(bot.x >= track.length){
+        bot.finished = true; bot.speed = 0;
+        log('🏁 ¡Meta alcanzada!', 'luma-ok2');
+      }
+
+      // batería
+      const usage = bot.speed/255;
+      bot.battery = Math.max(0, bot.battery - usage*BATTERY_DRAIN_FULL*dt);
+      if(bot.battery<=0 && !bot.batteryDead){
+        bot.batteryDead = true; bot.speed = 0;
+        log('🔋 Batería agotada — LUMA se detiene', 'luma-warn');
+      }
+    }
+
+    // sensor: distancia al próximo obstáculo sin recoger, hacia adelante
+    const track2 = TRACKS[env];
+    const proximo = track2.obstacles
+      .map(o=>o.x - o.w/2 - bot.x)
+      .filter(d=>d>=-2)
+      .sort((a,b)=>a-b)[0];
+    bot.distance = proximo===undefined ? SENSOR_RANGE : Math.max(0, Math.min(SENSOR_RANGE, Math.round(proximo*10)/10));
+
+    updateTelemetry();
+  }
+
+  function updateTelemetry(){
+    tVel.textContent = Math.round(bot.speed);
+    barVel.style.width = (bot.speed/255*100)+'%';
+    tDist.textContent = (bot.distance>=SENSOR_RANGE ? 'fuera de rango' : bot.distance.toFixed(1)+' cm');
+    tBat.textContent = Math.round(bot.battery)+'%';
+    barBat.style.width = bot.battery+'%';
+    barBat.style.background = bot.battery>50 ? 'var(--success)' : (bot.battery>20 ? 'var(--gold)' : 'var(--red)');
+
+    if(bot.finished) setState('¡Meta!','luma-run');
+    else if(bot.batteryDead) setState('Batería agotada','luma-dead');
+    else if(bot.crashed) setState('Colisión','luma-crash');
+    else if(running) setState('Ejecutando','luma-run');
+    else setState('En espera','');
+  }
+
+  // ---------- Render ----------
+  function render(now){
+    const dt = Math.min(0.05, (now-lastFrame)/1000);
+    lastFrame = now;
+    physicsStep(dt);
+
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    drawBackground();
+    drawTrack();
+    drawSensorBeam();
+    drawParticles();
+    drawBot();
+
+    if(flashT>0){
+      ctx.fillStyle = flashColor==='danger' ? `rgba(255,59,78,${flashT*0.18})` : `rgba(57,255,176,${flashT*0.14})`;
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+      flashT = Math.max(0, flashT-0.03);
+    }
+
+    particles = particles.filter(p=>p.life>0);
+    particles.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; p.vy+=0.05; p.life-=0.025; });
+
+    requestAnimationFrame(render);
+  }
+
+  function w2c(worldX, worldY){ return { x:(worldX-camX())*SCALE, y:worldY*SCALE }; }
+
+  function drawBackground(){
+    const g = ctx.createLinearGradient(0,0,0,canvas.height);
+    g.addColorStop(0,'#150A22'); g.addColorStop(1,'#0A0612');
+    ctx.fillStyle = g; ctx.fillRect(0,0,canvas.width,canvas.height);
+
+    const groundPx = w2c(0,GROUND_Y).y;
+
+    // siluetas de "torres" lejanas — puramente geométrico, decorativo
+    ctx.fillStyle = 'rgba(47,111,235,0.10)';
+    for(let i=0;i<8;i++){
+      const bx = ((i*150) - (camX()*0.35)*SCALE) % (canvas.width+300) - 150;
+      const bh = 50 + (i%3)*26;
+      ctx.fillRect(bx, groundPx-bh, 42, bh);
+    }
+    ctx.fillStyle = 'rgba(255,194,75,0.05)';
+    for(let i=0;i<12;i++){
+      const bx = ((i*95+40) - (camX()*0.55)*SCALE) % (canvas.width+300) - 150;
+      const bh = 28 + (i%4)*16;
+      ctx.fillRect(bx, groundPx-bh, 26, bh);
+    }
+  }
+
+  function drawTrack(){
+    const track = TRACKS[env];
+    const groundPx = w2c(0,GROUND_Y).y;
+    // suelo
+    ctx.fillStyle = '#1B1030';
+    ctx.fillRect(0, groundPx, canvas.width, canvas.height-groundPx);
+    ctx.strokeStyle = 'var(--cyan)'; ctx.strokeStyle = 'rgba(51,231,214,0.55)'; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(0,groundPx); ctx.lineTo(canvas.width,groundPx); ctx.stroke();
+    // marcas de pista
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)'; ctx.lineWidth=1;
+    for(let x=0; x<track.length; x+=10){
+      const p = w2c(x,GROUND_Y);
+      if(p.x>=-10 && p.x<=canvas.width+10){
+        ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x, p.y+8); ctx.stroke();
+      }
+    }
+    // meta
+    const metaP = w2c(track.length, GROUND_Y);
+    if(metaP.x>=-20 && metaP.x<=canvas.width+20){
+      ctx.fillStyle = 'var(--gold)';
+      for(let k=0;k<6;k++){
+        ctx.fillStyle = k%2===0 ? '#FFC24B' : '#070A16';
+        ctx.fillRect(metaP.x, metaP.y-(k+1)*10, 14, 10);
+      }
+    }
+    // obstáculos
+    track.obstacles.forEach(o=>{
+      const p = w2c(o.x, GROUND_Y);
+      if(p.x < -30 || p.x > canvas.width+30) return;
+      const wpx = o.w*SCALE;
+      if(o.type==='pincho'){
+        ctx.fillStyle = '#FF3B4E';
+        ctx.beginPath();
+        ctx.moveTo(p.x-wpx/2, p.y);
+        ctx.lineTo(p.x, p.y-wpx*1.1);
+        ctx.lineTo(p.x+wpx/2, p.y);
+        ctx.closePath(); ctx.fill();
+        ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.stroke();
+      } else {
+        ctx.fillStyle = '#16233D';
+        ctx.fillRect(p.x-wpx/2, p.y-wpx, wpx, wpx);
+        ctx.strokeStyle='rgba(255,194,75,0.65)'; ctx.strokeRect(p.x-wpx/2, p.y-wpx, wpx, wpx);
+      }
+    });
+    // chips
+    track.chips.forEach(c=>{
+      if(c.taken) return;
+      const p = w2c(c.x, GROUND_Y-16);
+      if(p.x < -20 || p.x > canvas.width+20) return;
+      drawChip(p.x,p.y);
+    });
+  }
+
+  function drawChip(cx,cy){
+    ctx.save(); ctx.translate(cx,cy);
+    ctx.fillStyle = '#39FFB0'; ctx.shadowColor='#39FFB0'; ctx.shadowBlur=10;
+    ctx.beginPath();
+    for(let i=0;i<6;i++){
+      const ang = Math.PI/3*i - Math.PI/2;
+      const x = Math.cos(ang)*9, y = Math.sin(ang)*9;
+      i===0? ctx.moveTo(x,y) : ctx.lineTo(x,y);
+    }
+    ctx.closePath(); ctx.fill();
+    ctx.shadowBlur=0;
+    ctx.restore();
+  }
+
+  function drawSensorBeam(){
+    if(bot.distance>=SENSOR_RANGE) return;
+    const p1 = w2c(bot.x+BOT_W/2, bot.y-BOT_H/2);
+    const p2 = w2c(bot.x+BOT_W/2+bot.distance, bot.y-BOT_H/2);
+    ctx.save();
+    ctx.strokeStyle = bot.distance<20 ? 'rgba(255,59,78,0.6)' : 'rgba(47,111,235,0.45)';
+    ctx.lineWidth = 1.5; ctx.setLineDash([3,4]);
+    ctx.beginPath(); ctx.moveTo(p1.x,p1.y); ctx.lineTo(p2.x,p2.y); ctx.stroke();
+    ctx.setLineDash([]); ctx.restore();
+  }
+
+  function drawParticles(){
+    particles.forEach(p=>{
+      ctx.globalAlpha = Math.max(0,p.life);
+      ctx.fillStyle = p.color;
+      ctx.beginPath(); ctx.arc(p.x,p.y,3,0,Math.PI*2); ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+  }
+
+  function roundRect(x,y,w,h,r){
+    ctx.beginPath(); ctx.moveTo(x+r,y);
+    ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
+  }
+
+  function drawBot(){
+    const p = w2c(bot.x, bot.y);
+    const h = bot.ducking ? BOT_H*0.55 : BOT_H;
+    ctx.save();
+    ctx.translate(p.x, p.y - (h*SCALE)/2);
+
+    // estela de propulsión
+    ctx.fillStyle = 'rgba(47,111,235,0.35)';
+    ctx.beginPath(); ctx.ellipse(-h*SCALE*0.55, h*SCALE*0.35, 6+bot.speed/40, 3, 0, 0, Math.PI*2); ctx.fill();
+
+    // cuerpo anguloso (dron)
+    ctx.fillStyle = '#221533';
+    roundRect(-h*SCALE*0.5, -h*SCALE*0.5, h*SCALE, h*SCALE, 4); ctx.fill();
+    ctx.strokeStyle = '#2F6FEB'; ctx.lineWidth=1.4; ctx.stroke();
+
+    // visor / ojo cíclope estilo dron
+    let eyeColor = '#33E7D6';
+    if(bot.batteryDead) eyeColor = '#FFC24B';
+    else if(bot.crashed) eyeColor = '#FF3B4E';
+    else if(running) eyeColor = '#33E7D6';
+    ctx.fillStyle = '#0A0612';
+    roundRect(-h*SCALE*0.28, -h*SCALE*0.12, h*SCALE*0.56, h*SCALE*0.28, 3); ctx.fill();
+    ctx.fillStyle = eyeColor; ctx.shadowColor = eyeColor; ctx.shadowBlur = 8;
+    roundRect(-h*SCALE*0.20, -h*SCALE*0.06, h*SCALE*0.40, h*SCALE*0.14, 2); ctx.fill();
+    ctx.shadowBlur = 0;
+
+    // mini alas / rotores
+    ctx.fillStyle = '#16233D';
+    ctx.fillRect(-h*SCALE*0.5-3, -2, 3, 4);
+    ctx.fillRect(h*SCALE*0.5, -2, 3, 4);
+
+    ctx.restore();
+  }
+
+  // ---------- Controles ----------
+  document.getElementById('luma-envSeg').addEventListener('click', e=>{
+    const btn = e.target.closest('button[data-env]');
+    if(!btn || running) return;
+    switchEnv(btn.dataset.env);
+  });
+
+  document.querySelectorAll('.blocks').forEach(group=>{
+    group.addEventListener('click', e=>{
+      const btn = e.target.closest('button[data-snip]');
+      if(!btn) return;
+      insertSnippet(btn.dataset.snip.replace(/\\n/g,'\n'));
+    });
+  });
+
+  function insertSnippet(text){
+    const start = codeEl.selectionStart, end = codeEl.selectionEnd;
+    const before = codeEl.value.slice(0,start), after = codeEl.value.slice(end);
+    codeEl.value = before + text + after;
+    const pos = start + text.length;
+    codeEl.focus(); codeEl.setSelectionRange(pos,pos);
+  }
+
+  document.getElementById('luma-loadExample').addEventListener('click', ()=>{
+    if(running) return;
+    codeEl.value = EXAMPLE;
+  });
+
+  runBtn.addEventListener('click', async ()=>{
+    if(running) return;
+    let program;
+    try{ program = parseProgram(codeEl.value); }
+    catch(err){ setStatus('⚠️ Error: '+err.message, 'luma-err'); return; }
+
+    const cfg = program.find(s=>s.type==='func' && s.name==='configuracion');
+    const loop = program.find(s=>s.type==='func' && s.name==='bucle');
+    const extra = program.filter(s=>s.type!=='func');
+    if(extra.length){ setStatus('⚠️ Error: solo se permiten configuracion() y bucle() al nivel principal.', 'luma-err'); return; }
+    if(!loop){ setStatus('⚠️ Error: falta la función bucle() { }', 'luma-err'); return; }
+
+    running = true; stopRequested = false;
+    runBtn.disabled = true; stopBtn.disabled = false;
+    setStatus('🤖 LUMA está corriendo…', 'luma-idle');
+    log('▶ Iniciando programa', 'luma-sys');
+
+    try{
+      if(cfg) await runBlock(cfg.body);
+      let iterations = 0;
+      while(!stopRequested && !bot.finished && iterations < 100000){
+        await runBlock(loop.body);
+        iterations++;
+        await sleep(20);
+      }
+      if(bot.finished) setStatus('🏁 ¡LUMA llegó a la meta!', 'luma-ok');
+      else if(!stopRequested) setStatus('✅ Programa detenido tras el límite de seguridad.', 'luma-idle');
+    }catch(err){
+      setStatus('⚠️ Error: '+err.message, 'luma-err');
+      log('⚠ '+err.message, 'luma-warn');
+    }
+    running = false;
+    runBtn.disabled = false; stopBtn.disabled = true;
+    updateTelemetry();
+  });
+
+  stopBtn.addEventListener('click', ()=>{
+    stopRequested = true;
+    bot.speed = 0;
+    log('⏹ Ejecución detenida por el usuario', 'luma-sys');
+    setStatus('⏹ Ejecución detenida.', 'luma-idle');
+  });
+
+  resetBtn.addEventListener('click', ()=>{
+    stopRequested = true; running = false;
+    runBtn.disabled = false; stopBtn.disabled = true;
+    resetLevel();
+  });
+
+  // ---------- Init (perezoso: arranca solo al entrar a la pantalla Luma) ----------
+  let lumaIniciado = false;
+  function initLuma(){
+    if(lumaIniciado) return;
+    lumaIniciado = true;
+    codeEl.value = EXAMPLE;
+    resetLevel();
+    requestAnimationFrame(render);
+  }
+  window.initLuma = initLuma;
+
+})();
+
 </script>
 </body>
 </html>
