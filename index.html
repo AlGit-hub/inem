@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<link rel="icon" type="image/png" href="./robot.png">
-<link rel="apple-touch-icon" href="./robot.png">
-<meta name="theme-color" content="#1CB0F6">
+<link rel="icon" id="favicon-link" type="image/png" href="./robot.png">
+<link rel="apple-touch-icon" id="apple-icon-link" href="./robot.png">
+<meta name="theme-color" id="theme-color-meta" content="#1CB0F6">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -158,6 +158,25 @@ input{ font-family:inherit; }
 .codigo-bloque pre{ margin:0; padding:16px; overflow-x:auto; }
 .codigo-bloque code{ color:#CDD6F4; font-family:'Courier New', monospace; font-size:.86rem; line-height:1.55; white-space:pre; }
 .actividades-vacio{ text-align:center; padding:40px 20px; color:var(--gris-400); font-weight:700; }
+
+/* ---------- Actividades: proyectos micro:bit por equipo ---------- */
+.proy-seccion{ background:#F3E8FF; border-radius:22px; padding:22px 24px; display:flex; flex-direction:column; gap:14px; }
+.proy-titulo{ display:flex; align-items:center; gap:10px; font-family:'Baloo 2',sans-serif; font-size:1.2rem; color:#7E22CE; font-weight:800; }
+.proy-titulo svg{ width:22px; height:22px; }
+.proy-sub{ font-size:.88rem; font-weight:700; color:var(--gris-700); margin-top:-6px; }
+.proy-grupo-titulo{ font-size:.74rem; font-weight:800; color:#7E22CE; text-transform:uppercase; letter-spacing:.5px; margin-top:4px; }
+.proy-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(230px,1fr)); gap:12px; }
+.proy-card{ background:#fff; border-radius:16px; padding:14px 16px; display:flex; flex-direction:column; gap:10px; border:2px solid transparent; }
+.proy-card.pendiente{ border:2px dashed var(--gris-200); background:rgba(255,255,255,.6); }
+.proy-card-top{ display:flex; align-items:center; gap:10px; }
+.proy-card-top .icon-badge{ margin:0; width:30px; height:30px; border-radius:10px; background:linear-gradient(145deg, var(--morado) 0%, #9333EA 100%); }
+.proy-card-top .icon-badge svg{ width:16px; height:16px; }
+.proy-nombre{ font-weight:800; font-size:.92rem; line-height:1.2; color:var(--texto); }
+.proy-card.pendiente .proy-nombre{ color:var(--gris-400); }
+.proy-nota{ font-size:.72rem; font-weight:700; color:var(--naranja); }
+.proy-integrantes{ display:flex; flex-wrap:wrap; gap:6px; }
+.proy-chip{ background:var(--gris-100); color:var(--gris-700); font-weight:800; font-size:.76rem; padding:5px 11px; border-radius:999px; }
+
 
 /* ---------- Lección ---------- */
 .leccion-top{ height:64px; flex-shrink:0; display:flex; align-items:center; gap:14px; padding:0 22px; background:rgba(255,255,255,.78); backdrop-filter:blur(10px); border-bottom:2px solid rgba(229,229,229,.6); }
@@ -848,9 +867,170 @@ button:active, .nodo:not(.bloqueado):active, .tab:not(.bloqueado):active,
   .robik-panel{ right:10px; left:10px; width:auto; bottom:calc(var(--bottom-nav-h) + 78px); height:min(480px,60vh); }
 }
 
+
+/* ===========================================================
+   PERSONALIZACIÓN: color del niño, fondo decorativo y banner
+   =========================================================== */
+:root{ --user-color:#1CB0F6; }
+
+/* Franja de color en la parte de arriba de la página */
+.topbar, .leccion-top{
+  border-top:6px solid var(--user-color);
+  background:linear-gradient(180deg, color-mix(in srgb, var(--user-color) 16%, #ffffff) 0%, rgba(255,255,255,.88) 100%);
+}
+.topbar-brand .logo-badge{
+  background:var(--user-color);
+  box-shadow:0 6px 14px color-mix(in srgb, var(--user-color) 45%, transparent);
+}
+.topbar-saludo .saludo-linea1{ color:color-mix(in srgb, var(--user-color) 62%, #000000); }
+
+/* Selector de color */
+.color-grid{ display:flex; gap:10px; justify-content:center; flex-wrap:wrap; }
+.color-opcion{ width:34px; height:34px; border-radius:50%; cursor:pointer; border:3px solid #fff; box-shadow:0 0 0 2px var(--gris-200); transition:transform .12s ease; }
+.color-opcion:hover{ transform:scale(1.1); }
+.color-opcion.selec{ box-shadow:0 0 0 3px var(--texto); }
+.estilo-box{ background:var(--gris-100); border-radius:18px; padding:16px; display:flex; flex-direction:column; gap:12px; margin-bottom:22px; }
+.estilo-label{ font-weight:800; font-size:.8rem; color:var(--gris-700); text-align:center; }
+
+/* Fondo decorativo del dashboard */
+.fondo-deco{
+  position:fixed; inset:0; z-index:-1; pointer-events:none; overflow:hidden;
+  background-image:
+    radial-gradient(circle at 12% 18%, color-mix(in srgb, var(--user-color) 16%, transparent) 0, transparent 38%),
+    radial-gradient(circle at 88% 82%, color-mix(in srgb, var(--user-color) 14%, transparent) 0, transparent 40%),
+    radial-gradient(color-mix(in srgb, var(--user-color) 30%, transparent) 1.6px, transparent 1.9px);
+  background-size:auto, auto, 30px 30px;
+}
+.deco-icono{
+  position:absolute; display:block; color:var(--user-color); opacity:.14;
+  transform:rotate(var(--rot,0deg)); animation:decoFlotar 7s ease-in-out infinite;
+}
+.deco-icono svg{ width:100%; height:100%; stroke-width:1.5; }
+@keyframes decoFlotar{
+  0%,100%{ transform:translateY(0) rotate(var(--rot,0deg)); }
+  50%{ transform:translateY(-14px) rotate(calc(var(--rot,0deg) + 6deg)); }
+}
+@media (prefers-reduced-motion:reduce){ .deco-icono{ animation:none; } }
+@media (max-width:600px){ .deco-icono:nth-child(n+9){ display:none; } }
+
+/* Banner: After School · Fundación Único */
+.topbar-patrocinio{ display:flex; align-items:center; justify-content:center; margin:0 auto; padding:0 12px; min-width:0; }
+.topbar-patrocinio img{ height:42px; max-width:200px; width:auto; object-fit:contain; display:block; }
+.topbar-patrocinio .afterschool-texto{ display:none; }
+.topbar-patrocinio.sin-logo img{ display:none; }
+.topbar-patrocinio.sin-logo .afterschool-texto{
+  display:inline-flex; font-weight:800; font-size:.78rem; color:var(--gris-700);
+  background:#fff; border:2px solid var(--gris-200); border-radius:999px; padding:6px 14px; white-space:nowrap;
+}
+@media (max-width:760px){
+  .topbar-patrocinio img{ height:28px; max-width:110px; }
+  .topbar-patrocinio.sin-logo{ display:none; }
+}
+
+/* ===========================================================
+   GLOBO ROBIK — mascota del dashboard
+   =========================================================== */
+.globo-robik{
+  position:fixed; z-index:55; left:clamp(14px, 6vw, 110px); bottom:10vh;
+  display:flex; flex-direction:column; align-items:center; pointer-events:none;
+  transform:translate(var(--dx,0px), var(--dy,0px));
+}
+.globo-robik.volviendo{ transition:transform 1.7s cubic-bezier(.45,.05,.25,1); }
+.globo-robik > .globo-boton, .globo-robik > .globo-estrellas{ pointer-events:auto; }
+.globo-boton, .globo-boton:hover, .globo-boton:focus, .globo-boton:focus-visible, .globo-boton:active{ outline:none !important; box-shadow:none; -webkit-tap-highlight-color:transparent; }
+.globo-boton::-moz-focus-inner{ border:0; }
+.globo-boton{
+  position:relative; background:none; border:none; padding:0; cursor:pointer;
+  display:flex; flex-direction:column; align-items:center;
+  animation:globoFlota 5s ease-in-out infinite; -webkit-tap-highlight-color:transparent;
+  touch-action:none; user-select:none; -webkit-user-select:none; cursor:grab;
+}
+.globo-robik.arrastrando .globo-boton{ cursor:grabbing; animation-play-state:paused; }
+.globo-cuerpo{
+  width:78px; height:78px; border-radius:50% 50% 48% 48%;
+  background:radial-gradient(circle at 32% 28%, rgba(255,255,255,.55), transparent 38%), var(--user-color);
+  box-shadow:inset -6px -8px 0 rgba(0,0,0,.12), 0 8px 18px color-mix(in srgb, var(--user-color) 40%, transparent);
+  display:flex; align-items:center; justify-content:center; color:#fff;
+  transform:scale(var(--inflar,1)); transition:transform .15s ease;
+}
+.globo-cuerpo svg{ width:40px; height:40px; }
+.globo-cuerda{ width:2px; height:34px; margin-top:-2px; border-radius:2px; background:linear-gradient(var(--gris-400), transparent); transform-origin:top; animation:globoCuerda 3s ease-in-out infinite; }
+.globo-boton.rebota .globo-cuerpo{ animation:globoRebote .28s ease; }
+.globo-boton.agitado .globo-cuerpo{ animation:globoTiembla .18s linear infinite; }
+.globo-boton.explota .globo-cuerpo{ animation:globoExplota .5s ease-out forwards; }
+.globo-boton.explota .globo-cuerda{ opacity:0; }
+.globo-boton.reaparece .globo-cuerpo{ animation:globoAparece .6s ease both; }
+.globo-burbuja{
+  position:absolute; left:calc(50% + 26px); bottom:calc(100% - 14px);
+  width:max-content; max-width:230px;
+  background:#fff; border:2px solid var(--user-color); border-radius:16px 16px 16px 4px;
+  padding:10px 14px; font-weight:800; font-size:.82rem; line-height:1.35; color:var(--texto);
+  box-shadow:0 8px 20px rgba(0,0,0,.12);
+  transform-origin:left bottom; animation:globoBurbujaEntra .22s ease both;
+}
+.globo-burbuja::after{
+  content:""; position:absolute; left:12px; bottom:-8px; width:12px; height:12px;
+  background:#fff; border-right:2px solid var(--user-color); border-bottom:2px solid var(--user-color);
+  transform:rotate(45deg);
+}
+.globo-burbuja .tw-fantasma{ display:block; visibility:hidden; }
+.globo-burbuja .tw-texto{ position:absolute; left:14px; right:14px; top:10px; }
+.globo-burbuja.escribiendo .tw-texto::after{ content:"▍"; color:var(--user-color); animation:globoCursor .7s steps(1) infinite; }
+@keyframes globoCursor{ 50%{ opacity:0; } }
+@keyframes globoBurbujaEntra{ from{ opacity:0; transform:scale(.6); } to{ opacity:1; transform:scale(1); } }
+.globo-estrellas{ display:flex; gap:3px; margin-top:6px; color:var(--amarillo-dark); }
+.globo-estrellas svg{ width:15px; height:15px; fill:currentColor; }
+@keyframes globoFlota{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-10px); } }
+@keyframes globoCuerda{ 0%,100%{ transform:rotate(3deg); } 50%{ transform:rotate(-3deg); } }
+@keyframes globoRebote{
+  0%{ transform:scale(var(--inflar,1)); }
+  40%{ transform:scale(calc(var(--inflar,1) * 1.12), calc(var(--inflar,1) * .9)); }
+  100%{ transform:scale(var(--inflar,1)); }
+}
+@keyframes globoTiembla{
+  0%,100%{ transform:translateX(-2px) scale(var(--inflar,1)); }
+  50%{ transform:translateX(2px) scale(var(--inflar,1)); }
+}
+@keyframes globoExplota{
+  0%{ transform:scale(var(--inflar,1.4)); opacity:1; }
+  60%{ transform:scale(2.2); opacity:.6; }
+  100%{ transform:scale(2.8); opacity:0; }
+}
+@keyframes globoAparece{ from{ transform:scale(.2); opacity:0; } to{ transform:scale(1); opacity:1; } }
+/* Solo en computador: en celular y tablets pequeñas no hay espacio */
+@media (max-width:899px), (hover:none) and (pointer:coarse){ .globo-robik{ display:none !important; } }
+.globo-robik.fisica .globo-cuerda{ animation:none; rotate:var(--ang-cuerda,0deg); height:calc(34px * var(--largo-cuerda,1)); }
+.globo-robik.fisica .globo-cuerpo{ rotate:var(--ang-cuerpo,0deg); }
+@media (max-width:600px){
+  .globo-cuerpo{ width:54px; height:54px; }
+  .globo-cuerpo svg{ width:28px; height:28px; }
+  .globo-cuerda{ height:20px; }
+  .globo-burbuja{ max-width:min(200px, 58vw); left:calc(50% + 18px); }
+}
+@media (prefers-reduced-motion:reduce){
+  .globo-boton, .globo-cuerda{ animation:none; }
+}
+
+/* Robik (botón azul): no tapar "Cerrar sesión" de la barra lateral */
+.robik-fab, .robik-panel{ transition:right .18s ease; }
+@media (min-width:900px){
+  body:has(#pantalla-dashboard:not(.oculto) #app-sidebar:not(.colapsada)) .robik-fab{ right:calc(var(--sidebar-w) + 28px); }
+  body:has(#pantalla-dashboard:not(.oculto) #app-sidebar:not(.colapsada)) .robik-panel{ right:calc(var(--sidebar-w) + 28px); }
+}
 </style>
 </head>
 <body>
+<div id="fondo-deco" class="fondo-deco oculto" aria-hidden="true"></div>
+
+<!-- Globo Robik: mascota interactiva del dashboard -->
+<div id="globo-robik" class="globo-robik oculto">
+  <div id="globo-burbuja" class="globo-burbuja oculto" role="status" aria-live="polite"></div>
+  <button id="globo-boton" class="globo-boton" type="button" aria-label="Globo Robik: tócame">
+    <span class="globo-cuerpo"></span>
+    <span class="globo-cuerda"></span>
+  </button>
+  <div id="globo-estrellas" class="globo-estrellas" aria-hidden="true"></div>
+</div>
 <div id="offline-banner" class="offline-banner">📡 Sin conexión a internet — tu progreso se guardará cuando vuelva la señal</div>
 
 <!-- =========================================================
@@ -884,6 +1064,19 @@ button:active, .nodo:not(.bloqueado):active, .tab:not(.bloqueado):active,
           <div class="avatar-opcion" data-avatar="bolt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" /></svg></div>
           <div class="avatar-opcion" data-avatar="gamepad"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" x2="10" y1="11" y2="11" /><line x1="8" x2="8" y1="9" y2="13" /><line x1="15" x2="15.01" y1="12" y2="12" /><line x1="18" x2="18.01" y1="10" y2="10" /><path d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z" /></svg></div>
           <div class="avatar-opcion" data-avatar="dish"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16.247 7.761a6 6 0 0 1 0 8.478" /><path d="M19.075 4.933a10 10 0 0 1 0 14.134" /><path d="M4.925 19.067a10 10 0 0 1 0-14.134" /><path d="M7.753 16.239a6 6 0 0 1 0-8.478" /><circle cx="12" cy="12" r="2" /></svg></div>
+        </div>
+      </div>
+      <div class="campo">
+        <label>Elige tu color favorito</label>
+        <div class="color-grid" id="color-grid">
+          <span class="color-opcion selec" data-color="#1CB0F6" style="background:#1CB0F6;" title="Azul"></span>
+          <span class="color-opcion" data-color="#58CC02" style="background:#58CC02;" title="Verde"></span>
+          <span class="color-opcion" data-color="#FFC800" style="background:#FFC800;" title="Amarillo"></span>
+          <span class="color-opcion" data-color="#FF9600" style="background:#FF9600;" title="Naranja"></span>
+          <span class="color-opcion" data-color="#FF4B4B" style="background:#FF4B4B;" title="Rojo"></span>
+          <span class="color-opcion" data-color="#CE82FF" style="background:#CE82FF;" title="Morado"></span>
+          <span class="color-opcion" data-color="#E91E9C" style="background:#E91E9C;" title="Rosado"></span>
+          <span class="color-opcion" data-color="#14B8A6" style="background:#14B8A6;" title="Turquesa"></span>
         </div>
       </div>
       <div class="campo">
@@ -935,6 +1128,10 @@ button:active, .nodo:not(.bloqueado):active, .tab:not(.bloqueado):active,
   <div class="dash-shell">
     <div class="topbar">
       <div class="topbar-brand" id="topbar-brand"></div>
+      <div class="topbar-patrocinio" id="topbar-afterschool" title="After School · Fundación Único">
+        <img src="./afterschool.png" alt="After School · Fundación Único" onerror="this.parentElement.classList.add('sin-logo')">
+        <span class="afterschool-texto">After School · Fundación Único</span>
+      </div>
       <div class="topbar-user">
         <div class="equipo-chip oculto" id="equipo-chip" title="Tu equipo"></div>
         <div class="racha" id="racha-chip"></div>
@@ -1240,7 +1437,7 @@ button:active, .nodo:not(.bloqueado):active, .tab:not(.bloqueado):active,
                             && request.resource.data.racha is int;
               allow update: if request.resource.data.diff(resource.data)
                               .affectedKeys()
-                              .hasOnly(['puntos','racha','progreso','equipoId']);
+                              .hasOnly(['puntos','racha','progreso','equipoId','color','avatar']);
               // Permite SOLO la migración automática de cuentas viejas (creadas antes del
               // hash): se puede reescribir pin+sal una única vez, y solo si el documento
               // todavía NO tiene el campo 'sal'. Una vez migrada, esta regla ya no aplica.
@@ -3697,6 +3894,294 @@ const MODULOS = [
         ]
       }
     ]
+  },
+  {
+    "id": "microbit",
+    "orden": 8,
+    "nombre": "micro:bit",
+    "icono": "grid",
+    "tagline": "La minicomputadora que cabe en tu mano: pequeña, poderosa y lista para crear.",
+    "objetivos": [
+      "Explicar qué es el micro:bit y reconocer sus partes principales.",
+      "Saber cómo se programa: MakeCode por bloques, Python y el archivo .hex.",
+      "Imaginar proyectos y distinguir cuándo usar micro:bit y cuándo Arduino."
+    ],
+    "lecciones": [
+      {
+        "titulo": "¿Qué es el micro:bit?",
+        "eyebrow": "Placa educativa",
+        "subtitulo": "Una placa programable del tamaño de una tarjeta, creada para aprender electrónica y programación.",
+        "coach": "Es pequeño, pero tiene casi todo lo que necesitas para empezar a crear.",
+        "clave": "El micro:bit es una minicomputadora educativa con un microcontrolador como cerebro.",
+        "tipo": "tarjetas",
+        "tarjetas": [
+          {
+            "titulo": "Minicomputadora",
+            "texto": "Una computadora educativa que cabe en la palma de tu mano.",
+            "icono": "cpu"
+          },
+          {
+            "titulo": "Su cerebro",
+            "texto": "Un microcontrolador ejecuta las instrucciones de tu programa.",
+            "icono": "brain"
+          },
+          {
+            "titulo": "Fácil y visual",
+            "texto": "Se programa de forma sencilla, arrastrando bloques.",
+            "icono": "puzzle"
+          }
+        ]
+      },
+      {
+        "titulo": "Interactúa y siente",
+        "eyebrow": "Entradas",
+        "subtitulo": "El micro:bit puede sentir lo que pasa a su alrededor.",
+        "coach": "Con botones y sensores, tu micro:bit responde a lo que haces y a lo que ocurre en el entorno.",
+        "clave": "Botones A y B, sensores de movimiento (acelerómetro y brújula), de temperatura y de luz.",
+        "tipo": "tarjetas",
+        "tarjetas": [
+          {
+            "titulo": "Botones A y B",
+            "texto": "Dos botones para dar órdenes a tu programa.",
+            "icono": "button"
+          },
+          {
+            "titulo": "Movimiento",
+            "texto": "Acelerómetro y brújula detectan sacudidas e inclinación.",
+            "icono": "move"
+          },
+          {
+            "titulo": "Temperatura y luz",
+            "texto": "Sensores que miden el calor y la luz del ambiente.",
+            "icono": "thermometer"
+          }
+        ]
+      },
+      {
+        "titulo": "Salidas y conexiones",
+        "eyebrow": "Hardware",
+        "subtitulo": "Muestra mensajes, comunícate y conecta nuevos componentes.",
+        "coach": "La versión V2 además tiene micrófono y parlante integrados.",
+        "clave": "Matriz de 25 LEDs (5x5), Bluetooth y radio, pines de conexión, y energía por USB o batería.",
+        "tipo": "tarjetas",
+        "tarjetas": [
+          {
+            "titulo": "Matriz de 25 LEDs",
+            "texto": "Una cuadrícula de 5x5 para mostrar mensajes e imágenes.",
+            "icono": "grid"
+          },
+          {
+            "titulo": "Bluetooth y radio",
+            "texto": "Se comunica con otros micro:bit y dispositivos.",
+            "icono": "dish"
+          },
+          {
+            "titulo": "Pines y energía",
+            "texto": "Pines para conectar cosas; se alimenta por USB o con batería.",
+            "icono": "plug"
+          }
+        ]
+      },
+      {
+        "titulo": "¿Cómo se programa?",
+        "eyebrow": "Programación",
+        "subtitulo": "Escribes tu programa en el computador y lo envías a la placa por USB.",
+        "coach": "Empieza con bloques y, cuando te sientas listo, pasa a Python.",
+        "clave": "MakeCode es ideal para empezar; Python (MicroPython) es el siguiente paso.",
+        "tipo": "flujo",
+        "flujo": [
+          {
+            "etiqueta": "MakeCode",
+            "texto": "Programación por bloques, ideal para empezar.",
+            "icono": "puzzle"
+          },
+          {
+            "etiqueta": "Python",
+            "texto": "MicroPython para dar el siguiente paso.",
+            "icono": "code"
+          },
+          {
+            "etiqueta": "Archivo .hex",
+            "texto": "Se conecta por USB y se arrastra el archivo .hex a la placa.",
+            "icono": "upload"
+          }
+        ]
+      },
+      {
+        "titulo": "Primeros pasos",
+        "eyebrow": "Manos a la obra",
+        "subtitulo": "Del cable a tu primer programa en pocos pasos.",
+        "coach": "Solo necesitas tu micro:bit, un cable USB y un navegador.",
+        "clave": "Conecta, abre MakeCode, arma tu programa con bloques y descárgalo a la placa.",
+        "tipo": "flujo",
+        "flujo": [
+          {
+            "etiqueta": "1. Conecta",
+            "texto": "Une el micro:bit al computador con el cable USB.",
+            "icono": "plug"
+          },
+          {
+            "etiqueta": "2. Programa",
+            "texto": "Abre MakeCode en el navegador y arma tu programa con bloques.",
+            "icono": "puzzle"
+          },
+          {
+            "etiqueta": "3. Descarga",
+            "texto": "Descarga el programa y pásalo al micro:bit.",
+            "icono": "download"
+          }
+        ]
+      },
+      {
+        "titulo": "¿Para qué sirve?",
+        "eyebrow": "Proyectos",
+        "subtitulo": "Con un micro:bit puedes crear proyectos increíbles.",
+        "coach": "Ideas para RoboKids: dado electrónico, carro robot por radio, alarma antirrobo y mascota virtual.",
+        "clave": "Juegos, sensores, comunicación por radio, luces, motores, servos y robots.",
+        "tipo": "tarjetas",
+        "tarjetas": [
+          {
+            "titulo": "Juegos",
+            "texto": "Crea juegos con los botones y los LEDs.",
+            "icono": "gamepad"
+          },
+          {
+            "titulo": "Mide y comunica",
+            "texto": "Cuenta pasos, mide temperatura y envía datos por radio.",
+            "icono": "dish"
+          },
+          {
+            "titulo": "Controla y construye",
+            "texto": "Maneja luces, motores y servos; crea robots con sensores.",
+            "icono": "gear"
+          }
+        ]
+      },
+      {
+        "titulo": "micro:bit vs Arduino",
+        "eyebrow": "Comparación",
+        "subtitulo": "Dos plataformas, un objetivo: se complementan.",
+        "coach": "No tienes que elegir uno para siempre: cada uno brilla en lo suyo.",
+        "clave": "micro:bit viene con todo incluido; Arduino da más pines y libertad para proyectos grandes.",
+        "tipo": "tarjetas",
+        "tarjetas": [
+          {
+            "titulo": "micro:bit",
+            "texto": "Sensores integrados, programación por bloques e ideal para empezar.",
+            "icono": "grid"
+          },
+          {
+            "titulo": "Arduino",
+            "texto": "Más pines y más libertad para construir proyectos grandes.",
+            "icono": "board"
+          },
+          {
+            "titulo": "Juntos",
+            "texto": "Se complementan: aprendes en uno y creces con el otro.",
+            "icono": "users"
+          }
+        ]
+      }
+    ],
+    "lab": {
+      "titulo": "Laboratorio: Tu primer programa",
+      "subtitulo": "Ordena los pasos para programar tu micro:bit por primera vez.",
+      "tipo": "secuencia",
+      "pasos": [
+        "Conectar el micro:bit al computador con el cable USB",
+        "Abrir MakeCode en el navegador",
+        "Armar el programa con bloques",
+        "Descargar el programa y pasarlo al micro:bit"
+      ],
+      "mensajes": {
+        "vacio": "Ruta esperada: primero conectas, luego programas y al final descargas.",
+        "parcial": "Vas bien, continúa con el siguiente paso.",
+        "incorrecto": "Ese orden no funcionaría. Piensa qué necesitas antes de poder programar y enviar.",
+        "correcto": "¡Listo! Así se lleva un programa desde MakeCode hasta tu micro:bit."
+      }
+    },
+    "quiz": [
+      {
+        "pregunta": "¿Qué es el micro:bit?",
+        "pista": "Es del tamaño de una tarjeta.",
+        "explicacion": "Es una placa programable, una minicomputadora educativa para aprender electrónica y programación.",
+        "opciones": [
+          { "texto": "Una minicomputadora educativa programable", "correcta": true },
+          { "texto": "Un videojuego de consola", "correcta": false },
+          { "texto": "Un tipo de impresora 3D", "correcta": false }
+        ]
+      },
+      {
+        "pregunta": "¿Cuál es el cerebro del micro:bit?",
+        "pista": "Procesa las instrucciones de tu programa.",
+        "explicacion": "El cerebro del micro:bit es un microcontrolador.",
+        "opciones": [
+          { "texto": "Los botones A y B", "correcta": false },
+          { "texto": "Un microcontrolador", "correcta": true },
+          { "texto": "El cable USB", "correcta": false }
+        ]
+      },
+      {
+        "pregunta": "¿Cuántos LEDs tiene la matriz del micro:bit?",
+        "pista": "Es una cuadrícula de 5x5.",
+        "explicacion": "La matriz es de 5x5, es decir, 25 LEDs.",
+        "opciones": [
+          { "texto": "9", "correcta": false },
+          { "texto": "25", "correcta": true },
+          { "texto": "100", "correcta": false }
+        ]
+      },
+      {
+        "pregunta": "¿Qué sensores detectan el movimiento?",
+        "pista": "Son dos y detectan sacudidas e inclinación.",
+        "explicacion": "El acelerómetro y la brújula permiten sentir el movimiento.",
+        "opciones": [
+          { "texto": "Acelerómetro y brújula", "correcta": true },
+          { "texto": "Micrófono y parlante", "correcta": false },
+          { "texto": "Botones A y B", "correcta": false }
+        ]
+      },
+      {
+        "pregunta": "¿Con qué programación por bloques puedes empezar en el micro:bit?",
+        "pista": "Se abre en el navegador.",
+        "explicacion": "MakeCode es el editor por bloques, ideal para empezar.",
+        "opciones": [
+          { "texto": "Tinkercad 3D", "correcta": false },
+          { "texto": "Photoshop", "correcta": false },
+          { "texto": "MakeCode", "correcta": true }
+        ]
+      },
+      {
+        "pregunta": "¿Qué lenguaje usas cuando das el siguiente paso después de los bloques?",
+        "pista": "Su versión para placas pequeñas se llama MicroPython.",
+        "explicacion": "Python (MicroPython) es el siguiente paso tras la programación por bloques.",
+        "opciones": [
+          { "texto": "Python (MicroPython)", "correcta": true },
+          { "texto": "HTML", "correcta": false },
+          { "texto": "Solo emojis", "correcta": false }
+        ]
+      },
+      {
+        "pregunta": "¿Qué archivo se arrastra a la placa para cargar tu programa?",
+        "pista": "Su extensión empieza con un punto y tiene tres letras.",
+        "explicacion": "Al conectarlo por USB, arrastras el archivo .hex a la placa.",
+        "opciones": [
+          { "texto": "Un archivo .mp3", "correcta": false },
+          { "texto": "Un archivo .hex", "correcta": true },
+          { "texto": "Un archivo .jpg", "correcta": false }
+        ]
+      },
+      {
+        "pregunta": "¿Cuál es una ventaja del micro:bit frente a Arduino?",
+        "pista": "Piensa en lo que ya trae la placa.",
+        "explicacion": "El micro:bit trae sensores integrados y programación por bloques, ideal para empezar; Arduino ofrece más pines para proyectos grandes.",
+        "opciones": [
+          { "texto": "Tiene más pines que Arduino", "correcta": false },
+          { "texto": "Trae sensores integrados y es ideal para empezar", "correcta": true },
+          { "texto": "No necesita ser programado", "correcta": false }
+        ]
+      }
+    ]
   }
 ];
 
@@ -3717,7 +4202,7 @@ function obtenerModulo(id){
    pégalo dentro del arreglo y completa sus campos:
      - moduloId:    debe coincidir con el "id" de un módulo de
                      MODULOS (tinkercad, bloques, codigo, arduino,
-                     fundamentos, componentes, basica)
+                     fundamentos, componentes, basica, microbit)
      - titulo:      nombre corto de la actividad
      - descripcion: 1-2 frases explicando qué se hizo
      - tinkercadUrl: (opcional) enlace al proyecto en Tinkercad,
@@ -3730,26 +4215,158 @@ function obtenerModulo(id){
 const ACTIVIDADES = [
   {
     "moduloId": "arduino",
-    "titulo": "Contador con display de 7 segmentos",
-    "descripcion": "Circuito armado en clase: un Arduino Uno controla un display de 7 segmentos a través de resistencias en una protoboard.",
+    "titulo": "Documento de Identidad Tinkercad",
+    "descripcion": "Circuito armado en clase: un Arduino Uno controla un display de 7 segmentos a través de resistencias en una protoboard y muestra, dígito por dígito, un número de documento de identidad con una pausa al final de cada ciclo.",
     "tinkercadUrl": "",
     "lenguaje": "Arduino (C++)",
-    "codigo": `int segmentos[] = {2, 3, 4, 5, 6, 7, 8};
+    "codigo": `void setup() {
+  Serial.begin(9600); // VELOCIDAD DE IMPRESIÓN
+//cONFIGURACIÓN DE LOS PINES
+  pinMode(2,OUTPUT);
+  pinMode(3,OUTPUT);
+  pinMode(4,OUTPUT);
+  pinMode(5,OUTPUT);
+  pinMode(6,OUTPUT);
+  pinMode(7,OUTPUT);
+  pinMode(8,OUTPUT);
+  pinMode(9,OUTPUT);
 
-void setup() {
-  for (int i = 0; i < 7; i++) {
-    pinMode(segmentos[i], OUTPUT);
-  }
 }
-
+//1234567890 - Documento de Identidad
 void loop() {
-  // Enciende cada segmento uno por uno
-  for (int i = 0; i < 7; i++) {
-    digitalWrite(segmentos[i], HIGH);
-    delay(300);
-    digitalWrite(segmentos[i], LOW);
-  }
+  // HIGH  ----> PRENDER
+  // LOW -----> APAGAR
+  digitalWrite(2,LOW); //1
+  digitalWrite(3,HIGH);
+  digitalWrite(4,HIGH);
+  digitalWrite(5,LOW);
+  digitalWrite(6,LOW);
+  digitalWrite(7,LOW);
+  digitalWrite(8,LOW);
+  digitalWrite(9,LOW);
+  delay(1000);
+
+  digitalWrite(2,LOW); //0
+  digitalWrite(3,LOW);
+  digitalWrite(4,LOW);
+  digitalWrite(5,LOW);
+  digitalWrite(6,LOW);
+  digitalWrite(7,LOW);
+  digitalWrite(8,LOW);
+  digitalWrite(9,LOW);
+  delay(1000);
+
+  digitalWrite(2,LOW); //1
+  digitalWrite(3,HIGH);
+  digitalWrite(4,HIGH);
+  digitalWrite(5,LOW);
+  digitalWrite(6,LOW);
+  digitalWrite(7,LOW);
+  digitalWrite(8,LOW);
+  digitalWrite(9,LOW);
+  delay(100);
+
+  digitalWrite(2,HIGH); //1
+  digitalWrite(3,HIGH);
+  digitalWrite(4,HIGH);
+  digitalWrite(5,HIGH);
+  digitalWrite(6,HIGH);
+  digitalWrite(7,HIGH);
+  digitalWrite(8,LOW);
+  digitalWrite(9,HIGH);
+  delay(1000);
+
+  digitalWrite(2,HIGH); //9
+  digitalWrite(3,HIGH);
+  digitalWrite(4,HIGH);
+  digitalWrite(5,HIGH);
+  digitalWrite(6,LOW);
+  digitalWrite(7,HIGH);
+  digitalWrite(8,HIGH);
+  digitalWrite(9,HIGH);
+  delay(1000);
+
+  digitalWrite(2,LOW); //1
+  digitalWrite(3,HIGH);
+  digitalWrite(4,HIGH);
+  digitalWrite(5,LOW);
+  digitalWrite(6,LOW);
+  digitalWrite(7,LOW);
+  digitalWrite(8,LOW);
+  digitalWrite(9,LOW);
+  delay(1000);
+
+  digitalWrite(2,LOW); //1
+  digitalWrite(3,HIGH);
+  digitalWrite(4,HIGH);
+  digitalWrite(5,LOW);
+  digitalWrite(6,LOW);
+  digitalWrite(7,LOW);
+  digitalWrite(8,LOW);
+  digitalWrite(9,LOW);
+  delay(1000);
+
+  digitalWrite(2,HIGH); //5
+  digitalWrite(3,LOW);
+  digitalWrite(4,HIGH);
+  digitalWrite(5,HIGH);
+  digitalWrite(6,LOW);
+  digitalWrite(7,HIGH);
+  digitalWrite(8,HIGH);
+  digitalWrite(9,HIGH);
+  delay(1000);
+
+  digitalWrite(2,HIGH);
+  digitalWrite(3,LOW);
+  digitalWrite(4,HIGH);
+  digitalWrite(5,HIGH);
+  digitalWrite(6,LOW);
+  digitalWrite(7,HIGH);
+  digitalWrite(8,HIGH);
+  digitalWrite(9,HIGH);
+  delay(1000);
+
+  digitalWrite(2,HIGH); //9
+  digitalWrite(3,HIGH);
+  digitalWrite(4,HIGH);
+  digitalWrite(5,HIGH);
+  digitalWrite(6,HIGH);
+  digitalWrite(7,HIGH);
+  digitalWrite(8,LOW);
+  digitalWrite(9,HIGH);
+  delay(1000);
+
+  digitalWrite(2,HIGH); //5
+  digitalWrite(3,LOW);
+  digitalWrite(4,HIGH);
+  digitalWrite(5,HIGH);
+  digitalWrite(6,LOW);
+  digitalWrite(7,HIGH);
+  digitalWrite(8,HIGH);
+  digitalWrite(9,HIGH);
+  delay(1000);
+
+  digitalWrite(2,LOW); //Pausa
+  digitalWrite(3,LOW);
+  digitalWrite(4,LOW);
+  digitalWrite(5,LOW);
+  digitalWrite(6,LOW);
+  digitalWrite(7,LOW);
+  digitalWrite(8,LOW);
+  digitalWrite(9,LOW);
+  delay(1900);//Tiempo de espera
+
 }`
+  },
+  {
+    "moduloId": "microbit",
+    "titulo": "Mi primer mensaje en la matriz de LEDs",
+    "descripcion": "Programa tu primer mensaje en la matriz de LEDs del micro:bit y compártelo con tu equipo. Puedes hacerlo con bloques en MakeCode (bloque 'mostrar cadena') o con este código en Python.",
+    "tinkercadUrl": "",
+    "lenguaje": "Python (MicroPython)",
+    "codigo": `from microbit import *
+
+display.scroll("Hola RoboKids")`
   }
 ];
 
@@ -3757,6 +4374,31 @@ void loop() {
 function actividadesDeModulo(moduloId){
   return ACTIVIDADES.filter(a => a.moduloId === moduloId);
 }
+
+/* ===========================================================
+   PROYECTOS MICRO:BIT — quién trabaja en qué (se muestra en Actividades)
+   ===========================================================
+   Para editar: cambia nombres o proyectos aquí.
+     - tipo: "pareja" o "solo"
+     - integrantes: lista de nombres
+     - proyecto: texto, o "" si todavía no tienen proyecto
+     - nota: (opcional) aviso corto, ej. "Falta definir cuál"
+     - icono: clave de ICONOS (ej. "dish", "gamepad", "robot")
+   =========================================================== */
+const PROYECTOS_MICROBIT = [
+  { tipo:"pareja", integrantes:["Matías","Sebastián"], proyecto:"Carro dirigido por radio", icono:"dish" },
+  { tipo:"pareja", integrantes:["Luciana","Dahiana"], proyecto:"", icono:"help" },
+  { tipo:"pareja", integrantes:["Juliana","María Fernanda"], proyecto:"Mascota de emojis", icono:"sparkle" },
+  { tipo:"pareja", integrantes:["Yotselys","Sofía"], proyecto:"Dado electrónico", icono:"grid" },
+  { tipo:"pareja", integrantes:["Juan Pablo","Jhoan Camilo"], proyecto:"Mini videojuego: nave espacial que esquiva", icono:"gamepad" },
+  { tipo:"pareja", integrantes:["Samantha","Luciana"], proyecto:"Mini videojuego: nave espacial que dispara", icono:"gamepad" },
+  { tipo:"pareja", integrantes:["Shelsy","Samuel"], proyecto:"Mini videojuego: Snake", icono:"gamepad" },
+  { tipo:"pareja", integrantes:["Cristian","Luciana Medina"], proyecto:"", icono:"help" },
+  { tipo:"solo", integrantes:["Jacobo"], proyecto:"Mini videojuego", nota:"Falta definir cuál", icono:"gamepad" },
+  { tipo:"solo", integrantes:["Joshua"], proyecto:"Robot que evita obstáculos", icono:"robot" },
+  { tipo:"solo", integrantes:["Gabriela"], proyecto:"Dado electrónico", icono:"grid" },
+  { tipo:"solo", integrantes:["María de los Ángeles"], proyecto:"", icono:"help" }
+];
 
 const ICONOS = {
   "robot": "<path d=\"M12 8V4H8\" /><rect width=\"16\" height=\"12\" x=\"4\" y=\"8\" rx=\"2\" /><path d=\"M2 14h2\" /><path d=\"M20 14h2\" /><path d=\"M15 13v2\" /><path d=\"M9 13v2\" />",
@@ -3921,7 +4563,7 @@ const LOGROS = [
     condicion: (u) => MODULOS.filter(m => u.progreso && u.progreso[m.id] && u.progreso[m.id].labHecho).length >= 5 },
   { id:"perfeccionista", nombre:"Perfeccionista", descripcion:"Saca 100% en un quiz", icono:"trophy",
     condicion: (u) => MODULOS.some(m => u.progreso && u.progreso[m.id] && u.progreso[m.id].quizMejorPuntaje === 100) },
-  { id:"explorador", nombre:"Explorador", descripcion:"Completa los 7 temas", icono:"rocket",
+  { id:"explorador", nombre:"Explorador", descripcion:"Completa todos los temas", icono:"rocket",
     condicion: (u) => contarCompletados(u) >= MODULOS.length },
   { id:"constante", nombre:"Mente constante", descripcion:"Llega a una racha de 5 temas", icono:"brain",
     condicion: (u) => (u.racha||0) >= 5 },
@@ -3953,9 +4595,9 @@ const RoboKids = {
 
   usuarioActual(){ return this._usuario; },
   iniciarSesion(id){ localStorage.setItem(RK_SESSION_KEY, id); },
-  cerrarSesion(){ localStorage.removeItem(RK_SESSION_KEY); this._usuario = null; },
+  cerrarSesion(){ localStorage.removeItem(RK_SESSION_KEY); this._usuario = null; if(typeof resetPersonalizacion === "function") resetPersonalizacion(); },
 
-  async crearUsuario(nombre, pin, avatar){
+  async crearUsuario(nombre, pin, avatar, color){
     nombre = (nombre || "").trim();
     if(nombre.length < 2) return { ok:false, error:"Tu nombre debe tener al menos 2 letras." };
     if(!/^\d{4}$/.test(pin)) return { ok:false, error:"El código secreto debe tener 4 números." };
@@ -3967,7 +4609,7 @@ const RoboKids = {
       if(existente.exists) return { ok:false, error:"Ese nombre ya existe. ¡Elige otro o inicia sesión!" };
       const sal = generarSal();
       const pinHash = await hashConSal(pin, sal);
-      const nuevo = { nombre, pin: pinHash, sal, avatar: avatar || "robot", creado: new Date().toISOString(), puntos:0, racha:0, progreso:{} };
+      const nuevo = { nombre, pin: pinHash, sal, avatar: avatar || "robot", color: color || "#1CB0F6", creado: new Date().toISOString(), puntos:0, racha:0, progreso:{} };
       await ref.set(nuevo);
       this._usuario = Object.assign({ id }, nuevo);
       this.iniciarSesion(id);
@@ -4200,8 +4842,452 @@ const RoboKids = {
 const PANTALLAS = ["splash","dashboard","leccion","progreso","actividades","luma","profesor-login","profesor-panel","404"];
 function mostrarPantalla(id){
   PANTALLAS.forEach(p => document.getElementById("pantalla-"+p).classList.toggle("oculto", p !== id));
+  const deco = document.getElementById("fondo-deco");
+  if(deco) deco.classList.toggle("oculto", id !== "dashboard");
+  if(typeof actualizarGloboRobik === "function") actualizarGloboRobik(id);
   if(typeof actualizarVisibilidadRobik === "function") actualizarVisibilidadRobik();
 }
+
+/* ===========================================================
+   PERSONALIZACIÓN — ícono y color elegidos por cada niño
+   Se aplican a: ícono del encabezado, favicon (pestaña),
+   franja de color superior y color de los adornos del fondo.
+   Se guardan en el navegador (siempre) y en Firestore (si las
+   reglas lo permiten: campos 'color' y 'avatar').
+   =========================================================== */
+const COLOR_POR_DEFECTO = "#1CB0F6";
+const AVATARES_USUARIO = ["robot","rocket","cpu","bolt","gamepad","dish"];
+const COLORES_USUARIO = [
+  { nombre:"Azul",     hex:"#1CB0F6" },
+  { nombre:"Verde",    hex:"#58CC02" },
+  { nombre:"Amarillo", hex:"#FFC800" },
+  { nombre:"Naranja",  hex:"#FF9600" },
+  { nombre:"Rojo",     hex:"#FF4B4B" },
+  { nombre:"Morado",   hex:"#CE82FF" },
+  { nombre:"Rosado",   hex:"#E91E9C" },
+  { nombre:"Turquesa", hex:"#14B8A6" }
+];
+
+function personalizacionDe(u){
+  if(!u) return { color: COLOR_POR_DEFECTO, avatar: "robot" };
+  let local = {};
+  try{ local = JSON.parse(localStorage.getItem("robokids_pers_" + u.id)) || {}; }catch(e){ local = {}; }
+  return {
+    color: local.color || u.color || COLOR_POR_DEFECTO,
+    avatar: local.avatar || u.avatar || "robot"
+  };
+}
+
+function svgFavicon(avatar, color){
+  const trazos = ICONOS[avatar] || ICONOS.robot;
+  return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">' +
+    '<rect width="64" height="64" rx="16" fill="' + color + '"/>' +
+    '<g transform="translate(14 14) scale(1.5)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + trazos + '</g></svg>';
+}
+
+function ponerFavicon(avatar, color){
+  const link = document.getElementById("favicon-link");
+  const apple = document.getElementById("apple-icon-link");
+  const svg = svgFavicon(avatar, color);
+  if(link){ link.type = "image/svg+xml"; link.href = "data:image/svg+xml," + encodeURIComponent(svg); }
+  // iOS necesita PNG para el ícono de pantalla de inicio
+  if(apple){
+    try{
+      const img = new Image();
+      img.onload = () => {
+        try{
+          const c = document.createElement("canvas");
+          c.width = c.height = 180;
+          c.getContext("2d").drawImage(img, 0, 0, 180, 180);
+          apple.href = c.toDataURL("image/png");
+        }catch(e){}
+      };
+      img.src = "data:image/svg+xml," + encodeURIComponent(svg);
+    }catch(e){}
+  }
+}
+
+function aplicarPersonalizacion(){
+  const u = RoboKids.usuarioActual();
+  if(!u) return;
+  const p = personalizacionDe(u);
+  u.avatar = p.avatar;
+  u.color = p.color;
+  document.documentElement.style.setProperty("--user-color", p.color);
+  const meta = document.getElementById("theme-color-meta");
+  if(meta) meta.setAttribute("content", p.color);
+  ponerFavicon(p.avatar, p.color);
+}
+
+function resetPersonalizacion(){
+  document.documentElement.style.setProperty("--user-color", COLOR_POR_DEFECTO);
+  const meta = document.getElementById("theme-color-meta");
+  if(meta) meta.setAttribute("content", COLOR_POR_DEFECTO);
+  const link = document.getElementById("favicon-link");
+  const apple = document.getElementById("apple-icon-link");
+  if(link){ link.type = "image/png"; link.href = "./robot.png"; }
+  if(apple){ apple.href = "./robot.png"; }
+}
+
+async function guardarPersonalizacion(cambios){
+  const u = RoboKids.usuarioActual();
+  if(!u) return;
+  const nuevo = Object.assign({}, personalizacionDe(u), cambios);
+  try{ localStorage.setItem("robokids_pers_" + u.id, JSON.stringify(nuevo)); }catch(e){}
+  aplicarPersonalizacion();
+  try{
+    await db.collection(COL_USUARIOS).doc(u.id).set({ color: nuevo.color, avatar: nuevo.avatar }, { merge:true });
+  }catch(e){
+    // Si las reglas de Firestore aún no permiten estos campos, queda guardado en este dispositivo.
+    console.warn("No se pudo guardar el estilo en la nube (queda en este dispositivo):", e);
+  }
+}
+
+window.cambiarEstilo = function(tipo, valor){
+  guardarPersonalizacion({ [tipo]: valor });
+  if(typeof initProgreso === "function") initProgreso();
+};
+
+function htmlEstiloUsuario(u){
+  const p = personalizacionDe(u);
+  return `
+    <h3 class="progreso-seccion-titulo">Mi estilo</h3>
+    <div class="estilo-box">
+      <div class="estilo-label">Mi ícono</div>
+      <div class="avatar-grid">
+        ${AVATARES_USUARIO.map(a => `<div class="avatar-opcion ${p.avatar === a ? 'selec' : ''}" onclick="cambiarEstilo('avatar','${a}')">${icono(a)}</div>`).join("")}
+      </div>
+      <div class="estilo-label">Mi color</div>
+      <div class="color-grid">
+        ${COLORES_USUARIO.map(c => `<span class="color-opcion ${p.color === c.hex ? 'selec' : ''}" style="background:${c.hex};" title="${c.nombre}" onclick="cambiarEstilo('color','${c.hex}')"></span>`).join("")}
+      </div>
+    </div>
+  `;
+}
+
+/* ---------- Fondo decorativo del dashboard ---------- */
+function construirFondoDeco(){
+  const cont = document.getElementById("fondo-deco");
+  if(!cont || cont.dataset.listo) return;
+  cont.dataset.listo = "1";
+  // [icono, izquierda %, arriba %, tamaño px, rotación, retraso s]
+  const piezas = [
+    ["cpu", 6, 14, 64, -12, 0], ["bolt", 22, 8, 40, 14, 1.2], ["gear", 4, 38, 52, 20, .6],
+    ["rocket", 18, 56, 70, -18, 2], ["atom", 8, 78, 58, 10, 1.6], ["bulb", 30, 86, 44, -8, .3],
+    ["board", 40, 4, 48, 6, 2.4], ["code", 62, 6, 46, -10, .9], ["puzzle", 74, 14, 56, 16, 1.8],
+    ["dish", 84, 36, 50, -14, .4], ["gamepad", 70, 52, 54, 8, 2.2], ["flask", 86, 66, 48, -6, 1],
+    ["robot", 56, 84, 62, 12, 1.4], ["plug", 78, 88, 42, -16, .2], ["star", 46, 94, 36, 10, 2.6],
+    ["sparkle", 92, 12, 38, 0, .8]
+  ];
+  cont.innerHTML = piezas.map(p =>
+    `<span class="deco-icono" style="left:${p[1]}%;top:${p[2]}%;width:${p[3]}px;height:${p[3]}px;--rot:${p[4]}deg;animation-delay:${p[5]}s;">${icono(p[0], '')}</span>`
+  ).join("");
+}
+construirFondoDeco();
+
+/* ===========================================================
+   GLOBO ROBIK — mascota del fondo del dashboard
+   - Toques lentos (5 seguidos): mensaje de cariño.
+   - Toques rápidos: se queja, se infla y "explota" (es un chiste: reaparece).
+   - Se puede arrastrar; a los 2 segundos vuelve despacio a su lugar.
+   - Cada cierto tiempo da un consejo según el progreso del niño.
+   - Los mensajes salen "escritos" poco a poco desde arriba a la derecha.
+   - Estrellitas: se ganan por DÍAS distintos de visita (constancia),
+     nunca por tocar más veces. Se guardan solo en este dispositivo.
+   =========================================================== */
+(function initGloboRobik(){
+  const raiz = document.getElementById("globo-robik");
+  const btn = document.getElementById("globo-boton");
+  const burbuja = document.getElementById("globo-burbuja");
+  const estrellasEl = document.getElementById("globo-estrellas");
+  if(!raiz || !btn || !burbuja) return;
+  const cuerpo = btn.querySelector(".globo-cuerpo");
+  if(cuerpo) cuerpo.innerHTML = icono("robot", "");
+
+  let visible = false, ocupado = false;
+  let ultimoToque = 0, lentos = 0, rapidos = 0;
+  let tBurbuja = null, tEscribe = null, tCalma = null, autoTimer = null, autoCount = 0;
+  const ultimaFrase = {};
+
+  function elegir(lista, clave){
+    if(lista.length === 1) return lista[0];
+    let f;
+    do{ f = lista[Math.floor(Math.random() * lista.length)]; }while(f === ultimaFrase[clave]);
+    ultimaFrase[clave] = f;
+    return f;
+  }
+  function nombre(){
+    const u = RoboKids.usuarioActual();
+    return (u && u.nombre) ? u.nombre.trim().split(" ")[0] : "crack";
+  }
+
+  /* El mensaje se escribe letra por letra. Un texto "fantasma" invisible
+     reserva el tamaño final para que el globo de diálogo no salte. */
+  const VELOCIDAD_ESCRITURA = 32; // ms por letra
+  function ocultarBurbuja(){
+    clearInterval(tEscribe);
+    clearTimeout(tBurbuja);
+    burbuja.classList.remove("escribiendo");
+    burbuja.classList.add("oculto");
+  }
+  function decir(texto, ms){
+    clearInterval(tEscribe);
+    clearTimeout(tBurbuja);
+    burbuja.innerHTML = '<span class="tw-fantasma"></span><span class="tw-texto"></span>';
+    const fantasma = burbuja.querySelector(".tw-fantasma");
+    const vivo = burbuja.querySelector(".tw-texto");
+    fantasma.textContent = texto;
+    burbuja.classList.add("oculto");
+    void burbuja.offsetWidth; // reinicia la animación de entrada
+    burbuja.classList.remove("oculto");
+    burbuja.classList.add("escribiendo");
+    const letras = Array.from(texto);
+    let i = 0;
+    tEscribe = setInterval(() => {
+      i++;
+      vivo.textContent = letras.slice(0, i).join("");
+      if(i >= letras.length){
+        clearInterval(tEscribe);
+        burbuja.classList.remove("escribiendo");
+        tBurbuja = setTimeout(() => burbuja.classList.add("oculto"), ms || 4800);
+      }
+    }, VELOCIDAD_ESCRITURA);
+  }
+
+  const cariño = () => elegir([
+    `Oye ${nombre()}, qué bueno verte por aquí. ¡Sigue así! 💙`,
+    `Aprender robótica no es fácil y lo estás logrando. ¡Qué orgullo!`,
+    `Gracias por hacerme compañía, ${nombre()} 🤖💙`,
+    `Un robot nunca se cansa de verte aprender.`,
+    `Hoy es un buen día para crear algo increíble.`,
+    `Me caes bien, ${nombre()}. Y vas mejorando cada día.`
+  ], "cariño");
+  const quejaLeve = () => elegir([
+    "¡Oye, suéltame!",
+    "¡Jajaja, para, que me haces cosquillas!",
+    "¡Eeey, más despacio!"
+  ], "leve");
+  const quejaFuerte = () => elegir([
+    "¡Me vas a hacer explotar!",
+    "¡Cuidado, que me inflo demasiado!",
+    "¡Noooo, voy a reventar!"
+  ], "fuerte");
+  const alVolver = () => elegir([
+    "¡Jajaja, te asusté! Estoy bien. Mejor probemos con calma 😄",
+    "¡Era broma! Aquí sigo. ¿Repasamos un tema? 🤖",
+    "¡Pum! Pero soy un robot, me armo solito 😎"
+  ], "volver");
+
+  function consejo(){
+    const n = nombre();
+    const h = new Date().getHours();
+    const saludo = h < 12 ? "Buenos días" : (h < 19 ? "Buenas tardes" : "Buenas noches");
+    const opciones = [`${saludo}, ${n}. ¿Listo para aprender algo nuevo?`];
+    const siguiente = MODULOS.find((m, i) => RoboKids.moduloDesbloqueado(i) && !RoboKids.progresoModulo(m.id).completado);
+    opciones.push(siguiente
+      ? `Te espera «${siguiente.nombre}», ${n}. ¡Tú puedes!`
+      : `¡Completaste todos los temas, ${n}! Eres un crack de la robótica 🏆`);
+    opciones.push(
+      "Tip: en el laboratorio puedes equivocarte las veces que quieras, nada se rompe.",
+      "Tip: en Actividades están los códigos de clase, así no los escribes desde cero.",
+      "Tip: si tienes una duda, escríbele a Robik en el botón azul.",
+      "Toca mi globo 5 veces, despacito. Tengo algo para decirte. 😉"
+    );
+    return elegir(opciones, "consejo");
+  }
+
+  function explotar(){
+    ocupado = true; rapidos = 0; lentos = 0;
+    decir("💥 ¡BOOM!", 1400);
+    btn.classList.add("explota");
+    setTimeout(() => {
+      btn.classList.remove("explota", "agitado");
+      btn.style.removeProperty("--inflar");
+      btn.classList.add("reaparece");
+      setTimeout(() => btn.classList.remove("reaparece"), 700);
+      decir(alVolver(), 5200);
+      ocupado = false;
+    }, 2200);
+  }
+
+  let ignorarClick = false;
+  function tocar(){
+    if(ocupado || ignorarClick) return;
+    const t = Date.now();
+    const pausa = t - ultimoToque;
+    ultimoToque = t;
+    if(pausa > 5000){ lentos = 0; rapidos = 0; }
+    if(pausa >= 600){ lentos++; rapidos = 0; } else { rapidos++; lentos = 0; }
+
+    btn.classList.remove("rebota"); void btn.offsetWidth; btn.classList.add("rebota");
+
+    if(rapidos > 0){
+      btn.style.setProperty("--inflar", String(1 + Math.min(rapidos, 12) * 0.035));
+      btn.classList.add("agitado");
+      clearTimeout(tCalma);
+      tCalma = setTimeout(() => {
+        btn.classList.remove("agitado");
+        btn.style.removeProperty("--inflar");
+        rapidos = 0;
+      }, 1200);
+      if(rapidos === 4) decir(quejaLeve(), 2600);
+      else if(rapidos === 7) decir(quejaFuerte(), 2600);
+      else if(rapidos >= 11) explotar();
+    }else if(lentos >= 5){
+      lentos = 0;
+      decir(cariño(), 5600);
+    }
+  }
+  btn.addEventListener("click", tocar);
+
+  /* ---------- Arrastrar y volver despacio a su lugar ---------- */
+  const ESPERA_VOLVER = 2000; // ms antes de regresar
+  let presionado = false, movido = false, tVuelve = null, tFinVuelta = null;
+  let inicioX = 0, inicioY = 0, baseX = 0, baseY = 0, origen = null;
+
+  function traslacionActual(){
+    const m = getComputedStyle(raiz).transform;
+    const v = m && m !== "none" ? m.match(/matrix\(([^)]+)\)/) : null;
+    if(!v) return { x: 0, y: 0 };
+    const a = v[1].split(",").map(Number);
+    return { x: a[4] || 0, y: a[5] || 0 };
+  }
+  function moverA(x, y){
+    raiz.style.setProperty("--dx", x + "px");
+    raiz.style.setProperty("--dy", y + "px");
+  }
+  function limitar(v, min, max){ return Math.max(min, Math.min(max, v)); }
+  let volverAlOrigen = function(){
+    raiz.classList.add("volviendo");
+    moverA(0, 0);
+    clearTimeout(tFinVuelta);
+    tFinVuelta = setTimeout(() => raiz.classList.remove("volviendo"), 1900);
+  };
+
+  btn.addEventListener("pointerdown", (e) => {
+    if(e.button !== undefined && e.button !== 0) return;
+    clearTimeout(tVuelve);
+    clearTimeout(tFinVuelta);
+    const actual = traslacionActual();
+    moverA(actual.x, actual.y);          // fija la posición actual (si estaba regresando)
+    raiz.classList.remove("volviendo");
+    const r = raiz.getBoundingClientRect();
+    origen = { left: r.left - actual.x, top: r.top - actual.y, w: r.width, h: r.height };
+    inicioX = e.clientX; inicioY = e.clientY;
+    baseX = actual.x; baseY = actual.y;
+    presionado = true; movido = false;
+    try{ btn.setPointerCapture(e.pointerId); }catch(err){}
+  });
+  btn.addEventListener("pointermove", (e) => {
+    if(!presionado) return;
+    const mx = e.clientX - inicioX, my = e.clientY - inicioY;
+    if(!movido && Math.hypot(mx, my) < 6) return;
+    movido = true;
+    raiz.classList.add("arrastrando");
+    const izq = limitar(origen.left + baseX + mx, 4, window.innerWidth - origen.w - 4);
+    const arr = limitar(origen.top + baseY + my, 4, window.innerHeight - origen.h - 4);
+    moverA(izq - origen.left, arr - origen.top);
+  });
+  function soltar(){
+    if(!presionado) return;
+    presionado = false;
+    raiz.classList.remove("arrastrando");
+    if(movido){
+      ignorarClick = true;                 // arrastrar no cuenta como toque
+      setTimeout(() => { ignorarClick = false; }, 60);
+      clearTimeout(tVuelve);
+      tVuelve = setTimeout(volverAlOrigen, ESPERA_VOLVER);
+    }
+  }
+  btn.addEventListener("pointerup", soltar);
+  btn.addEventListener("pointercancel", soltar);
+
+  /* ---------- Efecto de globo: la cuerda se mece al moverlo ---------- */
+  let fisicaOn = false, ang = 0, velAng = 0, lastX = null, lastT = 0;
+  function pasoFisica(t){
+    const r = raiz.getBoundingClientRect();
+    const dt = Math.min(0.05, (t - lastT) / 1000 || 0.016);
+    lastT = t;
+    let vx = 0;
+    if(lastX !== null) vx = (r.left - lastX) / dt;       // px por segundo
+    lastX = r.left;
+    // objetivo: la cuerda se queda "atrás" del movimiento
+    const objetivo = Math.max(-55, Math.min(55, vx * 0.045));
+    const k = 90, c = 7;                                  // resorte con rebote
+    velAng += (-k * (ang - objetivo) - c * velAng) * dt;
+    ang += velAng * dt;
+    raiz.style.setProperty("--ang-cuerda", ang.toFixed(1) + "deg");
+    raiz.style.setProperty("--ang-cuerpo", (ang * 0.3).toFixed(1) + "deg");
+    raiz.style.setProperty("--largo-cuerda", (1 - Math.min(Math.abs(ang), 55) / 55 * 0.18).toFixed(2));
+    const quieto = !presionado && !raiz.classList.contains("volviendo") && Math.abs(ang) < 0.3 && Math.abs(velAng) < 0.5;
+    if(quieto || !visible){
+      fisicaOn = false; lastX = null; ang = 0; velAng = 0;
+      raiz.classList.remove("fisica");
+      return;
+    }
+    requestAnimationFrame(pasoFisica);
+  }
+  function arrancarFisica(){
+    if(fisicaOn) return;
+    fisicaOn = true; lastX = null; lastT = performance.now();
+    raiz.classList.add("fisica");
+    requestAnimationFrame(pasoFisica);
+  }
+  btn.addEventListener("pointerdown", arrancarFisica);
+  const _vo = volverAlOrigen;
+  volverAlOrigen = function(){ _vo(); arrancarFisica(); };
+
+  /* ---------- Estrellitas por constancia (días distintos) ---------- */
+  function estrellasPara(dias){ return dias >= 30 ? 4 : dias >= 14 ? 3 : dias >= 7 ? 2 : dias >= 3 ? 1 : 0; }
+  function registrarVisita(){
+    const u = RoboKids.usuarioActual();
+    if(!u) return;
+    const clave = "robokids_globo_" + u.id;
+    let datos = { dias: [], mostradas: 0 };
+    try{ datos = Object.assign(datos, JSON.parse(localStorage.getItem(clave)) || {}); }catch(e){}
+    const hoy = new Date().toLocaleDateString("en-CA");
+    if(!datos.dias.includes(hoy)) datos.dias.push(hoy);
+    const e = estrellasPara(datos.dias.length);
+    estrellasEl.innerHTML = Array(e).fill(icono("star", "")).join("");
+    if(e > (datos.mostradas || 0)){
+      datos.mostradas = e;
+      setTimeout(() => decir(`¡Nueva estrellita, ${nombre()}! Ya vienes ${datos.dias.length} días distintos a aprender. Eso es constancia 🌟`, 7000), 1500);
+    }
+    try{ localStorage.setItem(clave, JSON.stringify(datos)); }catch(err){}
+  }
+
+  /* ---------- Consejos automáticos (máx. 4 por sesión) ---------- */
+  function programar(){
+    clearTimeout(autoTimer);
+    if(autoCount >= 4) return;
+    autoTimer = setTimeout(() => {
+      if(visible && !ocupado && burbuja.classList.contains("oculto")){
+        decir(consejo(), 6000);
+        autoCount++;
+      }
+      programar();
+    }, 25000 + Math.random() * 30000);
+  }
+
+  window.actualizarGloboRobik = function(idPantalla){
+    const esPC = window.matchMedia("(min-width:900px) and (hover:hover)").matches;
+    visible = esPC && (idPantalla === "dashboard") && !!RoboKids.usuarioActual();
+    raiz.classList.toggle("oculto", !visible);
+    if(visible){
+      registrarVisita();
+      programar();
+    }else{
+      clearTimeout(autoTimer);
+      clearTimeout(tVuelve);
+      clearTimeout(tFinVuelta);
+      raiz.classList.remove("volviendo", "arrastrando");
+      moverA(0, 0);
+      ocultarBurbuja();
+    }
+  };
+})();
+
+
 
 /* ===========================================================
    PANTALLA: SPLASH
@@ -4222,11 +5308,20 @@ document.getElementById("ingresar-volver").onclick = () => mostrarPasoSplash(pas
 document.getElementById("link-profesor").onclick = () => mostrarPantalla("profesor-login");
 
 let avatarElegido = "robot";
+let colorElegido = "#1CB0F6";
 document.querySelectorAll(".avatar-opcion").forEach(el => {
   el.onclick = () => {
     document.querySelectorAll(".avatar-opcion").forEach(o => o.classList.remove("selec"));
     el.classList.add("selec");
     avatarElegido = el.dataset.avatar;
+  };
+});
+
+document.querySelectorAll("#color-grid .color-opcion").forEach(el => {
+  el.onclick = () => {
+    document.querySelectorAll("#color-grid .color-opcion").forEach(o => o.classList.remove("selec"));
+    el.classList.add("selec");
+    colorElegido = el.dataset.color;
   };
 });
 
@@ -4238,7 +5333,7 @@ document.getElementById("paso-crear").addEventListener("submit", async (e) => {
   const boton = document.getElementById("crear-submit");
   boton.disabled = true; boton.textContent = "Creando...";
   try{
-    const res = await RoboKids.crearUsuario(nombre, pin, avatarElegido);
+    const res = await RoboKids.crearUsuario(nombre, pin, avatarElegido, colorElegido);
     if(!res.ok){ errorBox.textContent = res.error; errorBox.classList.remove("oculto"); return; }
     errorBox.classList.add("oculto");
     mostrarPantalla("dashboard");
@@ -4344,6 +5439,7 @@ function initDashboard(){
   const usuario = RoboKids.usuarioActual();
   if(!usuario){ mostrarPantalla("splash"); return; }
   if(typeof marcarNavActiva === "function") marcarNavActiva('ruta');
+  aplicarPersonalizacion();
 
   const equipoChip = document.getElementById("equipo-chip");
   if(usuario.equipoId){
@@ -4361,7 +5457,7 @@ function initDashboard(){
   }
 
   document.getElementById("topbar-brand").innerHTML = `
-    <span class="logo-badge" style="width:38px;height:38px;border-radius:12px;">${icono('robot','')}</span>
+    <span class="logo-badge" style="width:38px;height:38px;border-radius:12px;">${icono(usuario.avatar || 'robot','')}</span>
     <div class="topbar-saludo">
       <span class="saludo-linea1">${saludoSegunHora()}, ${usuario.nombre} 👋</span>
       <span class="saludo-linea2">Bienvenido de nuevo a RoboKids</span>
@@ -4449,6 +5545,8 @@ function initProgreso(){
       </div>
     </div>
 
+    ${htmlEstiloUsuario(usuario)}
+
     <div class="progreso-stats">
       <div class="progreso-stat-card">${icono('star')}<div><div class="pstat-num">${usuario.puntos || 0}</div><div class="pstat-label">Puntos</div></div></div>
       <div class="progreso-stat-card">${icono('flame')}<div><div class="pstat-num">${usuario.racha || 0}</div><div class="pstat-label">Racha</div></div></div>
@@ -4498,6 +5596,35 @@ function initActividades(){
   renderActividades();
 }
 
+function renderProyectosMicrobit(){
+  if(typeof PROYECTOS_MICROBIT === "undefined" || PROYECTOS_MICROBIT.length === 0) return "";
+  const tarjeta = (g) => {
+    const pendiente = !g.proyecto;
+    return `
+      <div class="proy-card ${pendiente ? 'pendiente' : ''}">
+        <div class="proy-card-top">
+          <span class="icon-badge">${icono(pendiente ? 'help' : (g.icono || 'box'))}</span>
+          <div>
+            <div class="proy-nombre">${pendiente ? 'Proyecto por elegir' : g.proyecto}</div>
+            ${g.nota ? `<div class="proy-nota">${g.nota}</div>` : ''}
+          </div>
+        </div>
+        <div class="proy-integrantes">${g.integrantes.map(n => `<span class="proy-chip">${n}</span>`).join("")}</div>
+      </div>
+    `;
+  };
+  const parejas = PROYECTOS_MICROBIT.filter(g => g.tipo === "pareja");
+  const solos = PROYECTOS_MICROBIT.filter(g => g.tipo === "solo");
+  return `
+    <div class="proy-seccion">
+      <div class="proy-titulo">${icono('users')}Proyectos micro:bit</div>
+      <div class="proy-sub">Cada equipo y su proyecto.</div>
+      ${parejas.length ? `<div class="proy-grupo-titulo">En parejas</div><div class="proy-grid">${parejas.map(tarjeta).join("")}</div>` : ''}
+      ${solos.length ? `<div class="proy-grupo-titulo">Individual</div><div class="proy-grid">${solos.map(tarjeta).join("")}</div>` : ''}
+    </div>
+  `;
+}
+
 function renderActividades(){
   const cont = document.getElementById("contenido-actividades");
   const modulosConActividades = MODULOS.filter(m => actividadesDeModulo(m.id).length > 0);
@@ -4543,7 +5670,8 @@ function renderActividades(){
     `;
   }).join("");
 
-  cont.innerHTML = chips + `<div class="actividades-lista">${tarjetas}</div>`;
+  const mostrarProyectos = (filtroActividades === "todos" || filtroActividades === "microbit");
+  cont.innerHTML = chips + `<div class="actividades-lista">${mostrarProyectos ? renderProyectosMicrobit() : ''}${tarjetas}</div>`;
 
   cont.querySelectorAll(".actividad-chip").forEach(chip => {
     chip.onclick = () => { filtroActividades = chip.dataset.filtro; renderActividades(); };
