@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="RoboKids">
-<link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjoiUm9ib0tpZHMgLSBBcHJlbmRlIHJvYm90aWNhIGp1Z2FuZG8iLCJzaG9ydF9uYW1lIjoiUm9ib0tpZHMiLCJzdGFydF91cmwiOiIuL2luZGV4Lmh0bWwiLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjMUNCMEY2IiwidGhlbWVfY29sb3IiOiIjMUNCMEY2IiwiaWNvbnMiOlt7InNyYyI6Ii4vcm9ib3QucG5nIiwic2l6ZXMiOiI1MTJ4NTEyIiwidHlwZSI6ImltYWdlL3BuZyIsInB1cnBvc2UiOiJhbnkifV19">
+<link rel="manifest" id="manifest-link">
 <title>RoboKids · Aprende robótica jugando</title>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
@@ -310,6 +310,19 @@ table.tabla-estudiantes{ width:100%; border-collapse:collapse; background:#11182
 .badge-mod.completo{ background:#16A34A; }
 .badge-mod.progreso{ background:#CA8A04; }
 .badge-mod.vacio{ background:#1E293B; color:#475569; }
+.filtros-profesor{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
+.filtro-chip{ background:#111827; color:#94A3B8; border:1px solid #1E293B; border-radius:999px; padding:8px 14px; font:inherit; font-weight:800; font-size:.8rem; cursor:pointer; }
+.filtro-chip b{ background:#1E293B; color:#E2E8F0; border-radius:999px; padding:1px 8px; margin-left:4px; }
+.filtro-chip.activo{ background:#0C4A6E; color:#fff; border-color:#38BDF8; }
+.filtro-chip.activo b{ background:#38BDF8; color:#0F172A; }
+.vez-chip{ display:inline-block; border-radius:999px; padding:3px 10px; font-weight:800; font-size:.76rem; background:#1E293B; color:#94A3B8; }
+.vez-chip.vez-ok{ background:rgba(22,163,74,.18); color:#4ADE80; }
+.vez-chip.vez-aviso{ background:rgba(202,138,4,.2); color:#FACC15; }
+.vez-chip.vez-alerta{ background:rgba(239,68,68,.2); color:#F87171; }
+.quiz-prom{ font-weight:800; color:#CBD5E1; }
+.quiz-prom.quiz-bajo{ color:#F87171; }
+.quiz-prom.quiz-alto{ color:#4ADE80; }
+.resumen-chip.chip-alerta{ color:#FCA5A5; border-color:#7F1D1D; }
 .profesor-empty{ text-align:center; color:#64748B; padding:60px 20px; font-weight:700; }
 .estudiante-nombre{ display:flex; align-items:center; gap:8px; font-weight:800; }
 
@@ -1437,7 +1450,7 @@ button:active, .nodo:not(.bloqueado):active, .tab:not(.bloqueado):active,
                             && request.resource.data.racha is int;
               allow update: if request.resource.data.diff(resource.data)
                               .affectedKeys()
-                              .hasOnly(['puntos','racha','progreso','equipoId','color','avatar']);
+                              .hasOnly(['puntos','racha','progreso','equipoId','color','avatar','ultimoAcceso']);
               // Permite SOLO la migración automática de cuentas viejas (creadas antes del
               // hash): se puede reescribir pin+sal una única vez, y solo si el documento
               // todavía NO tiene el campo 'sal'. Una vez migrada, esta regla ya no aplica.
@@ -4387,13 +4400,13 @@ function actividadesDeModulo(moduloId){
    =========================================================== */
 const PROYECTOS_MICROBIT = [
   { tipo:"pareja", integrantes:["Matías","Sebastián"], proyecto:"Carro dirigido por radio", icono:"dish" },
-  { tipo:"pareja", integrantes:["Luciana","Dahiana"], proyecto:"", icono:"help" },
+  { tipo:"pareja", integrantes:["Luciana","Dahiana"], proyecto:"Mini videojuego: Mario Bros", icono:"gamepad" },
   { tipo:"pareja", integrantes:["Juliana","María Fernanda"], proyecto:"Mascota de emojis", icono:"sparkle" },
   { tipo:"pareja", integrantes:["Yotselys","Sofía"], proyecto:"Dado electrónico", icono:"grid" },
   { tipo:"pareja", integrantes:["Juan Pablo","Jhoan Camilo"], proyecto:"Mini videojuego: nave espacial que esquiva", icono:"gamepad" },
   { tipo:"pareja", integrantes:["Samantha","Luciana"], proyecto:"Mini videojuego: nave espacial que dispara", icono:"gamepad" },
   { tipo:"pareja", integrantes:["Shelsy","Samuel"], proyecto:"Mini videojuego: Snake", icono:"gamepad" },
-  { tipo:"pareja", integrantes:["Cristian","Luciana Medina"], proyecto:"", icono:"help" },
+  { tipo:"pareja", integrantes:["Cristian","Luciana Medina"], proyecto:"Mini videojuego: el gusanito", icono:"gamepad" },
   { tipo:"solo", integrantes:["Jacobo"], proyecto:"Mini videojuego", nota:"Falta definir cuál", icono:"gamepad" },
   { tipo:"solo", integrantes:["Joshua"], proyecto:"Robot que evita obstáculos", icono:"robot" },
   { tipo:"solo", integrantes:["Gabriela"], proyecto:"Dado electrónico", icono:"grid" },
@@ -4585,6 +4598,7 @@ const RoboKids = {
       const doc = await db.collection(COL_USUARIOS).doc(id).get();
       if(!doc.exists){ this._usuario = null; return null; }
       this._usuario = Object.assign({ id: doc.id }, doc.data());
+      this.marcarAcceso(doc.id, this._usuario.ultimoAcceso);
       return this._usuario;
     }catch(e){
       console.error("Error cargando usuario:", e);
@@ -4594,7 +4608,17 @@ const RoboKids = {
   },
 
   usuarioActual(){ return this._usuario; },
-  iniciarSesion(id){ localStorage.setItem(RK_SESSION_KEY, id); },
+  iniciarSesion(id){ localStorage.setItem(RK_SESSION_KEY, id); this.marcarAcceso(id); },
+  // Anota cuándo entró el estudiante por última vez (para el panel del profesor).
+  // Se guarda como máximo una vez por hora. Si las reglas de Firestore aún no
+  // permiten el campo 'ultimoAcceso', simplemente no se guarda y todo sigue igual.
+  marcarAcceso(id, ultimo){
+    try{
+      if(ultimo && Date.now() - ultimo < 3600000) return;
+      db.collection(COL_USUARIOS).doc(id).set({ ultimoAcceso: Date.now() }, { merge:true })
+        .catch(e => console.warn("No se pudo anotar el último acceso:", e));
+    }catch(e){}
+  },
   cerrarSesion(){ localStorage.removeItem(RK_SESSION_KEY); this._usuario = null; if(typeof resetPersonalizacion === "function") resetPersonalizacion(); },
 
   async crearUsuario(nombre, pin, avatar, color){
@@ -4907,6 +4931,57 @@ function ponerFavicon(avatar, color){
   }
 }
 
+/* ---------- Manifiesto de la app (instalable) generado desde aquí ----------
+   Así no hace falta un archivo aparte: el nombre y el ícono de la app instalada
+   son el ícono y el color que eligió cada niño. Chrome toma una "foto" del ícono
+   en el momento de instalar. */
+let _manifestUrl = null, _manifestTok = 0;
+function svgIconoApp(avatar, color){
+  const trazos = ICONOS[avatar] || ICONOS.robot;
+  return '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">' +
+    '<rect width="64" height="64" fill="' + color + '"/>' +
+    '<g transform="translate(14 14) scale(1.5)" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + trazos + '</g></svg>';
+}
+function ponerManifest(avatar, color){
+  const link = document.getElementById("manifest-link");
+  if(!link) return;
+  const tok = ++_manifestTok;
+  const img = new Image();
+  img.onload = () => {
+    if(tok !== _manifestTok) return;
+    try{
+      const png = (n) => {
+        const c = document.createElement("canvas");
+        c.width = c.height = n;
+        c.getContext("2d").drawImage(img, 0, 0, n, n);
+        return c.toDataURL("image/png");
+      };
+      const inicio = new URL("./index.html", location.href).href;
+      const manifiesto = {
+        name: "RoboKids - Aprende robótica jugando",
+        short_name: "RoboKids",
+        lang: "es",
+        id: inicio,
+        start_url: inicio,
+        scope: new URL("./", location.href).href,
+        display: "standalone",
+        background_color: color,
+        theme_color: color,
+        icons: [
+          { src: png(192), sizes: "192x192", type: "image/png", purpose: "any" },
+          { src: png(512), sizes: "512x512", type: "image/png", purpose: "any" },
+          { src: png(512), sizes: "512x512", type: "image/png", purpose: "maskable" }
+        ]
+      };
+      const url = URL.createObjectURL(new Blob([JSON.stringify(manifiesto)], { type: "application/manifest+json" }));
+      link.setAttribute("href", url);
+      if(_manifestUrl) URL.revokeObjectURL(_manifestUrl);
+      _manifestUrl = url;
+    }catch(e){ console.warn("No se pudo generar el manifiesto:", e); }
+  };
+  img.src = "data:image/svg+xml," + encodeURIComponent(svgIconoApp(avatar, color));
+}
+
 function aplicarPersonalizacion(){
   const u = RoboKids.usuarioActual();
   if(!u) return;
@@ -4917,6 +4992,7 @@ function aplicarPersonalizacion(){
   const meta = document.getElementById("theme-color-meta");
   if(meta) meta.setAttribute("content", p.color);
   ponerFavicon(p.avatar, p.color);
+  ponerManifest(p.avatar, p.color);
 }
 
 function resetPersonalizacion(){
@@ -4927,6 +5003,7 @@ function resetPersonalizacion(){
   const apple = document.getElementById("apple-icon-link");
   if(link){ link.type = "image/png"; link.href = "./robot.png"; }
   if(apple){ apple.href = "./robot.png"; }
+  ponerManifest("robot", COLOR_POR_DEFECTO);
 }
 
 async function guardarPersonalizacion(cambios){
@@ -4984,6 +5061,7 @@ function construirFondoDeco(){
   ).join("");
 }
 construirFondoDeco();
+ponerManifest("robot", COLOR_POR_DEFECTO);
 
 /* ===========================================================
    GLOBO ROBIK — mascota del fondo del dashboard
@@ -6205,6 +6283,8 @@ async function cargarProfesorPanel(){
     <div class="resumen-chip">${icono('users')}${estudiantes.length} estudiantes</div>
     <div class="resumen-chip">${icono('checkcircle')}${totalCompletados} temas completados en total</div>
     <div class="resumen-chip">${icono('star')}${promedioPuntos} puntos promedio</div>
+    <div class="resumen-chip ${estudiantes.filter(sinEntrar).length ? 'chip-alerta' : ''}">${icono('warning')}${estudiantes.filter(sinEntrar).length} sin entrar en 7+ días</div>
+    <div class="resumen-chip ${estudiantes.filter(necesitaAyuda).length ? 'chip-alerta' : ''}">${icono('target')}${estudiantes.filter(necesitaAyuda).length} necesitan ayuda en quizzes</div>
   `;
 
   // ---- Ranking: mejores 5 ----
@@ -6224,8 +6304,50 @@ async function cargarProfesorPanel(){
     </div>
   `;
 
-  // ---- Tabla completa ----
-  const filas = estudiantes.map((es, idx) => {
+  pintarTablaProfesor();
+}
+
+/* ---------- Seguimiento: última vez, quizzes y alertas ---------- */
+let filtroProfesor = "todos";
+function diasDesde(ts){ return ts ? Math.max(0, Math.floor((Date.now() - ts) / 86400000)) : null; }
+function textoUltimaVez(ts){
+  const d = diasDesde(ts);
+  if(d === null) return "Sin registro";
+  return d === 0 ? "Hoy" : d === 1 ? "Ayer" : `Hace ${d} días`;
+}
+function quizzesDe(es){
+  return MODULOS.map(m => ({ m, nota: (es.progreso && es.progreso[m.id] && es.progreso[m.id].quizMejorPuntaje) || 0 }));
+}
+function promedioQuiz(es){
+  const v = quizzesDe(es).map(q => q.nota).filter(n => n > 0);
+  return v.length ? Math.round(v.reduce((a,b) => a + b, 0) / v.length) : null;
+}
+function haAvanzado(es){
+  return MODULOS.some(m => { const p = es.progreso && es.progreso[m.id]; return p && (p.claseVista || p.labHecho || p.completado); });
+}
+function sinEntrar(es){ const d = diasDesde(es.ultimoAcceso); return d === null || d >= 7; }
+function necesitaAyuda(es){ const p = promedioQuiz(es); return p !== null && p < 60; }
+const FILTROS_PROFESOR = [
+  { id:"todos",  texto:"Todos",                 ok: () => true },
+  { id:"inactivos", texto:"Sin entrar (7+ días)", ok: sinEntrar },
+  { id:"sinavance", texto:"Sin avance",         ok: es => !haAvanzado(es) },
+  { id:"ayuda",  texto:"Necesitan ayuda (quiz < 60%)", ok: necesitaAyuda }
+];
+
+function pintarTablaProfesor(){
+  const wrap = document.getElementById("profesor-tabla-wrap");
+  const estudiantes = ultimosEstudiantesCargados;
+  const equipos = ultimosEquiposCargados;
+  const filtro = FILTROS_PROFESOR.find(f => f.id === filtroProfesor) || FILTROS_PROFESOR[0];
+
+  const barra = `<div class="filtros-profesor">` + FILTROS_PROFESOR.map(f => {
+    const n = estudiantes.filter(f.ok).length;
+    return `<button type="button" class="filtro-chip ${f.id === filtro.id ? "activo" : ""}" data-filtro="${f.id}">${f.texto} <b>${n}</b></button>`;
+  }).join("") + `</div>`;
+
+  const visibles = estudiantes.map((es, idx) => ({ es, idx })).filter(x => filtro.ok(x.es));
+
+  const filas = visibles.map(({ es, idx }) => {
     const badges = MODULOS.map(m => {
       const p = es.progreso && es.progreso[m.id];
       let clase = "vacio", simbolo = "–";
@@ -6238,11 +6360,18 @@ async function cargarProfesorPanel(){
       `<option value="${eq.id}" ${es.equipoId === eq.id ? "selected" : ""}>${eq.nombre}</option>`
     ).join("");
 
+    const d = diasDesde(es.ultimoAcceso);
+    const claseVez = d === null ? "vez-sinreg" : d >= 7 ? "vez-alerta" : d >= 3 ? "vez-aviso" : "vez-ok";
+    const prom = promedioQuiz(es);
+    const claseProm = prom === null ? "" : prom < 60 ? "quiz-bajo" : prom >= 85 ? "quiz-alto" : "";
+
     return `
       <tr class="fila-estudiante" data-idx="${idx}">
         <td><div class="estudiante-nombre"><span class="icon-badge chico">${icono(es.avatar || 'robot')}</span> ${es.nombre}</div></td>
         <td>${icono('star')}${es.puntos || 0}</td>
         <td>${icono('flame')}${es.racha || 0}</td>
+        <td><span class="vez-chip ${claseVez}">${textoUltimaVez(es.ultimoAcceso)}</span></td>
+        <td><span class="quiz-prom ${claseProm}">${prom === null ? "–" : prom + "%"}</span></td>
         <td onclick="event.stopPropagation()">
           <select class="selector-equipo-estudiante" data-usuario-id="${es.id}">${opcionesEquipo}</select>
         </td>
@@ -6251,26 +6380,29 @@ async function cargarProfesorPanel(){
     `;
   }).join("");
 
-  wrap.innerHTML = `
+  wrap.innerHTML = barra + (visibles.length ? `
     <table class="tabla-estudiantes">
       <thead>
         <tr>
           <th>Estudiante</th>
           <th>Puntos</th>
           <th>Racha</th>
+          <th>Última vez</th>
+          <th>Quiz prom.</th>
           <th>Equipo</th>
           <th>Progreso por tema (toca una fila para ver el detalle)</th>
         </tr>
       </thead>
       <tbody>${filas}</tbody>
-    </table>
-  `;
+    </table>` : `<p class="profesor-empty">Nadie en esta lista 🎉</p>`);
 
-  document.querySelectorAll(".fila-estudiante").forEach(fila => {
+  wrap.querySelectorAll(".filtro-chip").forEach(b => {
+    b.onclick = () => { filtroProfesor = b.dataset.filtro; pintarTablaProfesor(); };
+  });
+  wrap.querySelectorAll(".fila-estudiante").forEach(fila => {
     fila.onclick = () => mostrarDetalleEstudiante(estudiantes[parseInt(fila.dataset.idx)]);
   });
-
-  document.querySelectorAll(".selector-equipo-estudiante").forEach(sel => {
+  wrap.querySelectorAll(".selector-equipo-estudiante").forEach(sel => {
     sel.onclick = (e) => e.stopPropagation();
     sel.onchange = async () => {
       const r = await RoboKids.asignarEquipo(sel.dataset.usuarioId, sel.value || null);
@@ -6357,6 +6489,8 @@ function mostrarDetalleEstudiante(es){
     <div class="modal-stats">
       <div class="resumen-chip" style="color:var(--azul-dark);background:var(--gris-100);border:none;">${icono('star')}${es.puntos || 0} puntos</div>
       <div class="resumen-chip" style="color:var(--azul-dark);background:var(--gris-100);border:none;">${icono('flame')}${es.racha || 0} de racha</div>
+      <div class="resumen-chip" style="color:var(--azul-dark);background:var(--gris-100);border:none;">${icono('clock' in ICONOS ? 'clock' : 'refresh')}Última vez: ${textoUltimaVez(es.ultimoAcceso)}</div>
+      <div class="resumen-chip" style="color:var(--azul-dark);background:var(--gris-100);border:none;">${icono('target')}Quiz promedio: ${promedioQuiz(es) === null ? "–" : promedioQuiz(es) + "%"}</div>
     </div>
     ${logros.length ? `
       <div class="modal-logros">
@@ -6371,7 +6505,7 @@ function mostrarDetalleEstudiante(es){
 
 function exportarEstudiantesCSV(estudiantes){
   if(!estudiantes || estudiantes.length === 0){ alert("Todavía no hay estudiantes para exportar."); return; }
-  const encabezado = ["Nombre","Puntos","Racha","Equipo", ...MODULOS.map(m => m.nombre)];
+  const encabezado = ["Nombre","Puntos","Racha","Última vez","Quiz promedio","Equipo", ...MODULOS.map(m => m.nombre), ...MODULOS.map(m => "Quiz " + m.nombre)];
   const filas = estudiantes.map(es => {
     const cols = MODULOS.map(m => {
       const p = es.progreso && es.progreso[m.id];
@@ -6380,7 +6514,8 @@ function exportarEstudiantesCSV(estudiantes){
       return "Sin empezar";
     });
     const nombreEquipo = (ultimosEquiposCargados.find(eq => eq.id === es.equipoId) || {}).nombre || "";
-    return [es.nombre, es.puntos || 0, es.racha || 0, nombreEquipo, ...cols];
+    const prom = promedioQuiz(es);
+    return [es.nombre, es.puntos || 0, es.racha || 0, textoUltimaVez(es.ultimoAcceso), prom === null ? "" : prom + "%", nombreEquipo, ...cols, ...quizzesDe(es).map(q => q.nota ? q.nota + "%" : "")];
   });
   const filasCSV = [encabezado, ...filas].map(fila =>
     fila.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",")
@@ -7352,6 +7487,14 @@ bucle() {
 
 })();
 
+</script>
+<script>
+/* Registro del service worker (necesario para poder instalar la app) */
+if("serviceWorker" in navigator && location.protocol.startsWith("http")){
+  window.addEventListener("load", function(){
+    navigator.serviceWorker.register("./sw.js").catch(function(e){ console.warn("SW no registrado:", e); });
+  });
+}
 </script>
 </body>
 </html>
