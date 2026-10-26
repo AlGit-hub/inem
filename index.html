@@ -1198,6 +1198,7 @@ button:active, .nodo:not(.bloqueado):active, .tab:not(.bloqueado):active,
   <div class="leccion-top">
     <button class="cerrar-btn" id="btn-cerrar-actividades"></button>
     <div class="topbar-brand" style="border:none;">Actividades</div>
+    <button class="btn btn-amarillo btn-sm" id="btn-avisos" style="margin-left:auto;"></button>
   </div>
   <div class="contenido" id="contenido-actividades" style="overflow:auto;"></div>
 </div>
@@ -1417,6 +1418,10 @@ button:active, .nodo:not(.bloqueado):active, .tab:not(.bloqueado):active,
 <!-- =========================================================
      PANTALLA: DETALLE DE UN ESTUDIANTE (dentro del panel de profesor)
      ========================================================= -->
+<div id="modal-avisos" class="modal-fondo oculto">
+  <div class="modal-caja" id="modal-avisos-contenido"></div>
+</div>
+
 <div id="modal-detalle-estudiante" class="modal-fondo oculto">
   <div class="modal-caja" id="modal-detalle-contenido"></div>
 </div>
@@ -4380,6 +4385,37 @@ void loop() {
     "codigo": `from microbit import *
 
 display.scroll("Hola RoboKids")`
+  },
+  {
+    "moduloId": "codigo",
+    "titulo": "VSCode",
+    "descripcion": "Primer programa en HTML escrito en Visual Studio Code: un título, un campo de texto y un botón que muestra una ventana emergente con lo que escribiste.",
+    "tinkercadUrl": "",
+    "lenguaje": "HTML",
+    "codigo": `<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title> Primer Programa de HTML</title> <!-- Esto es el nombre de la Página -->
+    </head>
+    <body>
+        <h1> Hola Mundo </h1>
+        <label> for="nombre">Escribe algo: </label>
+        <input type"text" id="nombre">
+
+        <!--Mostar lo guargado-->
+        <!--1. Botón a presionar-->
+        <buttom> onclick="saludar()">Click!</buttom>
+
+        <!--2. Ventana Emergente-->
+        <script>
+            function saludar(){
+                let texto = document.getElemetById("nombre").value;
+                alert("Hola! Escribiste: " + texto);
+            }
+        <\/script>
+    </body>
+</html>`
   }
 ];
 
@@ -4399,18 +4435,17 @@ function actividadesDeModulo(moduloId){
      - icono: clave de ICONOS (ej. "dish", "gamepad", "robot")
    =========================================================== */
 const PROYECTOS_MICROBIT = [
-  { tipo:"pareja", integrantes:["Matías","Sebastián"], proyecto:"Carro dirigido por radio", icono:"dish" },
-  { tipo:"pareja", integrantes:["Luciana","Dahiana"], proyecto:"Mini videojuego: Mario Bros", icono:"gamepad" },
-  { tipo:"pareja", integrantes:["Juliana","María Fernanda"], proyecto:"Mascota de emojis", icono:"sparkle" },
-  { tipo:"pareja", integrantes:["Yotselys","Sofía"], proyecto:"Dado electrónico", icono:"grid" },
-  { tipo:"pareja", integrantes:["Juan Pablo","Jhoan Camilo"], proyecto:"Mini videojuego: nave espacial que esquiva", icono:"gamepad" },
-  { tipo:"pareja", integrantes:["Samantha","Luciana"], proyecto:"Mini videojuego: nave espacial que dispara", icono:"gamepad" },
-  { tipo:"pareja", integrantes:["Shelsy","Samuel"], proyecto:"Mini videojuego: Snake", icono:"gamepad" },
-  { tipo:"pareja", integrantes:["Cristian","Luciana Medina"], proyecto:"Mini videojuego: el gusanito", icono:"gamepad" },
-  { tipo:"solo", integrantes:["Jacobo"], proyecto:"Mini videojuego", nota:"Falta definir cuál", icono:"gamepad" },
-  { tipo:"solo", integrantes:["Joshua"], proyecto:"Robot que evita obstáculos", icono:"robot" },
-  { tipo:"solo", integrantes:["Gabriela"], proyecto:"Dado electrónico", icono:"grid" },
-  { tipo:"solo", integrantes:["María de los Ángeles"], proyecto:"", icono:"help" }
+  { tipo:"pareja", integrantes:["Luciana","Dahiana"], proyecto:"Mini videojuego: Dado Electrónico 🟢", icono:"gamepad" },
+  { tipo:"pareja", integrantes:["Juliana","María Fernanda"], proyecto:"Mascota de emojis 🟢", icono:"sparkle" },
+  { tipo:"pareja", integrantes:["Yotselys","Sofía"], proyecto:"Dado electrónico 🟢V", icono:"grid" },
+  { tipo:"pareja", integrantes:["Matías","Sebastián","Jhoan Camilo"], proyecto:"Mini videojuego: nave espacial que esquiva 🟢V", icono:"gamepad" },
+  { tipo:"pareja", integrantes:["Samantha","Luciana"], proyecto:"Mini videojuego: nave espacial que dispara 🟢V", icono:"gamepad" },
+  { tipo:"pareja", integrantes:["Cristian","Luciana Medina"], proyecto:"Mini videojuego: el gusanito 🟢V", icono:"gamepad" },
+  { tipo:"solo", integrantes:["Jacobo"], proyecto:"Mini videojuego: Catch the Box 🟢V", icono:"gamepad" },
+  { tipo:"solo", integrantes:["Joshua"], proyecto:"Robot que evita obstáculos", nota:"No ha ingresado a Clases", icono:"robot" },
+  { tipo:"solo", integrantes:["Gabriela"], proyecto:"Dado electrónico 🟢", icono:"grid" },
+  { tipo:"solo", integrantes:["María de los Ángeles"], proyecto:"", icono:"help" },
+  { tipo:"solo", integrantes:["Shelsy"], proyecto:"Mini videojuego: Snake 🟢", icono:"gamepad" },
 ];
 
 const ICONOS = {
@@ -5665,6 +5700,27 @@ function initProgreso(){
    PANTALLA: ACTIVIDADES
    =========================================================== */
 document.getElementById("btn-cerrar-actividades").innerHTML = icono('close');
+/* ---------- Avisos (Actividades) ----------
+   Para editar los avisos, cambia la lista AVISOS. */
+const AVISOS = [
+  "Clausuras: 14 de Noviembre (Stand) y 27 de Noviembre (Videos)"
+];
+document.getElementById("btn-avisos").innerHTML = icono('warning','class="icon-inline"') + "Avisos";
+function cerrarAvisos(){ document.getElementById("modal-avisos").classList.add("oculto"); }
+document.getElementById("btn-avisos").onclick = () => {
+  document.getElementById("modal-avisos-contenido").innerHTML = `
+    <div class="modal-header">
+      <div class="estudiante-nombre" style="font-size:1.2rem;"><span class="icon-badge amarillo">${icono('warning')}</span> Avisos</div>
+      <button class="cerrar-btn" id="avisos-cerrar">${icono('close')}</button>
+    </div>
+    <div class="detalle-modulos-lista">
+      ${AVISOS.map(t => `<div class="detalle-modulo"><span class="detalle-modulo-nombre">${t}</span></div>`).join("")}
+    </div>
+  `;
+  document.getElementById("avisos-cerrar").onclick = cerrarAvisos;
+  document.getElementById("modal-avisos").classList.remove("oculto");
+};
+document.getElementById("modal-avisos").addEventListener("click", (e) => { if(e.target.id === "modal-avisos") cerrarAvisos(); });
 document.getElementById("btn-cerrar-actividades").onclick = () => { mostrarPantalla("dashboard"); initDashboard(); };
 
 let filtroActividades = "todos";
