@@ -4416,6 +4416,82 @@ display.scroll("Hola RoboKids")`
         <\/script>
     </body>
 </html>`
+  },
+  {
+    "moduloId": "codigo",
+    "titulo": "If y Else: tomando decisiones",
+    "descripcion": "Segundo programa en HTML: un campo de texto y dos botones. 'Saludar' usa if / else para decidir qué mostrar (si no escribiste tu nombre, te lo pide; si lo escribiste, te saluda). 'Cambiar color' usa un arreglo de colores y un if para volver al primer color al llegar al final de la lista.",
+    "tinkercadUrl": "",
+    "lenguaje": "HTML + CSS + JavaScript",
+    "codigo": `<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Segundo Programa de HTML</title>
+
+        <!-- CSS: aquí le damos estilo a la página -->
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                text-align: center;
+                background-color: lightblue;
+            }
+            h1 {
+                color: blue;
+            }
+            input, button {
+                font-size: 18px;
+                padding: 8px;
+                margin: 5px;
+            }
+            #mensaje {
+                font-size: 28px;
+                color: darkgreen;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Bienvenido a la Programación</h1>
+
+        <!-- 1. Un espacio para escribir -->
+        <label for="nombre">¿Cómo te llamas?</label>
+        <input type="text" id="nombre">
+
+        <!-- 2. Dos botones -->
+        <button onclick="saludar()">Saludar</button>
+        <button onclick="cambiarColor()">Cambiar color</button>
+
+        <!-- 3. Aquí aparecerá el mensaje -->
+        <p id="mensaje"></p>
+
+        <script>
+            // Función que saluda
+            function saludar() {
+                let nombre = document.getElementById("nombre").value;
+
+                // if / else: Tomar una decisión
+                if (nombre == "") {
+                    document.getElementById("mensaje").innerText = "Primero escribe tu nombre 😊";
+                } else {
+                    document.getElementById("mensaje").innerText = "¡Hola, " + nombre + "! Bienvenido a la programación.";
+                }
+            }
+
+            // Lista de colores (un arreglo) y una variable para llevar la cuenta
+            let colores = ["lightblue", "lightgreen", "pink", "yellow", "orange", "violet"];
+            let posicion = 0;
+
+            // Función que cambia el color de fondo
+            function cambiarColor() {
+                posicion = posicion + 1;
+                if (posicion == colores.length) {
+                    posicion = 0; // VUelve al primer color
+                }
+                document.body.style.backgroundColor = colores[posicion];
+            }
+        <\/script>
+    </body>
+</html>`
   }
 ];
 
